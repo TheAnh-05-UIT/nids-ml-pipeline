@@ -1,0 +1,104 @@
+# Keep source and examples; exclude local data, generated files and secrets.
+# Giữ source và ví dụ; loại dữ liệu local, file sinh ra và secrets khỏi Git.
+# Only README.md documentation is included in Git at every source directory.
+# Chỉ giữ tài liệu README.md trong Git; Markdown tên khác được giữ local.
+*.md
+!README.md
+
+# Dataset và dữ liệu dẫn xuất: chỉ giữ hướng dẫn và markers thư mục.
+/data/**
+!/data/**/
+!/data/README.md
+!/data/**/.gitkeep
+
+# Không đưa outputs runtime, manifests thực nghiệm hoặc checkpoints vào Git.
+/artifacts/**
+!/artifacts/**/
+!/artifacts/README.md
+!/artifacts/**/.gitkeep
+
+# Môi trường Python, cache và metadata đóng gói.
+.venv/
+venv/
+env/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+.coverage.*
+htmlcov/
+build/
+dist/
+*.egg-info/
+
+# Ngăn lưu nhầm dataset hoặc model binary ở ngoài các thư mục quy định.
+*.csv
+*.tsv
+*.parquet
+*.feather
+*.arrow
+*.npy
+*.npz
+*.pkl
+*.pickle
+*.joblib
+*.h5
+*.hdf5
+*.keras
+*.onnx
+*.pt
+*.pth
+*.ckpt
+*.ckpt.*
+*.pb
+*.tflite
+# PCAP và index phát sinh cũng không được commit nếu nằm ngoài data/artifacts.
+*.pcap
+*.pcapng
+*.cap
+*.pcap.gz
+*.pcapng.gz
+*.sqlite
+*.sqlite3
+*.sqlite-journal
+*.sqlite-wal
+*.sqlite-shm
+*.sqlite3-journal
+*.sqlite3-wal
+*.sqlite3-shm
+*.zip
+*.tar
+*.tar.gz
+*.tgz
+*.7z
+
+# Notebook vẫn có thể lưu source; cache và outputs lớn không được theo dõi.
+.ipynb_checkpoints/
+/experiments/**/outputs/
+/notebooks/outputs/
+/logs/
+*.log
+
+# File tạm/editor và staging của writer; giữ dependency lock có chủ đích.
+*.tmp
+*.temp
+*.bak
+*.orig
+*.rej
+*.swp
+*.swo
+*~
+.*.pending-*/
+
+# Cấu hình cá nhân và secrets; chỉ cho phép env example được rà soát.
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/

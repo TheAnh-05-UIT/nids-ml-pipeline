@@ -1,0 +1,37 @@
+# Package metadata, console entry points and optional dependencies.
+# Metadata package, các lệnh CLI và dependencies tùy chọn.
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "nids-ml-pipeline"
+version = "0.1.0.dev0"
+description = "Workspace phát triển pipeline học máy cho phát hiện xâm nhập mạng."
+readme = "README.md"
+requires-python = ">=3.11"
+# Core audit tools use the standard library; native ML dependencies are optional.
+# Công cụ audit lõi dùng stdlib; dependencies ML/native được chọn riêng.
+dependencies = []
+
+[project.optional-dependencies]
+# Chỉ người dùng exporter mới cần extra này; data tools không tự kéo HDF5/ML.
+# Pins đã kiểm local; chưa là transitive lock hoặc native ARM64 validation.
+hdf5 = ["numpy==1.26.4", "h5py==3.16.0"]
+
+[project.scripts]
+nids-data = "nids_ml.cli.eda:main"
+nids-labels = "nids_ml.cli.labels:main"
+nids-flow-cnn = "nids_ml.cli.flow_cnn:main"
+nids-flow-extract = "nids_ml.cli.flow_extraction:main"
+nids-pcap = "nids_ml.cli.pcap:main"
+nids-align = "nids_ml.cli.alignment:main"
+nids-flow-hdf5 = "nids_ml.cli.hdf5:main"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["nids_ml", "nids_ml.*"]
+namespaces = false
