@@ -112,6 +112,33 @@ dependencies; live Colab execution is not verified. Existing two-board tiny-mode
 FedAvg evidence does not establish CNN Swarm training. Pulling source does not
 update the code already baked into a running container image.
 
+## Real-PCAP preparation / Chuẩn bị PCAP thật
+
+The full-pair auditor now supports a guarded TCP v2 profile for Heart Rate,
+alongside unchanged legacy HTTP v1 defaults. It counts all source records and
+reports global candidate ambiguity; dataset CSV labels stay unverified.
+`configs/full-pair-heart-rate-arm64-v2.json` pins the transferred sources and the
+TShark binary observed on the boards. Audit toàn cặp chưa được chạy với code mới;
+không dùng synthetic test coverage làm coverage của dataset.
+
+`scripts/pcap_ordering.py` builds a separate SQLite reference index ordered by
+`(timestamp_ns, source_ordinal)`. `ordering/pcap.py::PcapRecordLookup` verifies and
+seeks original captured bytes without copying payloads to the index. Unsupported
+traffic remains in the index; sorting does not establish clock or label truth.
+
+This raw-record view **does not feed the synthetic ordered-flow/HDF5 pipeline**.
+Sequential full-PCAP decoding must preserve TCP state before decoded metadata is
+reordered. Adapter decoded metadata → ordered-flow thật và verified annotations
+vẫn là các bước còn thiếu; source/tests mới không chứng minh training readiness.
+No command in this section installs packages, starts Docker or connects to boards.
+
+```bash
+python3 -B scripts/audit_full_pair.py --help
+python3 -B scripts/pcap_ordering.py --help
+python3 -B -m unittest discover -s tests -p test_real_pcap_ordering.py -v
+python3 -B -m unittest discover -s tests -p test_tcp_full_pair_v2.py -v
+```
+
 ## GitHub scope / Phần đưa lên Git
 
 Keep source, tests, configs, schemas, notebooks and documentation. Keep raw data,

@@ -10,7 +10,7 @@ Tìm module theo nhiệm vụ; mỗi file Python có mô tả ngắn Anh–Việ
 | `pcap/` | Bounded TShark decoding and record-header audits | Decode TShark có giới hạn và audit record headers |
 | `alignment/` | Label-blind CSV/PCAP candidate and clock-witness audits | Đối chiếu candidate/clock witness, không dùng nhãn làm khóa |
 | `flows/` | Fixed features, flow windows, capture-order/ordered tensors | Features, flow windows và hai chế độ trích tensor |
-| `ordering/` | Stable SQLite processing views and synthetic lookups | Processing view SQLite ổn định và lookup synthetic |
+| `ordering/` | Synthetic views and separate raw-PCAP record indexes/lookups | View synthetic và index/lookup record PCAP gốc tách biệt |
 | `labeling/` | Rule contracts, synthetic resolver and strict window labels | Contract rule, resolver synthetic và nhãn window nghiêm ngặt |
 | `storage/hdf5/` | Capture-order synthetic HDF5 | HDF5 capture-order synthetic |
 | `storage/ordered_hdf5/` | Ordered synthetic HDF5 with receipt/completion replay | Ordered-HDF5 có replay receipts/completion |
@@ -33,6 +33,12 @@ Tìm module theo nhiệm vụ; mỗi file Python có mô tả ngắn Anh–Việ
 
 Metadata identity is separate from CNN input features. A packet hash verifies
 consistency, not label correctness. Unknown/mixed labels are not class zero.
+
+[ordering/pcap.py](ordering/pcap.py) indexes classic-PCAP offsets and reads original
+record bytes in stable timestamp/ordinal order. Its format is separate from the
+synthetic flow view; it does not decode packets out of order, assign labels or
+activate real-data HDF5. Index chỉ tham chiếu PCAP gốc; adapter decoded metadata
+→ ordered-flow thật vẫn cần tích hợp và kiểm thử riêng.
 
 ## Why keep small files? / Vì sao giữ các file nhỏ?
 

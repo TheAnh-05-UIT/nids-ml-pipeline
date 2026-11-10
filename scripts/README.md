@@ -10,6 +10,7 @@ Use Python 3.11 for the pinned native-library path; no automatic installation.
 |---|---|---|
 | `validate_workspace.py` | Static structure/schema/import checks | Kiểm cấu trúc, schema và import nhẹ |
 | `packet_ordering.py` | Build/inspect synthetic processing views | Tạo/kiểm processing view synthetic |
+| `pcap_ordering.py` | Index/inspect raw-PCAP record references | Index ordering PCAP gốc, giữ bytes/ordinal/timestamp; chưa nối HDF5 |
 | `ordered_flow_extraction.py` | Extract ordered synthetic flow events | Trích ordered-flow events synthetic |
 | `ordered_flow_hdf5.py` | Ordered-HDF5 synthetic export/validation | Xuất/kiểm ordered-HDF5 synthetic |
 | `validate_flow_extraction.py` | Capture-order synthetic checks | Kiểm trích flow synthetic theo capture order |
@@ -21,7 +22,7 @@ Use Python 3.11 for the pinned native-library path; no automatic installation.
 | `audit_dataset_quality.py` | Detailed CSV quality | Audit chất lượng CSV chi tiết |
 | `audit_feature_semantics.py` | Semantics / overlap audit | Audit semantics hoặc overlap |
 | `audit_packet_alignment.py` | Prefix CSV/PCAP candidates | Đối chiếu prefix CSV/PCAP |
-| `audit_full_pair.py` | Versioned full HTTP-pair audit | Audit toàn cặp HTTP theo version |
+| `audit_full_pair.py` | Legacy HTTP or guarded TCP full-pair audit | Audit HTTP v1 hoặc TCP v2 có kiểm fragment; không nhập nhãn |
 | `audit_multicapture.py` | Multi-capture quality/ordering audit | Audit chất lượng/thứ tự nhiều capture |
 | `validate_feature_policy.py` | Check a policy against local EDA evidence | Cần đúng report EDA local; không hoạt động trên clone trống dữ liệu |
 | `acquire_approved_ml_csv.py` | Historical approved acquisition entry point | Giữ để tái lập/guard tests; không tải lại dataset đã có |

@@ -27,6 +27,8 @@ Giữ contracts và ví dụ nhỏ theo version; tách cấu hình dùng chung k
 | `packet-alignment-heart-rate-v1.json` | Pinned local Heart-Rate prefix-audit reference. | Tham khảo audit prefix Heart-Rate với pins local. | HOST_AND_DATA_REFERENCE |
 | `packet-alignment-http-v1.json` | Pinned local HTTP prefix-audit reference. | Tham khảo audit prefix HTTP với pins local. | HOST_AND_DATA_REFERENCE |
 | `full-pair-http-v1.json` | Pinned full HTTP CSV/PCAP audit reference. | Tham khảo audit cả cặp HTTP đã ghim. | HOST_AND_DATA_REFERENCE |
+| `full-pair-heart-rate-arm64-v2.json` | Full Heart-Rate TCP candidate audit with native-observed TShark pin. | Audit toàn cặp Heart Rate; pin TShark từ report board, chưa cấp nhãn verified. | HOST_AND_DATA_REFERENCE |
+| `pcap-ordering-heart-rate-v1.json` | Raw-PCAP record-index plan; no flow/HDF5 export. | Kế hoạch index thứ tự record PCAP; chưa nối flow/HDF5. | AUDIT_PLAN_NOT_A_RESULT |
 | `multicapture-audit-v1.json` | Pinned local multi-capture audit reference. | Tham khảo audit nhiều capture local đã ghim. | HOST_AND_DATA_REFERENCE |
 
 JSON cannot contain comments. This index explains each file without adding keys
@@ -41,3 +43,8 @@ Các config `HOST_AND_DATA_REFERENCE` chứa TShark path/hash và identities c�
 dataset local. Chúng được giữ để audit/tái lập; không dùng nguyên pins Windows
 trên ARM64 hoặc coi clone source là đã có dataset. Không ghi secrets vào config.
 Runtime configs mô tả scope tại thời điểm tạo; trạng thái hiện tại xem README ở root.
+
+Heart-Rate exact counts (170,435 PCAP / 165,319 CSV) are inherited from the accepted
+full metadata/quality audit. PCAP/CSV hashes match the transfer manifest. The ARM64
+TShark SHA is observed from downloaded board reports, not an independent upstream
+package checksum. Mismatch dừng audit; không tự sửa pin hoặc nới count/budget.
