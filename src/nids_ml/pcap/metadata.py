@@ -11,10 +11,12 @@ from nids_ml.pcap.decoder import file_signature, regular_file
 
 
 def scan_record_headers(path, *, expected_sha256, expected_size,
-                        max_records=3500000, timeout_seconds=300, progress=None):
+                        max_records=3500000, timeout_seconds=300, progress=None, record_sink=None):
     """Giữ source ordinal/timestamp; đếm regressions, không sort hoặc sửa raw."""
     if max_records != 3500000 or timeout_seconds != 300:
         raise AlignmentError('UNAPPROVED_METADATA_SCAN_BUDGET')
+    if record_sink is not None and not callable(record_sink):
+        raise AlignmentError('CALLABLE_RECORD_SINK_REQUIRED')
     path = regular_file(Path(path))
     before = file_signature(path)
     if before[2] != expected_size or expected_size > 1024**3:
@@ -38,6 +40,7 @@ def scan_record_headers(path, *, expected_sha256, expected_size,
             raise AlignmentError('UNSUPPORTED_PCAP_VERSION_OR_SNAPLEN')
         digest.update(header)
         while True:
+            offset=stream.tell()
             raw = stream.read(16)
             if not raw:
                 break
@@ -55,6 +58,10 @@ def scan_record_headers(path, *, expected_sha256, expected_size,
             count += 1
             if count > max_records:
                 raise AlignmentError('PCAP_RECORD_CAP')
+            if record_sink is not None:
+                record_sink(dict(source_ordinal=count,timestamp_ns=current,record_offset=offset,
+                    captured_length=caplen,original_length=wirelen,
+                    raw_record_sha256=hashlib.sha256(raw+payload).hexdigest()))
             if first is None:
                 first = minimum = maximum = current
             if previous is not None and current < previous:

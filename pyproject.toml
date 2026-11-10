@@ -25,6 +25,7 @@ nids-labels = "nids_ml.cli.labels:main"
 nids-flow-cnn = "nids_ml.cli.flow_cnn:main"
 nids-flow-extract = "nids_ml.cli.flow_extraction:main"
 nids-pcap = "nids_ml.cli.pcap:main"
+nids-pcap-order = "nids_ml.cli.pcap_ordering:main"
 nids-align = "nids_ml.cli.alignment:main"
 nids-flow-hdf5 = "nids_ml.cli.hdf5:main"
 

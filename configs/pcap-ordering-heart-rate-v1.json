@@ -1,0 +1,14 @@
+{
+  "format": "nids-pcap-view-plan/1.0.0",
+  "source": {
+    "capture": {
+      "capture_id": "edge-heart-rate",
+      "capture_sha256": "45af68c5dc56f1e135102069ee6d86a62e5d2b14dd23cac0bee39dcc40e832fb",
+      "run_id": "edge-v5-heart-rate-ordering",
+      "segment_id": "whole-capture-audit-only"
+    },
+    "path": "data/raw/Edge-IIoTset dataset/Normal traffic/Heart_Rate/Heart_Rate.pcap",
+    "size_bytes": 12840229,
+    "expected_records": 170435
+  }
+}
