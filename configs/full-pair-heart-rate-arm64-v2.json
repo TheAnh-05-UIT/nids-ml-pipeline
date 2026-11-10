@@ -1,0 +1,33 @@
+{
+  "schema_version": "1.1.0",
+  "kind": "full_pair_mapping_audit",
+  "case_id": "edge-v5-heart-rate-full-pair-arm64",
+  "key_profile": "tcp-v4-fragment-guard/1.0.0",
+  "pcap": {
+    "path": "data/raw/Edge-IIoTset dataset/Normal traffic/Heart_Rate/Heart_Rate.pcap",
+    "sha256": "45af68c5dc56f1e135102069ee6d86a62e5d2b14dd23cac0bee39dcc40e832fb",
+    "size_bytes": 12840229
+  },
+  "csv": {
+    "path": "data/raw/Edge-IIoTset dataset/Normal traffic/Heart_Rate/Heart_Rate.csv",
+    "sha256": "f5104511c7b67988ec67fc2f8262913b4ad6d4285db047500a04307491f4b9d5",
+    "size_bytes": 52569102
+  },
+  "expected_pcap_records": 170435,
+  "expected_csv_rows": 165319,
+  "toolchain": {
+    "tshark_path": "/usr/bin/tshark",
+    "tshark_sha256": "e26bb4e95e7cc0297ee31dc0b78f89290c1fd4bcd1fa6d038a5821d7f49105de"
+  },
+  "limits": {
+    "record_cap": 250000,
+    "sqlite_mib": 512,
+    "scratch_mib": 1024,
+    "cache_mib": 16,
+    "min_free_mib": 2048,
+    "timeout_seconds": 900,
+    "stdout_mib": 256,
+    "python_rss_mib": 256,
+    "tshark_rss_mib": 512
+  }
+}

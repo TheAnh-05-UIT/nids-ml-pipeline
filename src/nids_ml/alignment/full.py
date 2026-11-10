@@ -16,7 +16,7 @@ import subprocess
 import threading
 import time
 
-from nids_ml.alignment.io import SCALAR_FIELDS
+from nids_ml.alignment.io import SCALAR_FIELDS, AUDIT_SCALAR_FIELDS
 from nids_ml.eda.csv_eda import BoundedLines
 from nids_ml.labeling.contracts import canonical_bytes
 from nids_ml.alignment.candidates import AlignmentError,DAY_NS,KEY_VERSION,make_record
@@ -84,7 +84,10 @@ def verified_source(manifest,workspace):
 
 class FieldStream:
     """Sở hữu một TShark child; stdout queue2×8192, stderr tail64KiB."""
-    def __init__(self,command,budget):
+    def __init__(self,command,budget,*,fields=SCALAR_FIELDS):
+        if type(fields) is not tuple or fields not in (SCALAR_FIELDS,AUDIT_SCALAR_FIELDS):
+            raise AlignmentError('UNAPPROVED_FULL_SCALAR_FIELDS')
+        self.fields=fields
         self.command=command;self.budget=budget;self.process=None;self.stop=threading.Event()
         self.queue=queue.Queue(maxsize=2);self.threads=[];self.error=None
         self.stderr=bytearray();self.stderr_total=0;self.total=0;self.peak_child_rss=0;self.complete=False
@@ -147,8 +150,8 @@ class FieldStream:
                     if newline>65536:raise AlignmentError('SCALAR_LINE_LIMIT')
                     line=bytes(buffer[:newline]).rstrip(b'\r');del buffer[:newline+1]
                     values=next(csv.reader([line.decode('utf-8')],delimiter='|',quotechar='"',strict=True))
-                    if len(values)!=len(SCALAR_FIELDS):raise AlignmentError('SCALAR_WIDTH')
-                    row=dict(zip(SCALAR_FIELDS,values));previous+=1
+                    if len(values)!=len(self.fields):raise AlignmentError('SCALAR_WIDTH')
+                    row=dict(zip(self.fields,values));previous+=1
                     if previous>self.budget.limits.record_cap or row['frame.number']!=str(previous):
                         raise AlignmentError('SCALAR_ORDINAL_OR_RECORD_CAP')
                     yield previous,row
@@ -185,7 +188,7 @@ def key_storage(row):
     return hashlib.sha256(raw).digest(),raw.decode('ascii')
 
 
-def ingest_csv(db,path,source_sha,budget,progress=None):
+def ingest_csv(db,path,source_sha,budget,progress=None,*,record_factory=make_record):
     old=csv.field_size_limit(1048576);counts=Counter();previous=None;regressions=0
     try:
         with path.open(encoding='utf-8-sig',newline='') as file:
@@ -198,7 +201,7 @@ def ingest_csv(db,path,source_sha,budget,progress=None):
                 except StopIteration:break
                 ordinal+=1
                 if ordinal>budget.limits.record_cap or len(values)!=len(header):raise AlignmentError('FULL_CSV_COUNT_OR_WIDTH')
-                item=dict(zip(header,values));row=make_record(item,source_sha256=source_sha,ordinal=ordinal,kind='csv',ordinal_ceiling=250000)
+                item=dict(zip(header,values));row=record_factory(item,source_sha256=source_sha,ordinal=ordinal,kind='csv',ordinal_ceiling=250000)
                 kh,kj=key_storage(row)
                 label,kind=item.get('Attack_label',''),item.get('Attack_type','')
                 if len(label)>128 or len(kind)>128:raise AlignmentError('LABEL_TOKEN_LIMIT')
@@ -215,10 +218,10 @@ def ingest_csv(db,path,source_sha,budget,progress=None):
     finally:csv.field_size_limit(old)
 
 
-def ingest_pcap(db,stream,source_sha,budget,progress=None):
+def ingest_pcap(db,stream,source_sha,budget,progress=None,*,record_factory=make_record):
     previous=None;regressions=0;counts=Counter();count=0
     for ordinal,item in stream.rows():
-        row=make_record(item,source_sha256=source_sha,ordinal=ordinal,kind='pcap',ordinal_ceiling=250000)
+        row=record_factory(item,source_sha256=source_sha,ordinal=ordinal,kind='pcap',ordinal_ceiling=250000)
         kh,kj=key_storage(row)
         db.execute('INSERT INTO p VALUES(?,?,?,?,?,?,?)',(ordinal,kh,kj,row.timestamp_ns,row.time_of_day_ns,row.relative_seq,row.reason))
         if previous is not None and row.timestamp_ns<previous:regressions+=1

@@ -98,12 +98,13 @@ def scan_csv_quality(path, *, expected_sha256, expected_size, progress=None):
                 elapsed_seconds=time.monotonic()-started), prefix
 
 
-def diagnostic_record(row, *, kind, source_sha256, ordinal):
+def diagnostic_record(row, *, kind, source_sha256, ordinal, ordinal_ceiling=100000):
     """Khóa TCP cũ và khóa ICMP yếu hơn; không suy protocol từ nhãn/filename."""
     if kind not in ('pcap', 'csv') or type(row) is not dict:
         raise AlignmentError('INVALID_DIAGNOSTIC_INPUT')
     # Dùng validation identity/ordinal đã có; không lấy label fields làm key.
-    base = make_record(row, kind=kind, source_sha256=source_sha256, ordinal=ordinal)
+    base = make_record(row, kind=kind, source_sha256=source_sha256, ordinal=ordinal,
+                       ordinal_ceiling=ordinal_ceiling)
     if kind == 'pcap':
         try:
             protocol = numeric_token(row.get('ip.proto'))
