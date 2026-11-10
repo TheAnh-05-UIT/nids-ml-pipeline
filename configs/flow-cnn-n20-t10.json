@@ -1,0 +1,77 @@
+{
+  "activation": "relu",
+  "architecture_version": "flow-cnn/1.0.0",
+  "bias_initializer": "zeros",
+  "convolution": {
+    "filters": 64,
+    "kernel_size": [
+      3,
+      11
+    ],
+    "padding": "valid",
+    "strides": [
+      1,
+      1
+    ],
+    "use_bias": true
+  },
+  "feature_order": [
+    "Time",
+    "Packet Length",
+    "Higher Protocol",
+    "IP Flags",
+    "Protocols",
+    "TCP Length",
+    "TCP Ack",
+    "TCP Flags",
+    "TCP Window Size",
+    "UDP Length",
+    "ICMP Type"
+  ],
+  "feature_schema_version": "lucid-flow-11/1.0.0-candidate",
+  "flatten": true,
+  "initializer": "GlorotUniform",
+  "input_dtype": "float32",
+  "input_shape": [
+    20,
+    11,
+    1
+  ],
+  "layout": "channels_last",
+  "output": {
+    "activation": "sigmoid",
+    "units": 1
+  },
+  "pooling": "GlobalMaxPooling2D",
+  "profile": "flow-cnn-n20-t10",
+  "provenance": {
+    "exact_reproduction": "NOT CLAIMED",
+    "kernel_activation_layout": "VERIFIED_FROM_SOURCE_REFERENCE; PROPOSED_IMPLEMENTATION for this paper",
+    "layer_counts": "VERIFIED_FROM_PAPER_TABLE3",
+    "normalization": "UNKNOWN_FROM_PAPER; no transform implemented",
+    "packet_count": "VERIFIED_FROM_PAPER experiment n20; n10 Table3 comparison",
+    "seed_initializer_optimizer_details": "PROPOSED_IMPLEMENTATION"
+  },
+  "schema_version": "1.0.0",
+  "seed": 42,
+  "training_reference": {
+    "adam_amsgrad": false,
+    "adam_beta_1": 0.9,
+    "adam_beta_2": 0.999,
+    "adam_details_status": "PROPOSED_IMPLEMENTATION; not fully specified in paper",
+    "adam_epsilon": 1e-07,
+    "batch_size": 128,
+    "distributed_optimizer_state": "UNKNOWN; no OpenSwarm integration",
+    "epochs": 10,
+    "label_mapping": {
+      "0": "Benign",
+      "1": "DDoS"
+    },
+    "learning_rate": 0.001,
+    "loss": "binary_crossentropy",
+    "optimizer": "Adam",
+    "reference_values_status": "VERIFIED_FROM_PAPER_TABLE12; Flow-only application PROPOSED_IMPLEMENTATION",
+    "schema_version": "1.0.0"
+  },
+  "window_seconds": 10
+}

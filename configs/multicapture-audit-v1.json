@@ -1,0 +1,448 @@
+{
+  "schema_version": "1.0.0",
+  "kind": "multicapture_readiness_audit",
+  "scope": "Full CSV quality and PCAP record-header ordering; mapping limited to first 256 PCAP records / 1024 CSV rows",
+  "bounds": {
+    "pcap_prefix": 256,
+    "csv_prefix": 1024,
+    "max_records": 3500000,
+    "timeout_per_scan_seconds": 300
+  },
+  "toolchain": {
+    "tshark_path": "C:/Program Files/Wireshark/tshark.exe",
+    "tshark_sha256": "16fcc57d76fe2e7ce006aad2cbe204ad7cd62837d105b7c619e64e2aa492d229"
+  },
+  "cases": [
+    {
+      "case_id": "ddos-icmp-flood-attacks",
+      "pcap": {
+        "path": "data/raw/Edge-IIoTset dataset/Attack traffic/DDoS ICMP Flood Attacks.pcap",
+        "sha256": "1152be31c21b9b0f146eaef63ede8092946ebe999a91935f557c5083b490e30b",
+        "size_bytes": 212434878
+      },
+      "csv": {
+        "path": "data/raw/Edge-IIoTset dataset/Attack traffic/DDoS_ICMP_Flood_attack.csv",
+        "sha256": "bd3a180a18e331976b1e320aa0def408fa9adeff002035758cd2d3e36f25d325",
+        "size_bytes": 892080000
+      },
+      "prior_pcap_metadata": {
+        "status": "RECORD_STRUCTURE_VALID",
+        "scope": "All record headers; payload skipped, no packet fields decoded",
+        "records": 2914356,
+        "timestamp_regressions": 4295,
+        "capture_truncated_records": 0,
+        "first_record_utc": "2021-11-24T22:17:49.149462+00:00",
+        "last_record_utc": "2021-11-24T22:24:32.823991+00:00",
+        "minimum_record_utc": "2021-11-24T22:17:49.149462+00:00",
+        "maximum_record_utc": "2021-11-24T22:24:32.823991+00:00",
+        "observed_span_microseconds": 403674529,
+        "timestamp_resolution": "microseconds",
+        "version": "2.4",
+        "snaplen": 262144,
+        "linktype": 1,
+        "attack_start_utc": null,
+        "attack_end_utc": null,
+        "packet_labels": "UNKNOWN"
+      },
+      "provenance_status": "PARTIALLY_VERIFIED"
+    },
+    {
+      "case_id": "ddos-tcp-syn-flood-attacks",
+      "pcap": {
+        "path": "data/raw/Edge-IIoTset dataset/Attack traffic/DDoS TCP SYN Flood Attacks.pcap",
+        "sha256": "5fa4d774b6b03c160e2c4c619c79ca55c5a673581c5c40d6f46350f50d55ae80",
+        "size_bytes": 282613890
+      },
+      "csv": {
+        "path": "data/raw/Edge-IIoTset dataset/Attack traffic/DDoS_TCP_SYN_Flood_attack.csv",
+        "sha256": "623e8a331af6412b002a6ee18df1fb914d026de4906bdebdc3d29890487283e1",
+        "size_bytes": 941188405
+      },
+      "prior_pcap_metadata": {
+        "status": "RECORD_STRUCTURE_VALID",
+        "scope": "All record headers; payload skipped, no packet fields decoded",
+        "records": 2020152,
+        "timestamp_regressions": 5024,
+        "capture_truncated_records": 0,
+        "first_record_utc": "2021-11-24T18:02:37.608273+00:00",
+        "last_record_utc": "2021-11-24T18:11:25.622962+00:00",
+        "minimum_record_utc": "2021-11-24T18:02:37.608273+00:00",
+        "maximum_record_utc": "2021-11-24T18:11:25.622962+00:00",
+        "observed_span_microseconds": 528014689,
+        "timestamp_resolution": "microseconds",
+        "version": "2.4",
+        "snaplen": 262144,
+        "linktype": 1,
+        "attack_start_utc": null,
+        "attack_end_utc": null,
+        "packet_labels": "UNKNOWN"
+      },
+      "provenance_status": "PARTIALLY_VERIFIED"
+    },
+    {
+      "case_id": "ddos-udp-flood-attacks",
+      "pcap": {
+        "path": "data/raw/Edge-IIoTset dataset/Attack traffic/DDoS UDP Flood Attacks.pcap",
+        "sha256": "6de0341f27093cac8a5eba657b8a49ecbac4dd5bf6c452a6274472df69172ce5",
+        "size_bytes": 247560012
+      },
+      "csv": {
+        "path": "data/raw/Edge-IIoTset dataset/Attack traffic/DDoS_UDP_Flood_attack.csv",
+        "sha256": "62dcd279cd2068d2f7055028fd823dfec526bd6167a5b6180eca460e1b5c9333",
+        "size_bytes": 900233551
+      },
+      "prior_pcap_metadata": {
+        "status": "RECORD_STRUCTURE_VALID",
+        "scope": "All record headers; payload skipped, no packet fields decoded",
+        "records": 3215732,
+        "timestamp_regressions": 3489,
+        "capture_truncated_records": 0,
+        "first_record_utc": "2021-11-24T22:27:10.139612+00:00",
+        "last_record_utc": "2021-11-24T22:33:51.047885+00:00",
+        "minimum_record_utc": "2021-11-24T22:27:10.139612+00:00",
+        "maximum_record_utc": "2021-11-24T22:33:51.047885+00:00",
+        "observed_span_microseconds": 400908273,
+        "timestamp_resolution": "microseconds",
+        "version": "2.4",
+        "snaplen": 262144,
+        "linktype": 1,
+        "attack_start_utc": null,
+        "attack_end_utc": null,
+        "packet_labels": "UNKNOWN"
+      },
+      "provenance_status": "PARTIALLY_VERIFIED"
+    },
+    {
+      "case_id": "distance",
+      "pcap": {
+        "path": "data/raw/Edge-IIoTset dataset/Normal traffic/Distance/Distance.pcap",
+        "sha256": "6b16348f1139dcb83c12e6855e7202f7ae5b77bbca8eed467ab0b6aa3ab78922",
+        "size_bytes": 85424784
+      },
+      "csv": {
+        "path": "data/raw/Edge-IIoTset dataset/Normal traffic/Distance/Distance.csv",
+        "sha256": "067fcf364a6c4e35a6aa436e6263466ef4c8f3f84c423d0aadf932f65d6e1ee5",
+        "size_bytes": 366056131
+      },
+      "prior_pcap_metadata": {
+        "status": "RECORD_STRUCTURE_VALID",
+        "scope": "All record headers; payload skipped, no packet fields decoded",
+        "records": 1143948,
+        "timestamp_regressions": 629,
+        "capture_truncated_records": 0,
+        "first_record_utc": "2021-12-27T22:58:21.314757+00:00",
+        "last_record_utc": "2021-12-27T23:25:13.352243+00:00",
+        "minimum_record_utc": "2021-12-27T22:58:21.314757+00:00",
+        "maximum_record_utc": "2021-12-27T23:25:13.352243+00:00",
+        "observed_span_microseconds": 1612037486,
+        "timestamp_resolution": "microseconds",
+        "version": "2.4",
+        "snaplen": 262144,
+        "linktype": 1,
+        "attack_start_utc": null,
+        "attack_end_utc": null,
+        "packet_labels": "UNKNOWN"
+      },
+      "provenance_status": "PARTIALLY_VERIFIED"
+    },
+    {
+      "case_id": "flame_sensor",
+      "pcap": {
+        "path": "data/raw/Edge-IIoTset dataset/Normal traffic/Flame_Sensor/Flame_Sensor.pcap",
+        "sha256": "57bf51ae5cd8848c688affee6b71f4b10a6bae4fa297aa18e57cf3ba85cdc2db",
+        "size_bytes": 79692841
+      },
+      "csv": {
+        "path": "data/raw/Edge-IIoTset dataset/Normal traffic/Flame_Sensor/Flame_Sensor.csv",
+        "sha256": "e0f6812bd54e564d18e6f87d8d0566f86bde384f822d3252d7535f4239160528",
+        "size_bytes": 343523471
+      },
+      "prior_pcap_metadata": {
+        "status": "RECORD_STRUCTURE_VALID",
+        "scope": "All record headers; payload skipped, no packet fields decoded",
+        "records": 1070510,
+        "timestamp_regressions": 602,
+        "capture_truncated_records": 0,
+        "first_record_utc": "2022-01-05T04:42:04.726256+00:00",
+        "last_record_utc": "2022-01-05T05:06:01.829999+00:00",
+        "minimum_record_utc": "2022-01-05T04:42:04.726256+00:00",
+        "maximum_record_utc": "2022-01-05T05:06:01.829999+00:00",
+        "observed_span_microseconds": 1437103743,
+        "timestamp_resolution": "microseconds",
+        "version": "2.4",
+        "snaplen": 262144,
+        "linktype": 1,
+        "attack_start_utc": null,
+        "attack_end_utc": null,
+        "packet_labels": "UNKNOWN"
+      },
+      "provenance_status": "PARTIALLY_VERIFIED"
+    },
+    {
+      "case_id": "heart_rate",
+      "pcap": {
+        "path": "data/raw/Edge-IIoTset dataset/Normal traffic/Heart_Rate/Heart_Rate.pcap",
+        "sha256": "45af68c5dc56f1e135102069ee6d86a62e5d2b14dd23cac0bee39dcc40e832fb",
+        "size_bytes": 12840229
+      },
+      "csv": {
+        "path": "data/raw/Edge-IIoTset dataset/Normal traffic/Heart_Rate/Heart_Rate.csv",
+        "sha256": "f5104511c7b67988ec67fc2f8262913b4ad6d4285db047500a04307491f4b9d5",
+        "size_bytes": 52569102
+      },
+      "prior_pcap_metadata": {
+        "status": "RECORD_STRUCTURE_VALID",
+        "scope": "All record headers; payload skipped, no packet fields decoded",
+        "records": 170435,
+        "timestamp_regressions": 118,
+        "capture_truncated_records": 0,
+        "first_record_utc": "2021-12-28T01:39:39.986982+00:00",
+        "last_record_utc": "2021-12-28T02:10:17.376946+00:00",
+        "minimum_record_utc": "2021-12-28T01:39:39.986982+00:00",
+        "maximum_record_utc": "2021-12-28T02:10:17.376946+00:00",
+        "observed_span_microseconds": 1837389964,
+        "timestamp_resolution": "microseconds",
+        "version": "2.4",
+        "snaplen": 262144,
+        "linktype": 1,
+        "attack_start_utc": null,
+        "attack_end_utc": null,
+        "packet_labels": "UNKNOWN"
+      },
+      "provenance_status": "PARTIALLY_VERIFIED"
+    },
+    {
+      "case_id": "ir_receiver",
+      "pcap": {
+        "path": "data/raw/Edge-IIoTset dataset/Normal traffic/IR_Receiver/IR_Receiver.pcap",
+        "sha256": "bcaa33d74dc03e34b7d6ed3f427cc69c6457f2c0ad52b4deab2861526209ec84",
+        "size_bytes": 96912648
+      },
+      "csv": {
+        "path": "data/raw/Edge-IIoTset dataset/Normal traffic/IR_Receiver/IR_Receiver.csv",
+        "sha256": "40325a578b4edc4714eef585095a1f92e1cc076e510ad93edc3507dea8e4eef7",
+        "size_bytes": 412738438
+      },
+      "prior_pcap_metadata": {
+        "status": "RECORD_STRUCTURE_VALID",
+        "scope": "All record headers; payload skipped, no packet fields decoded",
+        "records": 1308238,
+        "timestamp_regressions": 706,
+        "capture_truncated_records": 0,
+        "first_record_utc": "2022-01-04T23:48:09.473535+00:00",
+        "last_record_utc": "2022-01-05T00:18:36.754163+00:00",
+        "minimum_record_utc": "2022-01-04T23:48:09.473535+00:00",
+        "maximum_record_utc": "2022-01-05T00:18:36.754163+00:00",
+        "observed_span_microseconds": 1827280628,
+        "timestamp_resolution": "microseconds",
+        "version": "2.4",
+        "snaplen": 262144,
+        "linktype": 1,
+        "attack_start_utc": null,
+        "attack_end_utc": null,
+        "packet_labels": "UNKNOWN"
+      },
+      "provenance_status": "PARTIALLY_VERIFIED"
+    },
+    {
+      "case_id": "modbus",
+      "pcap": {
+        "path": "data/raw/Edge-IIoTset dataset/Normal traffic/Modbus/Modbus.pcap",
+        "sha256": "1e9d186b5846402cd52e6048a39423f104cb19d68de501ad0a0ac8dbb2cc63c9",
+        "size_bytes": 21040950
+      },
+      "csv": {
+        "path": "data/raw/Edge-IIoTset dataset/Normal traffic/Modbus/Modbus.csv",
+        "sha256": "6ae11be7ebd506429f43a0ebb7aa38e836ffea39165fc0247e2a6c96c019c37a",
+        "size_bytes": 67899662
+      },
+      "prior_pcap_metadata": {
+        "status": "RECORD_STRUCTURE_VALID",
+        "scope": "All record headers; payload skipped, no packet fields decoded",
+        "records": 159514,
+        "timestamp_regressions": 9,
+        "capture_truncated_records": 0,
+        "first_record_utc": "2021-12-20T00:22:47.981993+00:00",
+        "last_record_utc": "2022-01-05T06:26:07.966722+00:00",
+        "minimum_record_utc": "2021-12-20T00:22:47.981993+00:00",
+        "maximum_record_utc": "2022-01-05T06:26:07.966722+00:00",
+        "observed_span_microseconds": 1404199984729,
+        "timestamp_resolution": "microseconds",
+        "version": "2.4",
+        "snaplen": 262144,
+        "linktype": 1,
+        "attack_start_utc": null,
+        "attack_end_utc": null,
+        "packet_labels": "UNKNOWN"
+      },
+      "provenance_status": "PARTIALLY_VERIFIED"
+    },
+    {
+      "case_id": "soil_moisture",
+      "pcap": {
+        "path": "data/raw/Edge-IIoTset dataset/Normal traffic/Soil_Moisture/Soil_Moisture.pcap",
+        "sha256": "7d8d1304aa403e0b937eb475e637d8466101999c93c0052164a056f3abef00d1",
+        "size_bytes": 89832523
+      },
+      "csv": {
+        "path": "data/raw/Edge-IIoTset dataset/Normal traffic/Soil_Moisture/Soil_Moisture.csv",
+        "sha256": "d3bf5662fd28b515e29c2b1b296b3b79ffc415836cb5a5da1666e164c099c440",
+        "size_bytes": 381588722
+      },
+      "prior_pcap_metadata": {
+        "status": "RECORD_STRUCTURE_VALID",
+        "scope": "All record headers; payload skipped, no packet fields decoded",
+        "records": 1200751,
+        "timestamp_regressions": 508,
+        "capture_truncated_records": 0,
+        "first_record_utc": "2022-01-05T07:46:13.592934+00:00",
+        "last_record_utc": "2022-01-05T10:02:35.711811+00:00",
+        "minimum_record_utc": "2022-01-05T07:46:13.592934+00:00",
+        "maximum_record_utc": "2022-01-05T10:02:35.711811+00:00",
+        "observed_span_microseconds": 8182118877,
+        "timestamp_resolution": "microseconds",
+        "version": "2.4",
+        "snaplen": 262144,
+        "linktype": 1,
+        "attack_start_utc": null,
+        "attack_end_utc": null,
+        "packet_labels": "UNKNOWN"
+      },
+      "provenance_status": "PARTIALLY_VERIFIED"
+    },
+    {
+      "case_id": "sound_sensor",
+      "pcap": {
+        "path": "data/raw/Edge-IIoTset dataset/Normal traffic/Sound_Sensor/Sound_Sensor.pcap",
+        "sha256": "8e33158f8fa935e48852ba4a1a5c760588aacecbf1427cf7a3b6ec90b0ebc276",
+        "size_bytes": 112118593
+      },
+      "csv": {
+        "path": "data/raw/Edge-IIoTset dataset/Normal traffic/Sound_Sensor/Sound_Sensor.csv",
+        "sha256": "1ac318ea539be09ac0ae4c9ae6d7e0e2d0013633131354c37d4f76663c3dc52b",
+        "size_bytes": 478970099
+      },
+      "prior_pcap_metadata": {
+        "status": "RECORD_STRUCTURE_VALID",
+        "scope": "All record headers; payload skipped, no packet fields decoded",
+        "records": 1513318,
+        "timestamp_regressions": 894,
+        "capture_truncated_records": 0,
+        "first_record_utc": "2022-01-05T03:33:56.369336+00:00",
+        "last_record_utc": "2022-01-05T04:06:13.145523+00:00",
+        "minimum_record_utc": "2022-01-05T03:33:56.369336+00:00",
+        "maximum_record_utc": "2022-01-05T04:06:13.145523+00:00",
+        "observed_span_microseconds": 1936776187,
+        "timestamp_resolution": "microseconds",
+        "version": "2.4",
+        "snaplen": 262144,
+        "linktype": 1,
+        "attack_start_utc": null,
+        "attack_end_utc": null,
+        "packet_labels": "UNKNOWN"
+      },
+      "provenance_status": "PARTIALLY_VERIFIED"
+    },
+    {
+      "case_id": "temperature_and_humidity",
+      "pcap": {
+        "path": "data/raw/Edge-IIoTset dataset/Normal traffic/Temperature_and_Humidity/Temperature_and_Humidity.pcap",
+        "sha256": "2b37027b1575f1d5bba7ab6cf87503df303ea2c9ab07a69b20f8d0f28696da6f",
+        "size_bytes": 345868816
+      },
+      "csv": {
+        "path": "data/raw/Edge-IIoTset dataset/Normal traffic/Temperature_and_Humidity/Temperature_and_Humidity.csv",
+        "sha256": "2b48ddce8f1d60dbd0d189568c614ee04d4bc57b65f1c9089ea731b1a02a0c21",
+        "size_bytes": 922587674
+      },
+      "prior_pcap_metadata": {
+        "status": "RECORD_STRUCTURE_VALID",
+        "scope": "All record headers; payload skipped, no packet fields decoded",
+        "records": 1629749,
+        "timestamp_regressions": 119,
+        "capture_truncated_records": 0,
+        "first_record_utc": "2021-11-21T10:44:10.081753+00:00",
+        "last_record_utc": "2021-12-20T00:40:55.043322+00:00",
+        "minimum_record_utc": "2021-11-21T10:44:10.081753+00:00",
+        "maximum_record_utc": "2021-12-20T00:40:55.043322+00:00",
+        "observed_span_microseconds": 2469404961569,
+        "timestamp_resolution": "microseconds",
+        "version": "2.4",
+        "snaplen": 262144,
+        "linktype": 1,
+        "attack_start_utc": null,
+        "attack_end_utc": null,
+        "packet_labels": "UNKNOWN"
+      },
+      "provenance_status": "PARTIALLY_VERIFIED"
+    },
+    {
+      "case_id": "water_level",
+      "pcap": {
+        "path": "data/raw/Edge-IIoTset dataset/Normal traffic/Water_Level/Water_Level.pcap",
+        "sha256": "1b76b1881bde98a15d311da6f9be2ac2fdeeee97d60e99e044e097afae6c2b4e",
+        "size_bytes": 172482137
+      },
+      "csv": {
+        "path": "data/raw/Edge-IIoTset dataset/Normal traffic/Water_Level/Water_Level.csv",
+        "sha256": "19153cba2da0c69e2fd4f682a9e872af787fd04af5d7806cebb2ec01a6d83025",
+        "size_bytes": 731458402
+      },
+      "prior_pcap_metadata": {
+        "status": "RECORD_STRUCTURE_VALID",
+        "scope": "All record headers; payload skipped, no packet fields decoded",
+        "records": 2302497,
+        "timestamp_regressions": 1211,
+        "capture_truncated_records": 0,
+        "first_record_utc": "2021-12-28T03:48:17.156663+00:00",
+        "last_record_utc": "2022-01-04T22:09:14.060928+00:00",
+        "minimum_record_utc": "2021-12-28T03:48:17.156663+00:00",
+        "maximum_record_utc": "2022-01-04T22:09:14.060928+00:00",
+        "observed_span_microseconds": 670856904265,
+        "timestamp_resolution": "microseconds",
+        "version": "2.4",
+        "snaplen": 262144,
+        "linktype": 1,
+        "attack_start_utc": null,
+        "attack_end_utc": null,
+        "packet_labels": "UNKNOWN"
+      },
+      "provenance_status": "PARTIALLY_VERIFIED"
+    },
+    {
+      "case_id": "phvalue",
+      "pcap": {
+        "path": "data/raw/Edge-IIoTset dataset/Normal traffic/phValue/phValue.pcap",
+        "sha256": "7676af0ae72776ae54fb128adcb55959bbe95729d10313e30b74d96f8c9010f6",
+        "size_bytes": 56548929
+      },
+      "csv": {
+        "path": "data/raw/Edge-IIoTset dataset/Normal traffic/phValue/phValue.csv",
+        "sha256": "7cd2d143bd079f2a6744bf22b1930c81ab034cf85ea4f8e3a815114d8b7fe07b",
+        "size_bytes": 237328348
+      },
+      "prior_pcap_metadata": {
+        "status": "RECORD_STRUCTURE_VALID",
+        "scope": "All record headers; payload skipped, no packet fields decoded",
+        "records": 759665,
+        "timestamp_regressions": 322,
+        "capture_truncated_records": 0,
+        "first_record_utc": "2021-12-27T23:34:37.189507+00:00",
+        "last_record_utc": "2021-12-28T00:49:04.470536+00:00",
+        "minimum_record_utc": "2021-12-27T23:34:37.189507+00:00",
+        "maximum_record_utc": "2021-12-28T00:49:04.470536+00:00",
+        "observed_span_microseconds": 4467281029,
+        "timestamp_resolution": "microseconds",
+        "version": "2.4",
+        "snaplen": 262144,
+        "linktype": 1,
+        "attack_start_utc": null,
+        "attack_end_utc": null,
+        "packet_labels": "UNKNOWN"
+      },
+      "provenance_status": "PARTIALLY_VERIFIED"
+    }
+  ],
+  "policy_activation": "PROPOSED_NOT_ACTIVE",
+  "verified_label_assignment": false
+}

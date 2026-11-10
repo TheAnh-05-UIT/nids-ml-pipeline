@@ -1,0 +1,24 @@
+{
+  "bounds": {
+    "calibration_end": 64,
+    "csv_search_rows": 1024,
+    "pcap_records": 256
+  },
+  "case_id": "edge-v5-heart-rate-control",
+  "csv": {
+    "path": "data/raw/Edge-IIoTset dataset/Normal traffic/Heart_Rate/Heart_Rate.csv",
+    "sha256": "f5104511c7b67988ec67fc2f8262913b4ad6d4285db047500a04307491f4b9d5",
+    "size_bytes": 52569102
+  },
+  "kind": "bounded_packet_alignment_audit",
+  "pcap": {
+    "path": "data/raw/Edge-IIoTset dataset/Normal traffic/Heart_Rate/Heart_Rate.pcap",
+    "sha256": "45af68c5dc56f1e135102069ee6d86a62e5d2b14dd23cac0bee39dcc40e832fb",
+    "size_bytes": 12840229
+  },
+  "schema_version": "1.0.0",
+  "toolchain": {
+    "tshark_path": "C:/Program Files/Wireshark/tshark.exe",
+    "tshark_sha256": "16fcc57d76fe2e7ce006aad2cbe204ad7cd62837d105b7c619e64e2aa492d229"
+  }
+}

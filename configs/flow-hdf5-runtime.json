@@ -1,0 +1,11 @@
+{
+  "schema_version": "1.0.0",
+  "python": "3.11",
+  "numpy": "1.26.4",
+  "h5py": "3.16.0",
+  "validation_scope": "Windows AMD64 synthetic; no native ARM64 validation",
+  "package_extra": "hdf5",
+  "automatic_install": false,
+  "real_data_export": "BLOCKED",
+  "transitive_lock": "NOT PROVIDED; exact direct pins follow existing optional runtime convention"
+}

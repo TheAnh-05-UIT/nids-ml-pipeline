@@ -1,0 +1,105 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Synthetic packet ordering source contract; not real PCAP approval",
+  "type": "object",
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "const": "1.0.0"
+    },
+    "input_kind": {
+      "type": "string",
+      "const": "synthetic_fixture"
+    },
+    "capture": {
+      "type": "object",
+      "properties": {
+        "capture_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64,
+          "pattern": "^[a-z0-9][a-z0-9._-]*$"
+        },
+        "capture_sha256": {
+          "type": "string",
+          "minLength": 64,
+          "maxLength": 64,
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "run_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64,
+          "pattern": "^[a-z0-9][a-z0-9._-]*$"
+        },
+        "segment_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64,
+          "pattern": "^[a-z0-9][a-z0-9._-]*$"
+        }
+      },
+      "required": [
+        "capture_id",
+        "capture_sha256",
+        "run_id",
+        "segment_id"
+      ],
+      "additionalProperties": false
+    },
+    "synthetic_capture_text": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 4096
+    },
+    "source_first_ordinal": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 9223372036854775807
+    },
+    "expected_packets": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 3500000
+    },
+    "expected_source_order_sha256": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$",
+      "minLength": 64,
+      "maxLength": 64
+    },
+    "input_complete": {
+      "type": "boolean",
+      "const": true
+    },
+    "ordering_policy": {
+      "type": "object",
+      "const": {
+        "id": "stable-packet-processing-view",
+        "version": "1.0.0",
+        "scope": "SYNTHETIC_TEST_ONLY",
+        "sort_keys": [
+          "timestamp_ns",
+          "source_packet_ordinal"
+        ],
+        "tie_breaker": "SOURCE_ORDINAL_ASCENDING",
+        "raw_mutation": false,
+        "timestamp_correction": false,
+        "default_flow_extractor": "UNCHANGED_CAPTURE_ORDER",
+        "real_data_enabled": false
+      }
+    }
+  },
+  "required": [
+    "schema_version",
+    "input_kind",
+    "capture",
+    "synthetic_capture_text",
+    "source_first_ordinal",
+    "expected_packets",
+    "expected_source_order_sha256",
+    "input_complete",
+    "ordering_policy"
+  ],
+  "additionalProperties": false
+}

@@ -1,0 +1,24 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "NIDS ML artifact manifest 1.0.0",
+  "type": "object", "additionalProperties": false,
+  "required": ["schema_version", "artifact_id", "artifact_type", "relative_path", "sha256", "size_bytes", "created_at", "lineage"],
+  "properties": {
+    "schema_version": {"$ref": "common.schema.json#/$defs/schemaVersion"},
+    "artifact_id": {"$ref": "common.schema.json#/$defs/identifier"},
+    "artifact_type": {"enum": ["split", "preprocessor", "checkpoint", "model", "metrics", "predictions"]},
+    "relative_path": {"$ref": "common.schema.json#/$defs/relativePath"},
+    "sha256": {"$ref": "common.schema.json#/$defs/sha256"},
+    "size_bytes": {"type": "integer", "minimum": 0},
+    "created_at": {"type": "string", "format": "date-time"},
+    "run_id": {"$ref": "common.schema.json#/$defs/identifier"},
+    "lineage": {
+      "type": "object", "additionalProperties": false,
+      "required": ["dataset_manifest_path", "parent_artifact_manifests"],
+      "properties": {
+        "dataset_manifest_path": {"$ref": "common.schema.json#/$defs/relativePath"},
+        "parent_artifact_manifests": {"type": "array", "uniqueItems": true, "items": {"$ref": "common.schema.json#/$defs/relativePath"}}
+      }
+    }
+  }
+}

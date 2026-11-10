@@ -1,0 +1,325 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Ordered-flow synthetic metadata v2; original ordinals and processing indices are distinct",
+  "type": "object",
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "const": "2.0.0"
+    },
+    "extractor_version": {
+      "type": "string",
+      "const": "lucid-ordered-flow/2.0.0"
+    },
+    "feature_schema_version": {
+      "type": "string",
+      "const": "lucid-flow-11/1.0.0-candidate"
+    },
+    "profile": {
+      "type": "string",
+      "enum": [
+        "flow-cnn-n20-t10",
+        "paper-table3-n10"
+      ]
+    },
+    "normalization_version": {
+      "type": "string",
+      "const": "lucid-fixed-nominal/1.0.0"
+    },
+    "configuration_sha256": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$",
+      "minLength": 64,
+      "maxLength": 64
+    },
+    "capture": {
+      "type": "object",
+      "properties": {
+        "capture_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64,
+          "pattern": "^[a-z0-9][a-z0-9._-]*$"
+        },
+        "capture_sha256": {
+          "type": "string",
+          "minLength": 64,
+          "maxLength": 64,
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "run_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64,
+          "pattern": "^[a-z0-9][a-z0-9._-]*$"
+        },
+        "segment_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64,
+          "pattern": "^[a-z0-9][a-z0-9._-]*$"
+        }
+      },
+      "required": [
+        "capture_id",
+        "capture_sha256",
+        "run_id",
+        "segment_id"
+      ],
+      "additionalProperties": false
+    },
+    "flow_tuple": {
+      "type": "array",
+      "minItems": 5,
+      "maxItems": 5
+    },
+    "first_observed_tuple": {
+      "type": "array",
+      "minItems": 5,
+      "maxItems": 5
+    },
+    "window_index": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 9223372036854775807
+    },
+    "anchor_timestamp_ns": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 9223372036854775807
+    },
+    "nominal_end_timestamp_ns": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 18446744073709551615
+    },
+    "window_boundary": {
+      "type": "string",
+      "const": "STRICT_GREATER_THAN_ANCHOR_PLUS_T"
+    },
+    "full_window_complete": {
+      "type": "boolean",
+      "const": true
+    },
+    "first_ordinal": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 9223372036854775807
+    },
+    "last_ordinal": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 9223372036854775807
+    },
+    "first_timestamp_ns": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 9223372036854775807
+    },
+    "last_timestamp_ns": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 9223372036854775807
+    },
+    "real_packet_count": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 1000000
+    },
+    "retained_packet_count": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 20
+    },
+    "overflow_packet_count": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 1000000
+    },
+    "retained_ordinals": {
+      "type": "array",
+      "items": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 9223372036854775807
+      },
+      "minItems": 1,
+      "maxItems": 20
+    },
+    "real_packet_mask": {
+      "type": "array",
+      "items": {
+        "type": "boolean"
+      },
+      "minItems": 10,
+      "maxItems": 20
+    },
+    "forward_packet_count": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 1000000
+    },
+    "reverse_packet_count": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 1000000
+    },
+    "full_packet_digest": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$",
+      "minLength": 64,
+      "maxLength": 64
+    },
+    "overflow_packet_digest": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$",
+      "minLength": 64,
+      "maxLength": 64
+    },
+    "icmp_identifier_changed": {
+      "type": "boolean"
+    },
+    "full_window_label": {
+      "type": "string",
+      "const": "UNKNOWN"
+    },
+    "retained_fragment_label": {
+      "type": "string",
+      "const": "UNKNOWN"
+    },
+    "supervised_eligible": {
+      "type": "boolean",
+      "const": false
+    },
+    "label_coverage": {
+      "type": "string",
+      "const": "NOT_EVALUATED"
+    },
+    "overflow_metadata": {
+      "type": "string",
+      "const": "COUNTS_BOUNDS_DIGEST_PLUS_STREAMED_RECEIPTS"
+    },
+    "stream_completion_required": {
+      "type": "boolean",
+      "const": true
+    },
+    "input_kind": {
+      "type": "string",
+      "const": "synthetic_fixture"
+    },
+    "ordering_contract_version": {
+      "type": "string",
+      "const": "1.0.0"
+    },
+    "processing_view_sha256": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$",
+      "minLength": 64,
+      "maxLength": 64
+    },
+    "packet_digest_order": {
+      "type": "string",
+      "const": "PROCESSING_INDEX"
+    },
+    "first_processing_index": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 9223372036854775807
+    },
+    "last_processing_index": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 9223372036854775807
+    },
+    "retained_processing_indices": {
+      "type": "array",
+      "items": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 9223372036854775807
+      },
+      "minItems": 1,
+      "maxItems": 20
+    },
+    "min_source_ordinal": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 9223372036854775807
+    },
+    "max_source_ordinal": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 9223372036854775807
+    },
+    "full_processing_digest": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$",
+      "minLength": 64,
+      "maxLength": 64
+    },
+    "overflow_processing_digest": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$",
+      "minLength": 64,
+      "maxLength": 64
+    },
+    "real_data_export": {
+      "type": "string",
+      "const": "BLOCKED"
+    },
+    "HDF5_integration": {
+      "type": "string",
+      "const": "NOT_ACTIVE"
+    }
+  },
+  "required": [
+    "schema_version",
+    "extractor_version",
+    "feature_schema_version",
+    "profile",
+    "normalization_version",
+    "configuration_sha256",
+    "capture",
+    "flow_tuple",
+    "first_observed_tuple",
+    "window_index",
+    "anchor_timestamp_ns",
+    "nominal_end_timestamp_ns",
+    "window_boundary",
+    "full_window_complete",
+    "first_ordinal",
+    "last_ordinal",
+    "first_timestamp_ns",
+    "last_timestamp_ns",
+    "real_packet_count",
+    "retained_packet_count",
+    "overflow_packet_count",
+    "retained_ordinals",
+    "real_packet_mask",
+    "forward_packet_count",
+    "reverse_packet_count",
+    "full_packet_digest",
+    "overflow_packet_digest",
+    "icmp_identifier_changed",
+    "full_window_label",
+    "retained_fragment_label",
+    "supervised_eligible",
+    "label_coverage",
+    "overflow_metadata",
+    "stream_completion_required",
+    "input_kind",
+    "ordering_contract_version",
+    "processing_view_sha256",
+    "packet_digest_order",
+    "first_processing_index",
+    "last_processing_index",
+    "retained_processing_indices",
+    "min_source_ordinal",
+    "max_source_ordinal",
+    "full_processing_digest",
+    "overflow_processing_digest",
+    "real_data_export",
+    "HDF5_integration"
+  ],
+  "additionalProperties": false
+}

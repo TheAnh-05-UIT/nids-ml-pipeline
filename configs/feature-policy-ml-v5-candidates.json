@@ -1,0 +1,1947 @@
+{
+  "applied_to_data": false,
+  "dataset_sha256": "53101fad091af20bee815860962a5016b802ee45d456a141042f6183094c3c1a",
+  "forbidden_labels": [
+    "Attack_label",
+    "Attack_type"
+  ],
+  "policies": [
+    {
+      "features": [
+        {
+          "conditions": [
+            "Kh\u00f4ng encode raw spelling s\u1ed1 th\u00e0nh categorical; ch\u1ec9 fit preprocessing tr\u00ean train",
+            "Ph\u1ea3i c\u00f3 applicability/missingness contract; zero kh\u00f4ng t\u1ef1 \u0111\u1ed3ng ngh\u0129a absent"
+          ],
+          "decision": "EXCLUDE",
+          "evidence": "artifacts/runs/data001b-ml-semantics-20261106/audit.json#/columns/frame.time",
+          "name": "frame.time",
+          "reason": "Capture/device identifiers ho\u1eb7c raw content c\u00f3 r\u1ee7i ro memorization/privacy/deployability"
+        },
+        {
+          "conditions": [
+            "Kh\u00f4ng encode raw spelling s\u1ed1 th\u00e0nh categorical; ch\u1ec9 fit preprocessing tr\u00ean train",
+            "Ph\u1ea3i c\u00f3 applicability/missingness contract; zero kh\u00f4ng t\u1ef1 \u0111\u1ed3ng ngh\u0129a absent"
+          ],
+          "decision": "EXCLUDE",
+          "evidence": "artifacts/runs/data001b-ml-semantics-20261106/audit.json#/columns/ip.src_host",
+          "name": "ip.src_host",
+          "reason": "Capture/device identifiers ho\u1eb7c raw content c\u00f3 r\u1ee7i ro memorization/privacy/deployability"
+        },
+        {
+          "conditions": [
+            "Kh\u00f4ng encode raw spelling s\u1ed1 th\u00e0nh categorical; ch\u1ec9 fit preprocessing tr\u00ean train",
+            "Ph\u1ea3i c\u00f3 applicability/missingness contract; zero kh\u00f4ng t\u1ef1 \u0111\u1ed3ng ngh\u0129a absent"
+          ],
+          "decision": "EXCLUDE",
+          "evidence": "artifacts/runs/data001b-ml-semantics-20261106/audit.json#/columns/ip.dst_host",
+          "name": "ip.dst_host",
+          "reason": "Capture/device identifiers ho\u1eb7c raw content c\u00f3 r\u1ee7i ro memorization/privacy/deployability"
+        },
+        {
+          "conditions": [
+            "Kh\u00f4ng encode raw spelling s\u1ed1 th\u00e0nh categorical; ch\u1ec9 fit preprocessing tr\u00ean train",
+            "Ph\u1ea3i c\u00f3 applicability/missingness contract; zero kh\u00f4ng t\u1ef1 \u0111\u1ed3ng ngh\u0129a absent"
+          ],
+          "decision": "EXCLUDE",
+          "evidence": "artifacts/runs/data001b-ml-semantics-20261106/audit.json#/columns/arp.dst.proto_ipv4",
+          "name": "arp.dst.proto_ipv4",
+          "reason": "Capture/device identifiers ho\u1eb7c raw content c\u00f3 r\u1ee7i ro memorization/privacy/deployability"
+        },
+        {
+          "conditions": [
+            "Kh\u00f4ng encode raw spelling s\u1ed1 th\u00e0nh categorical; ch\u1ec9 fit preprocessing tr\u00ean train",
+            "Ph\u1ea3i c\u00f3 applicability/missingness contract; zero kh\u00f4ng t\u1ef1 \u0111\u1ed3ng ngh\u0129a absent"
+          ],
+          "decision": "INCLUDE",
+          "evidence": "artifacts/runs/data001b-ml-semantics-20261106/audit.json#/columns/arp.opcode",
+          "name": "arp.opcode",
+          "reason": "Numeric/protocol candidate c\u00f3 range h\u1ee3p l\u1ec7 v\u00e0 nonzero support hai binary sides; INCLUDE v\u1eabn c\u00f3 global gates"
+        },
+        {
+          "conditions": [
+            "Kh\u00f4ng encode raw spelling s\u1ed1 th\u00e0nh categorical; ch\u1ec9 fit preprocessing tr\u00ean train",
+            "Ph\u1ea3i c\u00f3 applicability/missingness contract; zero kh\u00f4ng t\u1ef1 \u0111\u1ed3ng ngh\u0129a absent"
+          ],
+          "decision": "INCLUDE",
+          "evidence": "artifacts/runs/data001b-ml-semantics-20261106/audit.json#/columns/arp.hw.size",
+          "name": "arp.hw.size",
+          "reason": "Numeric/protocol candidate c\u00f3 range h\u1ee3p l\u1ec7 v\u00e0 nonzero support hai binary sides; INCLUDE v\u1eabn c\u00f3 global gates"
+        },
+        {
+          "conditions": [
+            "Kh\u00f4ng encode raw spelling s\u1ed1 th\u00e0nh categorical; ch\u1ec9 fit preprocessing tr\u00ean train",
+            "Ph\u1ea3i c\u00f3 applicability/missingness contract; zero kh\u00f4ng t\u1ef1 \u0111\u1ed3ng ngh\u0129a absent"
+          ],
+          "decision": "EXCLUDE",
+          "evidence": "artifacts/runs/data001b-ml-semantics-20261106/audit.json#/columns/arp.src.proto_ipv4",
+          "name": "arp.src.proto_ipv4",
+          "reason": "Capture/device identifiers ho\u1eb7c raw content c\u00f3 r\u1ee7i ro memorization/privacy/deployability"
+        },
+        {
+          "conditions": [
+            "Kh\u00f4ng encode raw spelling s\u1ed1 th\u00e0nh categorical; ch\u1ec9 fit preprocessing tr\u00ean train",
+            "Ph\u1ea3i c\u00f3 applicability/missingness contract; zero kh\u00f4ng t\u1ef1 \u0111\u1ed3ng ngh\u0129a absent"
+          ],
+          "decision": "NEEDS_VERIFICATION",
+          "evidence": "artifacts/runs/data001b-ml-semantics-20261106/audit.json#/columns/icmp.checksum",
+          "name": "icmp.checksum",
+          "reason": "Ch\u01b0a \u0111\u1ee7 mapping ho\u1eb7c kh\u1ea3 n\u0103ng generalization \u0111\u1ec3 \u0111\u01b0a v\u00e0o baseline"
+        },
+        {
+          "conditions": [
+            "Kh\u00f4ng encode raw spelling s\u1ed1 th\u00e0nh categorical; ch\u1ec9 fit preprocessing tr\u00ean train",
+            "Ph\u1ea3i c\u00f3 applicability/missingness contract; zero kh\u00f4ng t\u1ef1 \u0111\u1ed3ng ngh\u0129a absent"
+          ],
+          "decision": "NEEDS_VERIFICATION",
+          "evidence": "artifacts/runs/data001b-ml-semantics-20261106/audit.json#/columns/icmp.seq_le",
+          "name": "icmp.seq_le",
+          "reason": "Ch\u01b0a \u0111\u1ee7 mapping ho\u1eb7c kh\u1ea3 n\u0103ng generalization \u0111\u1ec3 \u0111\u01b0a v\u00e0o baseline"
+        },
+        {
+          "conditions": [
+            "Kh\u00f4ng encode raw spelling s\u1ed1 th\u00e0nh categorical; ch\u1ec9 fit preprocessing tr\u00ean train",
+            "Ph\u1ea3i c\u00f3 applicability/missingness contract; zero kh\u00f4ng t\u1ef1 \u0111\u1ed3ng ngh\u0129a absent"
+          ],
+          "decision": "NEEDS_VERIFICATION",
+          "evidence": "artifacts/runs/data001b-ml-semantics-20261106/audit.json#/columns/icmp.transmit_timestamp",
+          "name": "icmp.transmit_timestamp",
+          "reason": "Ch\u01b0a \u0111\u1ee7 mapping ho\u1eb7c kh\u1ea3 n\u0103ng generalization \u0111\u1ec3 \u0111\u01b0a v\u00e0o baseline"
+        },
+        {
+          "conditions": [
+            "Kh\u00f4ng encode raw spelling s\u1ed1 th\u00e0nh categorical; ch\u1ec9 fit preprocessing tr\u00ean train",
+            "Ph\u1ea3i c\u00f3 applicability/missingness contract; zero kh\u00f4ng t\u1ef1 \u0111\u1ed3ng ngh\u0129a absent"
+          ],
+          "decision": "EXCLUDE",
+          "evidence": "artifacts/runs/data001b-ml-semantics-20261106/audit.json#/columns/icmp.unused",
+          "name": "icmp.unused",
+          "reason": "Constant to\u00e0n file; kh\u00f4ng c\u00f3 bi\u1ebfn thi\u00ean quan s\u00e1t, kh\u00f4ng d\u1ef1a tr\u00ean correlation"
+        },
+        {
+          "conditions": [
+            "Kh\u00f4ng encode raw spelling s\u1ed1 th\u00e0nh categorical; ch\u1ec9 fit preprocessing tr\u00ean train",
+            "Ph\u1ea3i c\u00f3 applicability/missingness contract; zero kh\u00f4ng t\u1ef1 \u0111\u1ed3ng ngh\u0129a absent"
+          ],
+          "decision": "EXCLUDE",
+          "evidence": "artifacts/runs/data001b-ml-semantics-20261106/audit.json#/columns/http.file_data",
+          "name": "http.file_data",
+          "reason": "Capture/device identifiers ho\u1eb7c raw content c\u00f3 r\u1ee7i ro memorization/privacy/deployability"
+        },
+        {
+          "conditions": [
+            "Kh\u00f4ng encode raw spelling s\u1ed1 th\u00e0nh categorical; ch\u1ec9 fit preprocessing tr\u00ean train",
+            "Ph\u1ea3i c\u00f3 applicability/missingness contract; zero kh\u00f4ng t\u1ef1 \u0111\u1ed3ng ngh\u0129a absent"
+          ],
+          "decision": "NEEDS_VERIFICATION",
+          "evidence": "artifacts/runs/data001b-ml-semantics-20261106/audit.json#/columns/http.content_length",
+          "name": "http.content_length",
+          "reason": "Nonzero protocol support ch\u1ec9 \u1edf m\u1ed9t binary side; c\u1ea7n representative protocol coverage, kh\u00f4ng k\u1ebft lu\u1eadn causal leakage"
+        },
+        {
+          "conditions": [
+            "Kh\u00f4ng encode raw spelling s\u1ed1 th\u00e0nh categorical; ch\u1ec9 fit preprocessing tr\u00ean train",
+            "Ph\u1ea3i c\u00f3 applicability/missingness contract; zero kh\u00f4ng t\u1ef1 \u0111\u1ed3ng ngh\u0129a absent"
+          ],
+          "decision": "EXCLUDE",
+          "evidence": "artifacts/runs/data001b-ml-semantics-20261106/audit.json#/columns/http.request.uri.query",
+          "name": "http.request.uri.query",
+          "reason": "Capture/device identifiers ho\u1eb7c raw content c\u00f3 r\u1ee7i ro memorization/privacy/deployability"
+        },
+        {
+          "conditions": [
+            "Kh\u00f4ng encode raw spelling s\u1ed1 th\u00e0nh categorical; ch\u1ec9 fit preprocessing tr\u00ean train",
+            "Ph\u1ea3i c\u00f3 applicability/missingness contract; zero kh\u00f4ng t\u1ef1 \u0111\u1ed3ng ngh\u0129a absent"
+          ],
+          "decision": "NEEDS_VERIFICATION",
+          "evidence": "artifacts/runs/data001b-ml-semantics-20261106/audit.json#/columns/http.request.method",
+          "name": "http.request.method",
+          "reason": "Ch\u01b0a \u0111\u1ee7 mapping ho\u1eb7c kh\u1ea3 n\u0103ng generalization \u0111\u1ec3 \u0111\u01b0a v\u00e0o baseline"
+        },
+        {
+          "conditions": [
+            "Kh\u00f4ng encode raw spelling s\u1ed1 th\u00e0nh categorical; ch\u1ec9 fit preprocessing tr\u00ean train",
+            "Ph\u1ea3i c\u00f3 applicability/missingness contract; zero kh\u00f4ng t\u1ef1 \u0111\u1ed3ng ngh\u0129a absent"
+          ],
+          "decision": "EXCLUDE",
+          "evidence": "artifacts/runs/data001b-ml-semantics-20261106/audit.json#/columns/http.referer",
+          "name": "http.referer",
+          "reason": "Capture/device identifiers ho\u1eb7c raw content c\u00f3 r\u1ee7i ro memorization/privacy/deployability"
+        },
+        {
+          "conditions": [
+            "Kh\u00f4ng encode raw spelling s\u1ed1 th\u00e0nh categorical; ch\u1ec9 fit preprocessing tr\u00ean train",
+            "Ph\u1ea3i c\u00f3 applicability/missingness contract; zero kh\u00f4ng t\u1ef1 \u0111\u1ed3ng ngh\u0129a absent"
+          ],
+          "decision": "EXCLUDE",
+          "evidence": "artifacts/runs/data001b-ml-semantics-20261106/audit.json#/columns/http.request.full_uri",
+          "name": "http.request.full_uri",
+          "reason": "Capture/device identifiers ho\u1eb7c raw content c\u00f3 r\u1ee7i ro memorization/privacy/deployability"
+        },
+        {
+          "conditions": [
+            "Kh\u00f4ng encode raw spelling s\u1ed1 th\u00e0nh categorical; ch\u1ec9 fit preprocessing tr\u00ean train",
+            "Ph\u1ea3i c\u00f3 applicability/missingness contract; zero kh\u00f4ng t\u1ef1 \u0111\u1ed3ng ngh\u0129a absent"
+          ],
+          "decision": "QUARANTINE",
+          "evidence": "artifacts/runs/data001b-ml-semantics-20261106/audit.json#/columns/http.request.version",
+          "name": "http.request.version",
+          "reason": "Serialization risk ho\u1eb7c c\u00f3 violations ng\u1eef ngh\u0129a ch\u01b0a gi\u1ea3i quy\u1ebft"
+        },
+        {
+          "conditions": [
+            "Kh\u00f4ng encode raw spelling s\u1ed1 th\u00e0nh categorical; ch\u1ec9 fit preprocessing tr\u00ean train",
+            "Ph\u1ea3i c\u00f3 applicability/missingness contract; zero kh\u00f4ng t\u1ef1 \u0111\u1ed3ng ngh\u0129a absent"
+          ],
+          "decision": "NEEDS_VERIFICATION",
+          "evidence": "artifacts/runs/data001b-ml-semantics-20261106/audit.json#/columns/http.response",
+          "name": "http.response",
+          "reason": "Nonzero protocol support ch\u1ec9 \u1edf m\u1ed9t binary side; c\u1ea7n representative protocol coverage, kh\u00f4ng k\u1ebft lu\u1eadn causal leakage"
+        },
+        {
+          "conditions": [
+            "Kh\u00f4ng encode raw spelling s\u1ed1 th\u00e0nh categorical; ch\u1ec9 fit preprocessing tr\u00ean train",
+            "Ph\u1ea3i c\u00f3 applicability/missingness contract; zero kh\u00f4ng t\u1ef1 \u0111\u1ed3ng ngh\u0129a absent"
+          ],
+          "decision": "EXCLUDE",
+          "evidence": "artifacts/runs/data001b-ml-semantics-20261106/audit.json#/columns/http.tls_port",
+          "name": "http.tls_port",
+          "reason": "Constant to\u00e0n file; kh\u00f4ng c\u00f3 bi\u1ebfn thi\u00ean quan s\u00e1t, kh\u00f4ng d\u1ef1a tr\u00ean correlation"
+        },
+        {
+          "conditions": [
+            "Kh\u00f4ng encode raw spelling s\u1ed1 th\u00e0nh categorical; ch\u1ec9 fit preprocessing tr\u00ean train",
+            "Ph\u1ea3i c\u00f3 applicability/missingness contract; zero kh\u00f4ng t\u1ef1 \u0111\u1ed3ng ngh\u0129a absent"
+          ],
+          "decision": "NEEDS_VERIFICATION",
+          "evidence": "artifacts/runs/data001b-ml-semantics-20261106/audit.json#/columns/tcp.ack",
+          "name": "tcp.ack",
+          "reason": "Ch\u01b0a \u0111\u1ee7 mapping ho\u1eb7c kh\u1ea3 n\u0103ng generalization \u0111\u1ec3 \u0111\u01b0a v\u00e0o baseline"
+        },
+        {
+          "conditions": [
+            "Kh\u00f4ng encode raw spelling s\u1ed1 th\u00e0nh categorical; ch\u1ec9 fit preprocessing tr\u00ean train",
+            "Ph\u1ea3i c\u00f3 applicability/missingness contract; zero kh\u00f4ng t\u1ef1 \u0111\u1ed3ng ngh\u0129a absent"
+          ],
+          "decision": "NEEDS_VERIFICATION",
+          "evidence": "artifacts/runs/data001b-ml-semantics-20261106/audit.json#/columns/tcp.ack_raw",
+          "name": "tcp.ack_raw",
+          "reason": "Ch\u01b0a \u0111\u1ee7 mapping ho\u1eb7c kh\u1ea3 n\u0103ng generalization \u0111\u1ec3 \u0111\u01b0a v\u00e0o baseline"
+        },
+        {
+          "conditions": [
+            "Kh\u00f4ng encode raw spelling s\u1ed1 th\u00e0nh categorical; ch\u1ec9 fit preprocessing tr\u00ean train",
+            "Ph\u1ea3i c\u00f3 applicability/missingness contract; zero kh\u00f4ng t\u1ef1 \u0111\u1ed3ng ngh\u0129a absent"
+          ],
+          "decision": "NEEDS_VERIFICATION",
+          "evidence": "artifacts/runs/data001b-ml-semantics-20261106/audit.json#/columns/tcp.checksum",
+          "name": "tcp.checksum",
+          "reason": "Ch\u01b0a \u0111\u1ee7 mapping ho\u1eb7c kh\u1ea3 n\u0103ng generalization \u0111\u1ec3 \u0111\u01b0a v\u00e0o baseline"
+        },
+        {
+          "conditions": [
+            "Kh\u00f4ng encode raw spelling s\u1ed1 th\u00e0nh categorical; ch\u1ec9 fit preprocessing tr\u00ean train",
+            "Ph\u1ea3i c\u00f3 applicability/missingness contract; zero kh\u00f4ng t\u1ef1 \u0111\u1ed3ng ngh\u0129a absent"
+          ],
+          "decision": "NEEDS_VERIFICATION",
+          "evidence": "artifacts/runs/data001b-ml-semantics-20261106/audit.json#/columns/tcp.connection.fin",
+          "name": "tcp.connection.fin",
+          "reason": "Ch\u01b0a \u0111\u1ee7 mapping ho\u1eb7c kh\u1ea3 n\u0103ng generalization \u0111\u1ec3 \u0111\u01b0a v\u00e0o baseline"
+        },
+        {
+          "conditions": [
+            "Kh\u00f4ng encode raw spelling s\u1ed1 th\u00e0nh categorical; ch\u1ec9 fit preprocessing tr\u00ean train",
+            "Ph\u1ea3i c\u00f3 applicability/missingness contract; zero kh\u00f4ng t\u1ef1 \u0111\u1ed3ng ngh\u0129a absent"
+          ],
+          "decision": "NEEDS_VERIFICATION",
+          "evidence": "artifacts/runs/data001b-ml-semantics-20261106/audit.json#/columns/tcp.connection.rst",
+          "name": "tcp.connection.rst",
+          "reason": "Ch\u01b0a \u0111\u1ee7 mapping ho\u1eb7c kh\u1ea3 n\u0103ng generalization \u0111\u1ec3 \u0111\u01b0a v\u00e0o baseline"
+        },
+        {
+          "conditions": [
+            "Kh\u00f4ng encode raw spelling s\u1ed1 th\u00e0nh categorical; ch\u1ec9 fit preprocessing tr\u00ean train",
+            "Ph\u1ea3i c\u00f3 applicability/missingness contract; zero kh\u00f4ng t\u1ef1 \u0111\u1ed3ng ngh\u0129a absent"
+          ],
+          "decision": "NEEDS_VERIFICATION",
+          "evidence": "artifacts/runs/data001b-ml-semantics-20261106/audit.json#/columns/tcp.connection.syn",
+          "name": "tcp.connection.syn",
+          "reason": "Ch\u01b0a \u0111\u1ee7 mapping ho\u1eb7c kh\u1ea3 n\u0103ng generalization \u0111\u1ec3 \u0111\u01b0a v\u00e0o baseline"
+        },
+        {
+          "conditions": [
+            "Kh\u00f4ng encode raw spelling s\u1ed1 th\u00e0nh categorical; ch\u1ec9 fit preprocessing tr\u00ean train",
+            "Ph\u1ea3i c\u00f3 applicability/missingness contract; zero kh\u00f4ng t\u1ef1 \u0111\u1ed3ng ngh\u0129a absent"
+          ],
+          "decision": "NEEDS_VERIFICATION",
+          "evidence": "artifacts/runs/data001b-ml-semantics-20261106/audit.json#/columns/tcp.connection.synack",
+          "name": "tcp.connection.synack",
+          "reason": "Ch\u01b0a \u0111\u1ee7 mapping ho\u1eb7c kh\u1ea3 n\u0103ng generalization \u0111\u1ec3 \u0111\u01b0a v\u00e0o baseline"
+        },
+        {
+          "conditions": [
+            "Kh\u00f4ng encode raw spelling s\u1ed1 th\u00e0nh categorical; ch\u1ec9 fit preprocessing tr\u00ean train",
+            "Ph\u1ea3i c\u00f3 applicability/missingness contract; zero kh\u00f4ng t\u1ef1 \u0111\u1ed3ng ngh\u0129a absent"
+          ],
+          "decision": "NEEDS_VERIFICATION",
+          "evidence": "artifacts/runs/data001b-ml-semantics-20261106/audit.json#/columns/tcp.dstport",
+          "name": "tcp.dstport",
+          "reason": "Ch\u01b0a \u0111\u1ee7 mapping ho\u1eb7c kh\u1ea3 n\u0103ng generalization \u0111\u1ec3 \u0111\u01b0a v\u00e0o baseline"
+        },
+        {
+          "conditions": [
+            "Kh\u00f4ng encode raw spelling s\u1ed1 th\u00e0nh categorical; ch\u1ec9 fit preprocessing tr\u00ean train",
+            "Ph\u1ea3i c\u00f3 applicability/missingness contract; zero kh\u00f4ng t\u1ef1 \u0111\u1ed3ng ngh\u0129a absent"
+          ],
+          "decision": "INCLUDE",
+          "evidence": "artifacts/runs/data001b-ml-semantics-20261106/audit.json#/columns/tcp.flags",
+          "name": "tcp.flags",
+          "reason": "Numeric/protocol candidate c\u00f3 range h\u1ee3p l\u1ec7 v\u00e0 nonzero support hai binary sides; INCLUDE v\u1eabn c\u00f3 global gates"
+        },
+        {
+          "conditions": [
+            "Kh\u00f4ng encode raw spelling s\u1ed1 th\u00e0nh categorical; ch\u1ec9 fit preprocessing tr\u00ean train",
+            "Ph\u1ea3i c\u00f3 applicability/missingness contract; zero kh\u00f4ng t\u1ef1 \u0111\u1ed3ng ngh\u0129a absent"
+          ],
+          "decision": "INCLUDE",
+          "evidence": "artifacts/runs/data001b-ml-semantics-20261106/audit.json#/columns/tcp.flags.ack",
+          "name": "tcp.flags.ack",
+          "reason": "Numeric/protocol candidate c\u00f3 range h\u1ee3p l\u1ec7 v\u00e0 nonzero support hai binary sides; INCLUDE v\u1eabn c\u00f3 global gates"
+        },
+        {
+          "conditions": [
+            "Kh\u00f4ng encode raw spelling s\u1ed1 th\u00e0nh categorical; ch\u1ec9 fit preprocessing tr\u00ean train",
+            "Ph\u1ea3i c\u00f3 applicability/missingness contract; zero kh\u00f4ng t\u1ef1 \u0111\u1ed3ng ngh\u0129a absent"
+          ],
+          "decision": "INCLUDE",
+          "evidence": "artifacts/runs/data001b-ml-semantics-20261106/audit.json#/columns/tcp.len",
+          "name": "tcp.len",
+          "reason": "Numeric/protocol candidate c\u00f3 range h\u1ee3p l\u1ec7 v\u00e0 nonzero support hai binary sides; INCLUDE v\u1eabn c\u00f3 global gates"
+        },
+        {
+          "conditions": [
+            "Kh\u00f4ng encode raw spelling s\u1ed1 th\u00e0nh categorical; ch\u1ec9 fit preprocessing tr\u00ean train",
+            "Ph\u1ea3i c\u00f3 applicability/missingness contract; zero kh\u00f4ng t\u1ef1 \u0111\u1ed3ng ngh\u0129a absent"
+          ],
+          "decision": "EXCLUDE",
+          "evidence": "artifacts/runs/data001b-ml-semantics-20261106/audit.json#/columns/tcp.options",
+          "name": "tcp.options",
+          "reason": "Capture/device identifiers ho\u1eb7c raw content c\u00f3 r\u1ee7i ro memorization/privacy/deployability"
+        },
+        {
+          "conditions": [
+            "Kh\u00f4ng encode raw spelling s\u1ed1 th\u00e0nh categorical; ch\u1ec9 fit preprocessing tr\u00ean train",
+            "Ph\u1ea3i c\u00f3 applicability/missingness contract; zero kh\u00f4ng t\u1ef1 \u0111\u1ed3ng ngh\u0129a absent"
+          ],
+          "decision": "EXCLUDE",
+          "evidence": "artifacts/runs/data001b-ml-semantics-20261106/audit.json#/columns/tcp.payload",
+          "name": "tcp.payload",
+          "reason": "Capture/device identifiers ho\u1eb7c raw content c\u00f3 r\u1ee7i ro memorization/privacy/deployability"
+        },
+        {
+          "conditions": [
+            "Kh\u00f4ng encode raw spelling s\u1ed1 th\u00e0nh categorical; ch\u1ec9 fit preprocessing tr\u00ean train",
+            "Ph\u1ea3i c\u00f3 applicability/missingness contract; zero kh\u00f4ng t\u1ef1 \u0111\u1ed3ng ngh\u0129a absent"
+          ],
+          "decision": "QUARANTINE",
+          "evidence": "artifacts/runs/data001b-ml-semantics-20261106/audit.json#/columns/tcp.seq",
+          "name": "tcp.seq",
+          "reason": "Serialization risk ho\u1eb7c c\u00f3 violations ng\u1eef ngh\u0129a ch\u01b0a gi\u1ea3i quy\u1ebft"
+        },
+        {
+          "conditions": [
+            "Kh\u00f4ng encode raw spelling s\u1ed1 th\u00e0nh categorical; ch\u1ec9 fit preprocessing tr\u00ean train",
+            "Ph\u1ea3i c\u00f3 applicability/missingness contract; zero kh\u00f4ng t\u1ef1 \u0111\u1ed3ng ngh\u0129a absent"
+          ],
+          "decision": "QUARANTINE",
+          "evidence": "artifacts/runs/data001b-ml-semantics-20261106/audit.json#/columns/tcp.srcport",
+          "name": "tcp.srcport",
+          "reason": "Serialization risk ho\u1eb7c c\u00f3 violations ng\u1eef ngh\u0129a ch\u01b0a gi\u1ea3i quy\u1ebft"
+        },
+        {
+          "conditions": [
+            "Kh\u00f4ng encode raw spelling s\u1ed1 th\u00e0nh categorical; ch\u1ec9 fit preprocessing tr\u00ean train",
+            "Ph\u1ea3i c\u00f3 applicability/missingness contract; zero kh\u00f4ng t\u1ef1 \u0111\u1ed3ng ngh\u0129a absent"
+          ],
+          "decision": "NEEDS_VERIFICATION",
+          "evidence": "artifacts/runs/data001b-ml-semantics-20261106/audit.json#/columns/udp.port",
+          "name": "udp.port",
+          "reason": "Ch\u01b0a \u0111\u1ee7 mapping ho\u1eb7c kh\u1ea3 n\u0103ng generalization \u0111\u1ec3 \u0111\u01b0a v\u00e0o baseline"
+        },
+        {
+          "conditions": [
+            "Kh\u00f4ng encode raw spelling s\u1ed1 th\u00e0nh categorical; ch\u1ec9 fit preprocessing tr\u00ean train",
+            "Ph\u1ea3i c\u00f3 applicability/missingness contract; zero kh\u00f4ng t\u1ef1 \u0111\u1ed3ng ngh\u0129a absent"
+          ],
+          "decision": "EXCLUDE",
+          "evidence": "artifacts/runs/data001b-ml-semantics-20261106/audit.json#/columns/udp.stream",
+          "name": "udp.stream",
+          "reason": "Capture/device identifiers ho\u1eb7c raw content c\u00f3 r\u1ee7i ro memorization/privacy/deployability"
+        },
+        {
+          "conditions": [
+            "Kh\u00f4ng encode raw spelling s\u1ed1 th\u00e0nh categorical; ch\u1ec9 fit preprocessing tr\u00ean train",
+            "Ph\u1ea3i c\u00f3 applicability/missingness contract; zero kh\u00f4ng t\u1ef1 \u0111\u1ed3ng ngh\u0129a absent"
+          ],
+          "decision": "NEEDS_VERIFICATION",
+          "evidence": "artifacts/runs/data001b-ml-semantics-20261106/audit.json#/columns/udp.time_delta",
+          "name": "udp.time_delta",
+          "reason": "Ch\u01b0a \u0111\u1ee7 mapping ho\u1eb7c kh\u1ea3 n\u0103ng generalization \u0111\u1ec3 \u0111\u01b0a v\u00e0o baseline"
+        },
+        {
+          "conditions": [
+            "Kh\u00f4ng encode raw spelling s\u1ed1 th\u00e0nh categorical; ch\u1ec9 fit preprocessing tr\u00ean train",
+            "Ph\u1ea3i c\u00f3 applicability/missingness contract; zero kh\u00f4ng t\u1ef1 \u0111\u1ed3ng ngh\u0129a absent"
+          ],
+          "decision": "EXCLUDE",
+          "evidence": "artifacts/runs/data001b-ml-semantics-20261106/audit.json#/columns/dns.qry.name",
+          "name": "dns.qry.name",
+          "reason": "Capture/device identifiers ho\u1eb7c raw content c\u00f3 r\u1ee7i ro memorization/privacy/deployability"
+        },
+        {
+          "conditions": [
+            "Kh\u00f4ng encode raw spelling s\u1ed1 th\u00e0nh categorical; ch\u1ec9 fit preprocessing tr\u00ean train",
+            "Ph\u1ea3i c\u00f3 applicability/missingness contract; zero kh\u00f4ng t\u1ef1 \u0111\u1ed3ng ngh\u0129a absent"
+          ],
+          "decision": "QUARANTINE",
+          "evidence": "artifacts/runs/data001b-ml-semantics-20261106/audit.json#/columns/dns.qry.name.len",
+          "name": "dns.qry.name.len",
+          "reason": "Serialization risk ho\u1eb7c c\u00f3 violations ng\u1eef ngh\u0129a ch\u01b0a gi\u1ea3i quy\u1ebft"
+        },
+        {
+          "conditions": [
+            "Kh\u00f4ng encode raw spelling s\u1ed1 th\u00e0nh categorical; ch\u1ec9 fit preprocessing tr\u00ean train",
+            "Ph\u1ea3i c\u00f3 applicability/missingness contract; zero kh\u00f4ng t\u1ef1 \u0111\u1ed3ng ngh\u0129a absent"
+          ],
+          "decision": "QUARANTINE",
+          "evidence": "artifacts/runs/data001b-ml-semantics-20261106/audit.json#/columns/dns.qry.qu",
+          "name": "dns.qry.qu",
+          "reason": "Serialization risk ho\u1eb7c c\u00f3 violations ng\u1eef ngh\u0129a ch\u01b0a gi\u1ea3i quy\u1ebft"
+        },
+        {
+          "conditions": [
+            "Kh\u00f4ng encode raw spelling s\u1ed1 th\u00e0nh categorical; ch\u1ec9 fit preprocessing tr\u00ean train",
+            "Ph\u1ea3i c\u00f3 applicability/missingness contract; zero kh\u00f4ng t\u1ef1 \u0111\u1ed3ng ngh\u0129a absent"
+          ],
+          "decision": "EXCLUDE",
+          "evidence": "artifacts/runs/data001b-ml-semantics-20261106/audit.json#/columns/dns.qry.type",
+          "name": "dns.qry.type",
+          "reason": "Constant to\u00e0n file; kh\u00f4ng c\u00f3 bi\u1ebfn thi\u00ean quan s\u00e1t, kh\u00f4ng d\u1ef1a tr\u00ean correlation"
+        },
+        {
+          "conditions": [
+            "Kh\u00f4ng encode raw spelling s\u1ed1 th\u00e0nh categorical; ch\u1ec9 fit preprocessing tr\u00ean train",
+            "Ph\u1ea3i c\u00f3 applicability/missingness contract; zero kh\u00f4ng t\u1ef1 \u0111\u1ed3ng ngh\u0129a absent"
+          ],
+          "decision": "QUARANTINE",
+          "evidence": "artifacts/runs/data001b-ml-semantics-20261106/audit.json#/columns/dns.retransmission",
+          "name": "dns.retransmission",
+          "reason": "Serialization risk ho\u1eb7c c\u00f3 violations ng\u1eef ngh\u0129a ch\u01b0a gi\u1ea3i quy\u1ebft"
+        },
+        {
+          "conditions": [
+            "Kh\u00f4ng encode raw spelling s\u1ed1 th\u00e0nh categorical; ch\u1ec9 fit preprocessing tr\u00ean train",
+            "Ph\u1ea3i c\u00f3 applicability/missingness contract; zero kh\u00f4ng t\u1ef1 \u0111\u1ed3ng ngh\u0129a absent"
+          ],
+          "decision": "NEEDS_VERIFICATION",
+          "evidence": "artifacts/runs/data001b-ml-semantics-20261106/audit.json#/columns/dns.retransmit_request",
+          "name": "dns.retransmit_request",
+          "reason": "Ch\u01b0a \u0111\u1ee7 mapping ho\u1eb7c kh\u1ea3 n\u0103ng generalization \u0111\u1ec3 \u0111\u01b0a v\u00e0o baseline"
+        },
+        {
+          "conditions": [
+            "Kh\u00f4ng encode raw spelling s\u1ed1 th\u00e0nh categorical; ch\u1ec9 fit preprocessing tr\u00ean train",
+            "Ph\u1ea3i c\u00f3 applicability/missingness contract; zero kh\u00f4ng t\u1ef1 \u0111\u1ed3ng ngh\u0129a absent"
+          ],
+          "decision": "EXCLUDE",
+          "evidence": "artifacts/runs/data001b-ml-semantics-20261106/audit.json#/columns/dns.retransmit_request_in",
+          "name": "dns.retransmit_request_in",
+          "reason": "Constant to\u00e0n file; kh\u00f4ng c\u00f3 bi\u1ebfn thi\u00ean quan s\u00e1t, kh\u00f4ng d\u1ef1a tr\u00ean correlation"
+        },
+        {
+          "conditions": [
+            "Kh\u00f4ng encode raw spelling s\u1ed1 th\u00e0nh categorical; ch\u1ec9 fit preprocessing tr\u00ean train",
+            "Ph\u1ea3i c\u00f3 applicability/missingness contract; zero kh\u00f4ng t\u1ef1 \u0111\u1ed3ng ngh\u0129a absent"
+          ],
+          "decision": "QUARANTINE",
+          "evidence": "artifacts/runs/data001b-ml-semantics-20261106/audit.json#/columns/mqtt.conack.flags",
+          "name": "mqtt.conack.flags",
+          "reason": "Serialization risk ho\u1eb7c c\u00f3 violations ng\u1eef ngh\u0129a ch\u01b0a gi\u1ea3i quy\u1ebft"
+        },
+        {
+          "conditions": [
+            "Kh\u00f4ng encode raw spelling s\u1ed1 th\u00e0nh categorical; ch\u1ec9 fit preprocessing tr\u00ean train",
+            "Ph\u1ea3i c\u00f3 applicability/missingness contract; zero kh\u00f4ng t\u1ef1 \u0111\u1ed3ng ngh\u0129a absent"
+          ],
+          "decision": "NEEDS_VERIFICATION",
+          "evidence": "artifacts/runs/data001b-ml-semantics-20261106/audit.json#/columns/mqtt.conflag.cleansess",
+          "name": "mqtt.conflag.cleansess",
+          "reason": "Nonzero protocol support ch\u1ec9 \u1edf m\u1ed9t binary side; c\u1ea7n representative protocol coverage, kh\u00f4ng k\u1ebft lu\u1eadn causal leakage"
+        },
+        {
+          "conditions": [
+            "Kh\u00f4ng encode raw spelling s\u1ed1 th\u00e0nh categorical; ch\u1ec9 fit preprocessing tr\u00ean train",
+            "Ph\u1ea3i c\u00f3 applicability/missingness contract; zero kh\u00f4ng t\u1ef1 \u0111\u1ed3ng ngh\u0129a absent"
+          ],
+          "decision": "NEEDS_VERIFICATION",
+          "evidence": "artifacts/runs/data001b-ml-semantics-20261106/audit.json#/columns/mqtt.conflags",
+          "name": "mqtt.conflags",
+          "reason": "Nonzero protocol support ch\u1ec9 \u1edf m\u1ed9t binary side; c\u1ea7n representative protocol coverage, kh\u00f4ng k\u1ebft lu\u1eadn causal leakage"
+        },
+        {
+          "conditions": [
+            "Kh\u00f4ng encode raw spelling s\u1ed1 th\u00e0nh categorical; ch\u1ec9 fit preprocessing tr\u00ean train",
+            "Ph\u1ea3i c\u00f3 applicability/missingness contract; zero kh\u00f4ng t\u1ef1 \u0111\u1ed3ng ngh\u0129a absent"
+          ],
+          "decision": "NEEDS_VERIFICATION",
+          "evidence": "artifacts/runs/data001b-ml-semantics-20261106/audit.json#/columns/mqtt.hdrflags",
+          "name": "mqtt.hdrflags",
+          "reason": "Nonzero protocol support ch\u1ec9 \u1edf m\u1ed9t binary side; c\u1ea7n representative protocol coverage, kh\u00f4ng k\u1ebft lu\u1eadn causal leakage"
+        },
+        {
+          "conditions": [
+            "Kh\u00f4ng encode raw spelling s\u1ed1 th\u00e0nh categorical; ch\u1ec9 fit preprocessing tr\u00ean train",
+            "Ph\u1ea3i c\u00f3 applicability/missingness contract; zero kh\u00f4ng t\u1ef1 \u0111\u1ed3ng ngh\u0129a absent"
+          ],
+          "decision": "NEEDS_VERIFICATION",
+          "evidence": "artifacts/runs/data001b-ml-semantics-20261106/audit.json#/columns/mqtt.len",
+          "name": "mqtt.len",
+          "reason": "Nonzero protocol support ch\u1ec9 \u1edf m\u1ed9t binary side; c\u1ea7n representative protocol coverage, kh\u00f4ng k\u1ebft lu\u1eadn causal leakage"
+        },
+        {
+          "conditions": [
+            "Kh\u00f4ng encode raw spelling s\u1ed1 th\u00e0nh categorical; ch\u1ec9 fit preprocessing tr\u00ean train",
+            "Ph\u1ea3i c\u00f3 applicability/missingness contract; zero kh\u00f4ng t\u1ef1 \u0111\u1ed3ng ngh\u0129a absent"
+          ],
+          "decision": "EXCLUDE",
+          "evidence": "artifacts/runs/data001b-ml-semantics-20261106/audit.json#/columns/mqtt.msg_decoded_as",
+          "name": "mqtt.msg_decoded_as",
+          "reason": "Constant to\u00e0n file; kh\u00f4ng c\u00f3 bi\u1ebfn thi\u00ean quan s\u00e1t, kh\u00f4ng d\u1ef1a tr\u00ean correlation"
+        },
+        {
+          "conditions": [
+            "Kh\u00f4ng encode raw spelling s\u1ed1 th\u00e0nh categorical; ch\u1ec9 fit preprocessing tr\u00ean train",
+            "Ph\u1ea3i c\u00f3 applicability/missingness contract; zero kh\u00f4ng t\u1ef1 \u0111\u1ed3ng ngh\u0129a absent"
+          ],
+          "decision": "EXCLUDE",
+          "evidence": "artifacts/runs/data001b-ml-semantics-20261106/audit.json#/columns/mqtt.msg",
+          "name": "mqtt.msg",
+          "reason": "Capture/device identifiers ho\u1eb7c raw content c\u00f3 r\u1ee7i ro memorization/privacy/deployability"
+        },
+        {
+          "conditions": [
+            "Kh\u00f4ng encode raw spelling s\u1ed1 th\u00e0nh categorical; ch\u1ec9 fit preprocessing tr\u00ean train",
+            "Ph\u1ea3i c\u00f3 applicability/missingness contract; zero kh\u00f4ng t\u1ef1 \u0111\u1ed3ng ngh\u0129a absent"
+          ],
+          "decision": "NEEDS_VERIFICATION",
+          "evidence": "artifacts/runs/data001b-ml-semantics-20261106/audit.json#/columns/mqtt.msgtype",
+          "name": "mqtt.msgtype",
+          "reason": "Nonzero protocol support ch\u1ec9 \u1edf m\u1ed9t binary side; c\u1ea7n representative protocol coverage, kh\u00f4ng k\u1ebft lu\u1eadn causal leakage"
+        },
+        {
+          "conditions": [
+            "Kh\u00f4ng encode raw spelling s\u1ed1 th\u00e0nh categorical; ch\u1ec9 fit preprocessing tr\u00ean train",
+            "Ph\u1ea3i c\u00f3 applicability/missingness contract; zero kh\u00f4ng t\u1ef1 \u0111\u1ed3ng ngh\u0129a absent"
+          ],
+          "decision": "NEEDS_VERIFICATION",
+          "evidence": "artifacts/runs/data001b-ml-semantics-20261106/audit.json#/columns/mqtt.proto_len",
+          "name": "mqtt.proto_len",
+          "reason": "Nonzero protocol support ch\u1ec9 \u1edf m\u1ed9t binary side; c\u1ea7n representative protocol coverage, kh\u00f4ng k\u1ebft lu\u1eadn causal leakage"
+        },
+        {
+          "conditions": [
+            "Kh\u00f4ng encode raw spelling s\u1ed1 th\u00e0nh categorical; ch\u1ec9 fit preprocessing tr\u00ean train",
+            "Ph\u1ea3i c\u00f3 applicability/missingness contract; zero kh\u00f4ng t\u1ef1 \u0111\u1ed3ng ngh\u0129a absent"
+          ],
+          "decision": "QUARANTINE",
+          "evidence": "artifacts/runs/data001b-ml-semantics-20261106/audit.json#/columns/mqtt.protoname",
+          "name": "mqtt.protoname",
+          "reason": "Serialization risk ho\u1eb7c c\u00f3 violations ng\u1eef ngh\u0129a ch\u01b0a gi\u1ea3i quy\u1ebft"
+        },
+        {
+          "conditions": [
+            "Kh\u00f4ng encode raw spelling s\u1ed1 th\u00e0nh categorical; ch\u1ec9 fit preprocessing tr\u00ean train",
+            "Ph\u1ea3i c\u00f3 applicability/missingness contract; zero kh\u00f4ng t\u1ef1 \u0111\u1ed3ng ngh\u0129a absent"
+          ],
+          "decision": "QUARANTINE",
+          "evidence": "artifacts/runs/data001b-ml-semantics-20261106/audit.json#/columns/mqtt.topic",
+          "name": "mqtt.topic",
+          "reason": "Serialization risk ho\u1eb7c c\u00f3 violations ng\u1eef ngh\u0129a ch\u01b0a gi\u1ea3i quy\u1ebft"
+        },
+        {
+          "conditions": [
+            "Kh\u00f4ng encode raw spelling s\u1ed1 th\u00e0nh categorical; ch\u1ec9 fit preprocessing tr\u00ean train",
+            "Ph\u1ea3i c\u00f3 applicability/missingness contract; zero kh\u00f4ng t\u1ef1 \u0111\u1ed3ng ngh\u0129a absent"
+          ],
+          "decision": "NEEDS_VERIFICATION",
+          "evidence": "artifacts/runs/data001b-ml-semantics-20261106/audit.json#/columns/mqtt.topic_len",
+          "name": "mqtt.topic_len",
+          "reason": "Nonzero protocol support ch\u1ec9 \u1edf m\u1ed9t binary side; c\u1ea7n representative protocol coverage, kh\u00f4ng k\u1ebft lu\u1eadn causal leakage"
+        },
+        {
+          "conditions": [
+            "Kh\u00f4ng encode raw spelling s\u1ed1 th\u00e0nh categorical; ch\u1ec9 fit preprocessing tr\u00ean train",
+            "Ph\u1ea3i c\u00f3 applicability/missingness contract; zero kh\u00f4ng t\u1ef1 \u0111\u1ed3ng ngh\u0129a absent"
+          ],
+          "decision": "NEEDS_VERIFICATION",
+          "evidence": "artifacts/runs/data001b-ml-semantics-20261106/audit.json#/columns/mqtt.ver",
+          "name": "mqtt.ver",
+          "reason": "Nonzero protocol support ch\u1ec9 \u1edf m\u1ed9t binary side; c\u1ea7n representative protocol coverage, kh\u00f4ng k\u1ebft lu\u1eadn causal leakage"
+        },
+        {
+          "conditions": [
+            "Kh\u00f4ng encode raw spelling s\u1ed1 th\u00e0nh categorical; ch\u1ec9 fit preprocessing tr\u00ean train",
+            "Ph\u1ea3i c\u00f3 applicability/missingness contract; zero kh\u00f4ng t\u1ef1 \u0111\u1ed3ng ngh\u0129a absent"
+          ],
+          "decision": "EXCLUDE",
+          "evidence": "artifacts/runs/data001b-ml-semantics-20261106/audit.json#/columns/mbtcp.len",
+          "name": "mbtcp.len",
+          "reason": "Constant to\u00e0n file; kh\u00f4ng c\u00f3 bi\u1ebfn thi\u00ean quan s\u00e1t, kh\u00f4ng d\u1ef1a tr\u00ean correlation"
+        },
+        {
+          "conditions": [
+            "Kh\u00f4ng encode raw spelling s\u1ed1 th\u00e0nh categorical; ch\u1ec9 fit preprocessing tr\u00ean train",
+            "Ph\u1ea3i c\u00f3 applicability/missingness contract; zero kh\u00f4ng t\u1ef1 \u0111\u1ed3ng ngh\u0129a absent"
+          ],
+          "decision": "EXCLUDE",
+          "evidence": "artifacts/runs/data001b-ml-semantics-20261106/audit.json#/columns/mbtcp.trans_id",
+          "name": "mbtcp.trans_id",
+          "reason": "Constant to\u00e0n file; kh\u00f4ng c\u00f3 bi\u1ebfn thi\u00ean quan s\u00e1t, kh\u00f4ng d\u1ef1a tr\u00ean correlation"
+        },
+        {
+          "conditions": [
+            "Kh\u00f4ng encode raw spelling s\u1ed1 th\u00e0nh categorical; ch\u1ec9 fit preprocessing tr\u00ean train",
+            "Ph\u1ea3i c\u00f3 applicability/missingness contract; zero kh\u00f4ng t\u1ef1 \u0111\u1ed3ng ngh\u0129a absent"
+          ],
+          "decision": "EXCLUDE",
+          "evidence": "artifacts/runs/data001b-ml-semantics-20261106/audit.json#/columns/mbtcp.unit_id",
+          "name": "mbtcp.unit_id",
+          "reason": "Constant to\u00e0n file; kh\u00f4ng c\u00f3 bi\u1ebfn thi\u00ean quan s\u00e1t, kh\u00f4ng d\u1ef1a tr\u00ean correlation"
+        }
+      ],
+      "global_gates": [
+        "Operator duy\u1ec7t label scope, dataset v\u00e0 feature policy tr\u01b0\u1edbc DATA-002",
+        "Exporter semantics/capture lineage ph\u1ea3i \u0111\u01b0\u1ee3c x\u00e1c minh; kh\u00f4ng s\u1eeda l\u1ed7i c\u0103n c\u1ee9 ch\u1ec9 tr\u00ean class label",
+        "Frozen evaluation boundary; no duplicate/group leakage; kh\u00f4ng claim unseen-capture khi thi\u1ebfu group metadata"
+      ],
+      "id": "strict_v1",
+      "purpose": "Baseline h\u1ea1n ch\u1ebf artifacts, ch\u01b0a ch\u1ee9ng nh\u1eadn leakage-free"
+    },
+    {
+      "features": [
+        {
+          "conditions": [
+            "Kh\u00f4ng encode raw spelling s\u1ed1 th\u00e0nh categorical; ch\u1ec9 fit preprocessing tr\u00ean train",
+            "Ph\u1ea3i c\u00f3 applicability/missingness contract; zero kh\u00f4ng t\u1ef1 \u0111\u1ed3ng ngh\u0129a absent"
+          ],
+          "decision": "EXCLUDE",
+          "evidence": "artifacts/runs/data001b-ml-semantics-20261106/audit.json#/columns/frame.time",
+          "name": "frame.time",
+          "reason": "Capture/device identifiers ho\u1eb7c raw content c\u00f3 r\u1ee7i ro memorization/privacy/deployability"
+        },
+        {
+          "conditions": [
+            "Kh\u00f4ng encode raw spelling s\u1ed1 th\u00e0nh categorical; ch\u1ec9 fit preprocessing tr\u00ean train",
+            "Ph\u1ea3i c\u00f3 applicability/missingness contract; zero kh\u00f4ng t\u1ef1 \u0111\u1ed3ng ngh\u0129a absent"
+          ],
+          "decision": "EXCLUDE",
+          "evidence": "artifacts/runs/data001b-ml-semantics-20261106/audit.json#/columns/ip.src_host",
+          "name": "ip.src_host",
+          "reason": "Capture/device identifiers ho\u1eb7c raw content c\u00f3 r\u1ee7i ro memorization/privacy/deployability"
+        },
+        {
+          "conditions": [
+            "Kh\u00f4ng encode raw spelling s\u1ed1 th\u00e0nh categorical; ch\u1ec9 fit preprocessing tr\u00ean train",
+            "Ph\u1ea3i c\u00f3 applicability/missingness contract; zero kh\u00f4ng t\u1ef1 \u0111\u1ed3ng ngh\u0129a absent"
+          ],
+          "decision": "EXCLUDE",
+          "evidence": "artifacts/runs/data001b-ml-semantics-20261106/audit.json#/columns/ip.dst_host",
+          "name": "ip.dst_host",
+          "reason": "Capture/device identifiers ho\u1eb7c raw content c\u00f3 r\u1ee7i ro memorization/privacy/deployability"
+        },
+        {
+          "conditions": [
+            "Kh\u00f4ng encode raw spelling s\u1ed1 th\u00e0nh categorical; ch\u1ec9 fit preprocessing tr\u00ean train",
+            "Ph\u1ea3i c\u00f3 applicability/missingness contract; zero kh\u00f4ng t\u1ef1 \u0111\u1ed3ng ngh\u0129a absent"
+          ],
+          "decision": "EXCLUDE",
+          "evidence": "artifacts/runs/data001b-ml-semantics-20261106/audit.json#/columns/arp.dst.proto_ipv4",
+          "name": "arp.dst.proto_ipv4",
+          "reason": "Capture/device identifiers ho\u1eb7c raw content c\u00f3 r\u1ee7i ro memorization/privacy/deployability"
+        },
+        {
+          "conditions": [
+            "Kh\u00f4ng encode raw spelling s\u1ed1 th\u00e0nh categorical; ch\u1ec9 fit preprocessing tr\u00ean train",
+            "Ph\u1ea3i c\u00f3 applicability/missingness contract; zero kh\u00f4ng t\u1ef1 \u0111\u1ed3ng ngh\u0129a absent"
+          ],
+          "decision": "INCLUDE",
+          "evidence": "artifacts/runs/data001b-ml-semantics-20261106/audit.json#/columns/arp.opcode",
+          "name": "arp.opcode",
+          "reason": "Numeric/protocol candidate c\u00f3 range h\u1ee3p l\u1ec7 v\u00e0 nonzero support hai binary sides; INCLUDE v\u1eabn c\u00f3 global gates"
+        },
+        {
+          "conditions": [
+            "Kh\u00f4ng encode raw spelling s\u1ed1 th\u00e0nh categorical; ch\u1ec9 fit preprocessing tr\u00ean train",
+            "Ph\u1ea3i c\u00f3 applicability/missingness contract; zero kh\u00f4ng t\u1ef1 \u0111\u1ed3ng ngh\u0129a absent"
+          ],
+          "decision": "INCLUDE",
+          "evidence": "artifacts/runs/data001b-ml-semantics-20261106/audit.json#/columns/arp.hw.size",
+          "name": "arp.hw.size",
+          "reason": "Numeric/protocol candidate c\u00f3 range h\u1ee3p l\u1ec7 v\u00e0 nonzero support hai binary sides; INCLUDE v\u1eabn c\u00f3 global gates"
+        },
+        {
+          "conditions": [
+            "Kh\u00f4ng encode raw spelling s\u1ed1 th\u00e0nh categorical; ch\u1ec9 fit preprocessing tr\u00ean train",
+            "Ph\u1ea3i c\u00f3 applicability/missingness contract; zero kh\u00f4ng t\u1ef1 \u0111\u1ed3ng ngh\u0129a absent"
+          ],
+          "decision": "EXCLUDE",
+          "evidence": "artifacts/runs/data001b-ml-semantics-20261106/audit.json#/columns/arp.src.proto_ipv4",
+          "name": "arp.src.proto_ipv4",
+          "reason": "Capture/device identifiers ho\u1eb7c raw content c\u00f3 r\u1ee7i ro memorization/privacy/deployability"
+        },
+        {
+          "conditions": [
+            "Kh\u00f4ng encode raw spelling s\u1ed1 th\u00e0nh categorical; ch\u1ec9 fit preprocessing tr\u00ean train",
+            "Ph\u1ea3i c\u00f3 applicability/missingness contract; zero kh\u00f4ng t\u1ef1 \u0111\u1ed3ng ngh\u0129a absent",
+            "X\u00e1c minh ch\u1ec9 d\u00f9ng th\u00f4ng tin \u0111\u00e3 c\u00f3 t\u1ea1i th\u1eddi \u0111i\u1ec3m inference; \u0111\u00e1nh gi\u00e1 ablation theo capture"
+          ],
+          "decision": "NEEDS_VERIFICATION",
+          "evidence": "artifacts/runs/data001b-ml-semantics-20261106/audit.json#/columns/icmp.checksum",
+          "name": "icmp.checksum",
+          "reason": "Coverage protocol ch\u01b0a c\u00f3 c\u1ea3 Normal/Attack; ch\u01b0a ch\u1ee9ng minh generalization"
+        },
+        {
+          "conditions": [
+            "Kh\u00f4ng encode raw spelling s\u1ed1 th\u00e0nh categorical; ch\u1ec9 fit preprocessing tr\u00ean train",
+            "Ph\u1ea3i c\u00f3 applicability/missingness contract; zero kh\u00f4ng t\u1ef1 \u0111\u1ed3ng ngh\u0129a absent",
+            "X\u00e1c minh ch\u1ec9 d\u00f9ng th\u00f4ng tin \u0111\u00e3 c\u00f3 t\u1ea1i th\u1eddi \u0111i\u1ec3m inference; \u0111\u00e1nh gi\u00e1 ablation theo capture"
+          ],
+          "decision": "NEEDS_VERIFICATION",
+          "evidence": "artifacts/runs/data001b-ml-semantics-20261106/audit.json#/columns/icmp.seq_le",
+          "name": "icmp.seq_le",
+          "reason": "Coverage protocol ch\u01b0a c\u00f3 c\u1ea3 Normal/Attack; ch\u01b0a ch\u1ee9ng minh generalization"
+        },
+        {
+          "conditions": [
+            "Kh\u00f4ng encode raw spelling s\u1ed1 th\u00e0nh categorical; ch\u1ec9 fit preprocessing tr\u00ean train",
+            "Ph\u1ea3i c\u00f3 applicability/missingness contract; zero kh\u00f4ng t\u1ef1 \u0111\u1ed3ng ngh\u0129a absent"
+          ],
+          "decision": "NEEDS_VERIFICATION",
+          "evidence": "artifacts/runs/data001b-ml-semantics-20261106/audit.json#/columns/icmp.transmit_timestamp",
+          "name": "icmp.transmit_timestamp",
+          "reason": "Ch\u01b0a \u0111\u1ee7 mapping ho\u1eb7c kh\u1ea3 n\u0103ng generalization \u0111\u1ec3 \u0111\u01b0a v\u00e0o baseline"
+        },
+        {
+          "conditions": [
+            "Kh\u00f4ng encode raw spelling s\u1ed1 th\u00e0nh categorical; ch\u1ec9 fit preprocessing tr\u00ean train",
+            "Ph\u1ea3i c\u00f3 applicability/missingness contract; zero kh\u00f4ng t\u1ef1 \u0111\u1ed3ng ngh\u0129a absent"
+          ],
+          "decision": "EXCLUDE",
+          "evidence": "artifacts/runs/data001b-ml-semantics-20261106/audit.json#/columns/icmp.unused",
+          "name": "icmp.unused",
+          "reason": "Constant to\u00e0n file; kh\u00f4ng c\u00f3 bi\u1ebfn thi\u00ean quan s\u00e1t, kh\u00f4ng d\u1ef1a tr\u00ean correlation"
+        },
+        {
+          "conditions": [
+            "Kh\u00f4ng encode raw spelling s\u1ed1 th\u00e0nh categorical; ch\u1ec9 fit preprocessing tr\u00ean train",
+            "Ph\u1ea3i c\u00f3 applicability/missingness contract; zero kh\u00f4ng t\u1ef1 \u0111\u1ed3ng ngh\u0129a absent"
+          ],
+          "decision": "EXCLUDE",
+          "evidence": "artifacts/runs/data001b-ml-semantics-20261106/audit.json#/columns/http.file_data",
+          "name": "http.file_data",
+          "reason": "Capture/device identifiers ho\u1eb7c raw content c\u00f3 r\u1ee7i ro memorization/privacy/deployability"
+        },
+        {
+          "conditions": [
+            "Kh\u00f4ng encode raw spelling s\u1ed1 th\u00e0nh categorical; ch\u1ec9 fit preprocessing tr\u00ean train",
+            "Ph\u1ea3i c\u00f3 applicability/missingness contract; zero kh\u00f4ng t\u1ef1 \u0111\u1ed3ng ngh\u0129a absent"
+          ],
+          "decision": "NEEDS_VERIFICATION",
+          "evidence": "artifacts/runs/data001b-ml-semantics-20261106/audit.json#/columns/http.content_length",
+          "name": "http.content_length",
+          "reason": "Nonzero protocol support ch\u1ec9 \u1edf m\u1ed9t binary side; c\u1ea7n representative protocol coverage, kh\u00f4ng k\u1ebft lu\u1eadn causal leakage"
+        },
+        {
+          "conditions": [
+            "Kh\u00f4ng encode raw spelling s\u1ed1 th\u00e0nh categorical; ch\u1ec9 fit preprocessing tr\u00ean train",
+            "Ph\u1ea3i c\u00f3 applicability/missingness contract; zero kh\u00f4ng t\u1ef1 \u0111\u1ed3ng ngh\u0129a absent"
+          ],
+          "decision": "EXCLUDE",
+          "evidence": "artifacts/runs/data001b-ml-semantics-20261106/audit.json#/columns/http.request.uri.query",
+          "name": "http.request.uri.query",
+          "reason": "Capture/device identifiers ho\u1eb7c raw content c\u00f3 r\u1ee7i ro memorization/privacy/deployability"
+        },
+        {
+          "conditions": [
+            "Kh\u00f4ng encode raw spelling s\u1ed1 th\u00e0nh categorical; ch\u1ec9 fit preprocessing tr\u00ean train",
+            "Ph\u1ea3i c\u00f3 applicability/missingness contract; zero kh\u00f4ng t\u1ef1 \u0111\u1ed3ng ngh\u0129a absent",
+            "X\u00e1c minh ch\u1ec9 d\u00f9ng th\u00f4ng tin \u0111\u00e3 c\u00f3 t\u1ea1i th\u1eddi \u0111i\u1ec3m inference; \u0111\u00e1nh gi\u00e1 ablation theo capture"
+          ],
+          "decision": "NEEDS_VERIFICATION",
+          "evidence": "artifacts/runs/data001b-ml-semantics-20261106/audit.json#/columns/http.request.method",
+          "name": "http.request.method",
+          "reason": "Coverage protocol ch\u01b0a c\u00f3 c\u1ea3 Normal/Attack; ch\u01b0a ch\u1ee9ng minh generalization"
+        },
+        {
+          "conditions": [
+            "Kh\u00f4ng encode raw spelling s\u1ed1 th\u00e0nh categorical; ch\u1ec9 fit preprocessing tr\u00ean train",
+            "Ph\u1ea3i c\u00f3 applicability/missingness contract; zero kh\u00f4ng t\u1ef1 \u0111\u1ed3ng ngh\u0129a absent"
+          ],
+          "decision": "EXCLUDE",
+          "evidence": "artifacts/runs/data001b-ml-semantics-20261106/audit.json#/columns/http.referer",
+          "name": "http.referer",
+          "reason": "Capture/device identifiers ho\u1eb7c raw content c\u00f3 r\u1ee7i ro memorization/privacy/deployability"
+        },
+        {
+          "conditions": [
+            "Kh\u00f4ng encode raw spelling s\u1ed1 th\u00e0nh categorical; ch\u1ec9 fit preprocessing tr\u00ean train",
+            "Ph\u1ea3i c\u00f3 applicability/missingness contract; zero kh\u00f4ng t\u1ef1 \u0111\u1ed3ng ngh\u0129a absent"
+          ],
+          "decision": "EXCLUDE",
+          "evidence": "artifacts/runs/data001b-ml-semantics-20261106/audit.json#/columns/http.request.full_uri",
+          "name": "http.request.full_uri",
+          "reason": "Capture/device identifiers ho\u1eb7c raw content c\u00f3 r\u1ee7i ro memorization/privacy/deployability"
+        },
+        {
+          "conditions": [
+            "Kh\u00f4ng encode raw spelling s\u1ed1 th\u00e0nh categorical; ch\u1ec9 fit preprocessing tr\u00ean train",
+            "Ph\u1ea3i c\u00f3 applicability/missingness contract; zero kh\u00f4ng t\u1ef1 \u0111\u1ed3ng ngh\u0129a absent"
+          ],
+          "decision": "QUARANTINE",
+          "evidence": "artifacts/runs/data001b-ml-semantics-20261106/audit.json#/columns/http.request.version",
+          "name": "http.request.version",
+          "reason": "Serialization risk ho\u1eb7c c\u00f3 violations ng\u1eef ngh\u0129a ch\u01b0a gi\u1ea3i quy\u1ebft"
+        },
+        {
+          "conditions": [
+            "Kh\u00f4ng encode raw spelling s\u1ed1 th\u00e0nh categorical; ch\u1ec9 fit preprocessing tr\u00ean train",
+            "Ph\u1ea3i c\u00f3 applicability/missingness contract; zero kh\u00f4ng t\u1ef1 \u0111\u1ed3ng ngh\u0129a absent"
+          ],
+          "decision": "NEEDS_VERIFICATION",
+          "evidence": "artifacts/runs/data001b-ml-semantics-20261106/audit.json#/columns/http.response",
+          "name": "http.response",
+          "reason": "Nonzero protocol support ch\u1ec9 \u1edf m\u1ed9t binary side; c\u1ea7n representative protocol coverage, kh\u00f4ng k\u1ebft lu\u1eadn causal leakage"
+        },
+        {
+          "conditions": [
+            "Kh\u00f4ng encode raw spelling s\u1ed1 th\u00e0nh categorical; ch\u1ec9 fit preprocessing tr\u00ean train",
+            "Ph\u1ea3i c\u00f3 applicability/missingness contract; zero kh\u00f4ng t\u1ef1 \u0111\u1ed3ng ngh\u0129a absent"
+          ],
+          "decision": "EXCLUDE",
+          "evidence": "artifacts/runs/data001b-ml-semantics-20261106/audit.json#/columns/http.tls_port",
+          "name": "http.tls_port",
+          "reason": "Constant to\u00e0n file; kh\u00f4ng c\u00f3 bi\u1ebfn thi\u00ean quan s\u00e1t, kh\u00f4ng d\u1ef1a tr\u00ean correlation"
+        },
+        {
+          "conditions": [
+            "Kh\u00f4ng encode raw spelling s\u1ed1 th\u00e0nh categorical; ch\u1ec9 fit preprocessing tr\u00ean train",
+            "Ph\u1ea3i c\u00f3 applicability/missingness contract; zero kh\u00f4ng t\u1ef1 \u0111\u1ed3ng ngh\u0129a absent"
+          ],
+          "decision": "NEEDS_VERIFICATION",
+          "evidence": "artifacts/runs/data001b-ml-semantics-20261106/audit.json#/columns/tcp.ack",
+          "name": "tcp.ack",
+          "reason": "Ch\u01b0a \u0111\u1ee7 mapping ho\u1eb7c kh\u1ea3 n\u0103ng generalization \u0111\u1ec3 \u0111\u01b0a v\u00e0o baseline"
+        },
+        {
+          "conditions": [
+            "Kh\u00f4ng encode raw spelling s\u1ed1 th\u00e0nh categorical; ch\u1ec9 fit preprocessing tr\u00ean train",
+            "Ph\u1ea3i c\u00f3 applicability/missingness contract; zero kh\u00f4ng t\u1ef1 \u0111\u1ed3ng ngh\u0129a absent"
+          ],
+          "decision": "NEEDS_VERIFICATION",
+          "evidence": "artifacts/runs/data001b-ml-semantics-20261106/audit.json#/columns/tcp.ack_raw",
+          "name": "tcp.ack_raw",
+          "reason": "Ch\u01b0a \u0111\u1ee7 mapping ho\u1eb7c kh\u1ea3 n\u0103ng generalization \u0111\u1ec3 \u0111\u01b0a v\u00e0o baseline"
+        },
+        {
+          "conditions": [
+            "Kh\u00f4ng encode raw spelling s\u1ed1 th\u00e0nh categorical; ch\u1ec9 fit preprocessing tr\u00ean train",
+            "Ph\u1ea3i c\u00f3 applicability/missingness contract; zero kh\u00f4ng t\u1ef1 \u0111\u1ed3ng ngh\u0129a absent",
+            "X\u00e1c minh ch\u1ec9 d\u00f9ng th\u00f4ng tin \u0111\u00e3 c\u00f3 t\u1ea1i th\u1eddi \u0111i\u1ec3m inference; \u0111\u00e1nh gi\u00e1 ablation theo capture"
+          ],
+          "decision": "INCLUDE",
+          "evidence": "artifacts/runs/data001b-ml-semantics-20261106/audit.json#/columns/tcp.checksum",
+          "name": "tcp.checksum",
+          "reason": "Ch\u1ec9 m\u1edf r\u1ed9ng khi x\u00e1c minh exporter, vocabulary/state causal v\u00e0 capture-held-out evaluation"
+        },
+        {
+          "conditions": [
+            "Kh\u00f4ng encode raw spelling s\u1ed1 th\u00e0nh categorical; ch\u1ec9 fit preprocessing tr\u00ean train",
+            "Ph\u1ea3i c\u00f3 applicability/missingness contract; zero kh\u00f4ng t\u1ef1 \u0111\u1ed3ng ngh\u0129a absent",
+            "X\u00e1c minh ch\u1ec9 d\u00f9ng th\u00f4ng tin \u0111\u00e3 c\u00f3 t\u1ea1i th\u1eddi \u0111i\u1ec3m inference; \u0111\u00e1nh gi\u00e1 ablation theo capture"
+          ],
+          "decision": "INCLUDE",
+          "evidence": "artifacts/runs/data001b-ml-semantics-20261106/audit.json#/columns/tcp.connection.fin",
+          "name": "tcp.connection.fin",
+          "reason": "Ch\u1ec9 m\u1edf r\u1ed9ng khi x\u00e1c minh exporter, vocabulary/state causal v\u00e0 capture-held-out evaluation"
+        },
+        {
+          "conditions": [
+            "Kh\u00f4ng encode raw spelling s\u1ed1 th\u00e0nh categorical; ch\u1ec9 fit preprocessing tr\u00ean train",
+            "Ph\u1ea3i c\u00f3 applicability/missingness contract; zero kh\u00f4ng t\u1ef1 \u0111\u1ed3ng ngh\u0129a absent",
+            "X\u00e1c minh ch\u1ec9 d\u00f9ng th\u00f4ng tin \u0111\u00e3 c\u00f3 t\u1ea1i th\u1eddi \u0111i\u1ec3m inference; \u0111\u00e1nh gi\u00e1 ablation theo capture"
+          ],
+          "decision": "INCLUDE",
+          "evidence": "artifacts/runs/data001b-ml-semantics-20261106/audit.json#/columns/tcp.connection.rst",
+          "name": "tcp.connection.rst",
+          "reason": "Ch\u1ec9 m\u1edf r\u1ed9ng khi x\u00e1c minh exporter, vocabulary/state causal v\u00e0 capture-held-out evaluation"
+        },
+        {
+          "conditions": [
+            "Kh\u00f4ng encode raw spelling s\u1ed1 th\u00e0nh categorical; ch\u1ec9 fit preprocessing tr\u00ean train",
+            "Ph\u1ea3i c\u00f3 applicability/missingness contract; zero kh\u00f4ng t\u1ef1 \u0111\u1ed3ng ngh\u0129a absent",
+            "X\u00e1c minh ch\u1ec9 d\u00f9ng th\u00f4ng tin \u0111\u00e3 c\u00f3 t\u1ea1i th\u1eddi \u0111i\u1ec3m inference; \u0111\u00e1nh gi\u00e1 ablation theo capture"
+          ],
+          "decision": "INCLUDE",
+          "evidence": "artifacts/runs/data001b-ml-semantics-20261106/audit.json#/columns/tcp.connection.syn",
+          "name": "tcp.connection.syn",
+          "reason": "Ch\u1ec9 m\u1edf r\u1ed9ng khi x\u00e1c minh exporter, vocabulary/state causal v\u00e0 capture-held-out evaluation"
+        },
+        {
+          "conditions": [
+            "Kh\u00f4ng encode raw spelling s\u1ed1 th\u00e0nh categorical; ch\u1ec9 fit preprocessing tr\u00ean train",
+            "Ph\u1ea3i c\u00f3 applicability/missingness contract; zero kh\u00f4ng t\u1ef1 \u0111\u1ed3ng ngh\u0129a absent",
+            "X\u00e1c minh ch\u1ec9 d\u00f9ng th\u00f4ng tin \u0111\u00e3 c\u00f3 t\u1ea1i th\u1eddi \u0111i\u1ec3m inference; \u0111\u00e1nh gi\u00e1 ablation theo capture"
+          ],
+          "decision": "INCLUDE",
+          "evidence": "artifacts/runs/data001b-ml-semantics-20261106/audit.json#/columns/tcp.connection.synack",
+          "name": "tcp.connection.synack",
+          "reason": "Ch\u1ec9 m\u1edf r\u1ed9ng khi x\u00e1c minh exporter, vocabulary/state causal v\u00e0 capture-held-out evaluation"
+        },
+        {
+          "conditions": [
+            "Kh\u00f4ng encode raw spelling s\u1ed1 th\u00e0nh categorical; ch\u1ec9 fit preprocessing tr\u00ean train",
+            "Ph\u1ea3i c\u00f3 applicability/missingness contract; zero kh\u00f4ng t\u1ef1 \u0111\u1ed3ng ngh\u0129a absent",
+            "X\u00e1c minh ch\u1ec9 d\u00f9ng th\u00f4ng tin \u0111\u00e3 c\u00f3 t\u1ea1i th\u1eddi \u0111i\u1ec3m inference; \u0111\u00e1nh gi\u00e1 ablation theo capture"
+          ],
+          "decision": "INCLUDE",
+          "evidence": "artifacts/runs/data001b-ml-semantics-20261106/audit.json#/columns/tcp.dstport",
+          "name": "tcp.dstport",
+          "reason": "Ch\u1ec9 m\u1edf r\u1ed9ng khi x\u00e1c minh exporter, vocabulary/state causal v\u00e0 capture-held-out evaluation"
+        },
+        {
+          "conditions": [
+            "Kh\u00f4ng encode raw spelling s\u1ed1 th\u00e0nh categorical; ch\u1ec9 fit preprocessing tr\u00ean train",
+            "Ph\u1ea3i c\u00f3 applicability/missingness contract; zero kh\u00f4ng t\u1ef1 \u0111\u1ed3ng ngh\u0129a absent"
+          ],
+          "decision": "INCLUDE",
+          "evidence": "artifacts/runs/data001b-ml-semantics-20261106/audit.json#/columns/tcp.flags",
+          "name": "tcp.flags",
+          "reason": "Numeric/protocol candidate c\u00f3 range h\u1ee3p l\u1ec7 v\u00e0 nonzero support hai binary sides; INCLUDE v\u1eabn c\u00f3 global gates"
+        },
+        {
+          "conditions": [
+            "Kh\u00f4ng encode raw spelling s\u1ed1 th\u00e0nh categorical; ch\u1ec9 fit preprocessing tr\u00ean train",
+            "Ph\u1ea3i c\u00f3 applicability/missingness contract; zero kh\u00f4ng t\u1ef1 \u0111\u1ed3ng ngh\u0129a absent"
+          ],
+          "decision": "INCLUDE",
+          "evidence": "artifacts/runs/data001b-ml-semantics-20261106/audit.json#/columns/tcp.flags.ack",
+          "name": "tcp.flags.ack",
+          "reason": "Numeric/protocol candidate c\u00f3 range h\u1ee3p l\u1ec7 v\u00e0 nonzero support hai binary sides; INCLUDE v\u1eabn c\u00f3 global gates"
+        },
+        {
+          "conditions": [
+            "Kh\u00f4ng encode raw spelling s\u1ed1 th\u00e0nh categorical; ch\u1ec9 fit preprocessing tr\u00ean train",
+            "Ph\u1ea3i c\u00f3 applicability/missingness contract; zero kh\u00f4ng t\u1ef1 \u0111\u1ed3ng ngh\u0129a absent"
+          ],
+          "decision": "INCLUDE",
+          "evidence": "artifacts/runs/data001b-ml-semantics-20261106/audit.json#/columns/tcp.len",
+          "name": "tcp.len",
+          "reason": "Numeric/protocol candidate c\u00f3 range h\u1ee3p l\u1ec7 v\u00e0 nonzero support hai binary sides; INCLUDE v\u1eabn c\u00f3 global gates"
+        },
+        {
+          "conditions": [
+            "Kh\u00f4ng encode raw spelling s\u1ed1 th\u00e0nh categorical; ch\u1ec9 fit preprocessing tr\u00ean train",
+            "Ph\u1ea3i c\u00f3 applicability/missingness contract; zero kh\u00f4ng t\u1ef1 \u0111\u1ed3ng ngh\u0129a absent"
+          ],
+          "decision": "EXCLUDE",
+          "evidence": "artifacts/runs/data001b-ml-semantics-20261106/audit.json#/columns/tcp.options",
+          "name": "tcp.options",
+          "reason": "Capture/device identifiers ho\u1eb7c raw content c\u00f3 r\u1ee7i ro memorization/privacy/deployability"
+        },
+        {
+          "conditions": [
+            "Kh\u00f4ng encode raw spelling s\u1ed1 th\u00e0nh categorical; ch\u1ec9 fit preprocessing tr\u00ean train",
+            "Ph\u1ea3i c\u00f3 applicability/missingness contract; zero kh\u00f4ng t\u1ef1 \u0111\u1ed3ng ngh\u0129a absent"
+          ],
+          "decision": "EXCLUDE",
+          "evidence": "artifacts/runs/data001b-ml-semantics-20261106/audit.json#/columns/tcp.payload",
+          "name": "tcp.payload",
+          "reason": "Capture/device identifiers ho\u1eb7c raw content c\u00f3 r\u1ee7i ro memorization/privacy/deployability"
+        },
+        {
+          "conditions": [
+            "Kh\u00f4ng encode raw spelling s\u1ed1 th\u00e0nh categorical; ch\u1ec9 fit preprocessing tr\u00ean train",
+            "Ph\u1ea3i c\u00f3 applicability/missingness contract; zero kh\u00f4ng t\u1ef1 \u0111\u1ed3ng ngh\u0129a absent"
+          ],
+          "decision": "QUARANTINE",
+          "evidence": "artifacts/runs/data001b-ml-semantics-20261106/audit.json#/columns/tcp.seq",
+          "name": "tcp.seq",
+          "reason": "Serialization risk ho\u1eb7c c\u00f3 violations ng\u1eef ngh\u0129a ch\u01b0a gi\u1ea3i quy\u1ebft"
+        },
+        {
+          "conditions": [
+            "Kh\u00f4ng encode raw spelling s\u1ed1 th\u00e0nh categorical; ch\u1ec9 fit preprocessing tr\u00ean train",
+            "Ph\u1ea3i c\u00f3 applicability/missingness contract; zero kh\u00f4ng t\u1ef1 \u0111\u1ed3ng ngh\u0129a absent"
+          ],
+          "decision": "QUARANTINE",
+          "evidence": "artifacts/runs/data001b-ml-semantics-20261106/audit.json#/columns/tcp.srcport",
+          "name": "tcp.srcport",
+          "reason": "Serialization risk ho\u1eb7c c\u00f3 violations ng\u1eef ngh\u0129a ch\u01b0a gi\u1ea3i quy\u1ebft"
+        },
+        {
+          "conditions": [
+            "Kh\u00f4ng encode raw spelling s\u1ed1 th\u00e0nh categorical; ch\u1ec9 fit preprocessing tr\u00ean train",
+            "Ph\u1ea3i c\u00f3 applicability/missingness contract; zero kh\u00f4ng t\u1ef1 \u0111\u1ed3ng ngh\u0129a absent"
+          ],
+          "decision": "NEEDS_VERIFICATION",
+          "evidence": "artifacts/runs/data001b-ml-semantics-20261106/audit.json#/columns/udp.port",
+          "name": "udp.port",
+          "reason": "Ch\u01b0a \u0111\u1ee7 mapping ho\u1eb7c kh\u1ea3 n\u0103ng generalization \u0111\u1ec3 \u0111\u01b0a v\u00e0o baseline"
+        },
+        {
+          "conditions": [
+            "Kh\u00f4ng encode raw spelling s\u1ed1 th\u00e0nh categorical; ch\u1ec9 fit preprocessing tr\u00ean train",
+            "Ph\u1ea3i c\u00f3 applicability/missingness contract; zero kh\u00f4ng t\u1ef1 \u0111\u1ed3ng ngh\u0129a absent"
+          ],
+          "decision": "EXCLUDE",
+          "evidence": "artifacts/runs/data001b-ml-semantics-20261106/audit.json#/columns/udp.stream",
+          "name": "udp.stream",
+          "reason": "Capture/device identifiers ho\u1eb7c raw content c\u00f3 r\u1ee7i ro memorization/privacy/deployability"
+        },
+        {
+          "conditions": [
+            "Kh\u00f4ng encode raw spelling s\u1ed1 th\u00e0nh categorical; ch\u1ec9 fit preprocessing tr\u00ean train",
+            "Ph\u1ea3i c\u00f3 applicability/missingness contract; zero kh\u00f4ng t\u1ef1 \u0111\u1ed3ng ngh\u0129a absent"
+          ],
+          "decision": "NEEDS_VERIFICATION",
+          "evidence": "artifacts/runs/data001b-ml-semantics-20261106/audit.json#/columns/udp.time_delta",
+          "name": "udp.time_delta",
+          "reason": "Ch\u01b0a \u0111\u1ee7 mapping ho\u1eb7c kh\u1ea3 n\u0103ng generalization \u0111\u1ec3 \u0111\u01b0a v\u00e0o baseline"
+        },
+        {
+          "conditions": [
+            "Kh\u00f4ng encode raw spelling s\u1ed1 th\u00e0nh categorical; ch\u1ec9 fit preprocessing tr\u00ean train",
+            "Ph\u1ea3i c\u00f3 applicability/missingness contract; zero kh\u00f4ng t\u1ef1 \u0111\u1ed3ng ngh\u0129a absent"
+          ],
+          "decision": "EXCLUDE",
+          "evidence": "artifacts/runs/data001b-ml-semantics-20261106/audit.json#/columns/dns.qry.name",
+          "name": "dns.qry.name",
+          "reason": "Capture/device identifiers ho\u1eb7c raw content c\u00f3 r\u1ee7i ro memorization/privacy/deployability"
+        },
+        {
+          "conditions": [
+            "Kh\u00f4ng encode raw spelling s\u1ed1 th\u00e0nh categorical; ch\u1ec9 fit preprocessing tr\u00ean train",
+            "Ph\u1ea3i c\u00f3 applicability/missingness contract; zero kh\u00f4ng t\u1ef1 \u0111\u1ed3ng ngh\u0129a absent"
+          ],
+          "decision": "QUARANTINE",
+          "evidence": "artifacts/runs/data001b-ml-semantics-20261106/audit.json#/columns/dns.qry.name.len",
+          "name": "dns.qry.name.len",
+          "reason": "Serialization risk ho\u1eb7c c\u00f3 violations ng\u1eef ngh\u0129a ch\u01b0a gi\u1ea3i quy\u1ebft"
+        },
+        {
+          "conditions": [
+            "Kh\u00f4ng encode raw spelling s\u1ed1 th\u00e0nh categorical; ch\u1ec9 fit preprocessing tr\u00ean train",
+            "Ph\u1ea3i c\u00f3 applicability/missingness contract; zero kh\u00f4ng t\u1ef1 \u0111\u1ed3ng ngh\u0129a absent"
+          ],
+          "decision": "QUARANTINE",
+          "evidence": "artifacts/runs/data001b-ml-semantics-20261106/audit.json#/columns/dns.qry.qu",
+          "name": "dns.qry.qu",
+          "reason": "Serialization risk ho\u1eb7c c\u00f3 violations ng\u1eef ngh\u0129a ch\u01b0a gi\u1ea3i quy\u1ebft"
+        },
+        {
+          "conditions": [
+            "Kh\u00f4ng encode raw spelling s\u1ed1 th\u00e0nh categorical; ch\u1ec9 fit preprocessing tr\u00ean train",
+            "Ph\u1ea3i c\u00f3 applicability/missingness contract; zero kh\u00f4ng t\u1ef1 \u0111\u1ed3ng ngh\u0129a absent"
+          ],
+          "decision": "EXCLUDE",
+          "evidence": "artifacts/runs/data001b-ml-semantics-20261106/audit.json#/columns/dns.qry.type",
+          "name": "dns.qry.type",
+          "reason": "Constant to\u00e0n file; kh\u00f4ng c\u00f3 bi\u1ebfn thi\u00ean quan s\u00e1t, kh\u00f4ng d\u1ef1a tr\u00ean correlation"
+        },
+        {
+          "conditions": [
+            "Kh\u00f4ng encode raw spelling s\u1ed1 th\u00e0nh categorical; ch\u1ec9 fit preprocessing tr\u00ean train",
+            "Ph\u1ea3i c\u00f3 applicability/missingness contract; zero kh\u00f4ng t\u1ef1 \u0111\u1ed3ng ngh\u0129a absent"
+          ],
+          "decision": "QUARANTINE",
+          "evidence": "artifacts/runs/data001b-ml-semantics-20261106/audit.json#/columns/dns.retransmission",
+          "name": "dns.retransmission",
+          "reason": "Serialization risk ho\u1eb7c c\u00f3 violations ng\u1eef ngh\u0129a ch\u01b0a gi\u1ea3i quy\u1ebft"
+        },
+        {
+          "conditions": [
+            "Kh\u00f4ng encode raw spelling s\u1ed1 th\u00e0nh categorical; ch\u1ec9 fit preprocessing tr\u00ean train",
+            "Ph\u1ea3i c\u00f3 applicability/missingness contract; zero kh\u00f4ng t\u1ef1 \u0111\u1ed3ng ngh\u0129a absent"
+          ],
+          "decision": "NEEDS_VERIFICATION",
+          "evidence": "artifacts/runs/data001b-ml-semantics-20261106/audit.json#/columns/dns.retransmit_request",
+          "name": "dns.retransmit_request",
+          "reason": "Ch\u01b0a \u0111\u1ee7 mapping ho\u1eb7c kh\u1ea3 n\u0103ng generalization \u0111\u1ec3 \u0111\u01b0a v\u00e0o baseline"
+        },
+        {
+          "conditions": [
+            "Kh\u00f4ng encode raw spelling s\u1ed1 th\u00e0nh categorical; ch\u1ec9 fit preprocessing tr\u00ean train",
+            "Ph\u1ea3i c\u00f3 applicability/missingness contract; zero kh\u00f4ng t\u1ef1 \u0111\u1ed3ng ngh\u0129a absent"
+          ],
+          "decision": "EXCLUDE",
+          "evidence": "artifacts/runs/data001b-ml-semantics-20261106/audit.json#/columns/dns.retransmit_request_in",
+          "name": "dns.retransmit_request_in",
+          "reason": "Constant to\u00e0n file; kh\u00f4ng c\u00f3 bi\u1ebfn thi\u00ean quan s\u00e1t, kh\u00f4ng d\u1ef1a tr\u00ean correlation"
+        },
+        {
+          "conditions": [
+            "Kh\u00f4ng encode raw spelling s\u1ed1 th\u00e0nh categorical; ch\u1ec9 fit preprocessing tr\u00ean train",
+            "Ph\u1ea3i c\u00f3 applicability/missingness contract; zero kh\u00f4ng t\u1ef1 \u0111\u1ed3ng ngh\u0129a absent"
+          ],
+          "decision": "QUARANTINE",
+          "evidence": "artifacts/runs/data001b-ml-semantics-20261106/audit.json#/columns/mqtt.conack.flags",
+          "name": "mqtt.conack.flags",
+          "reason": "Serialization risk ho\u1eb7c c\u00f3 violations ng\u1eef ngh\u0129a ch\u01b0a gi\u1ea3i quy\u1ebft"
+        },
+        {
+          "conditions": [
+            "Kh\u00f4ng encode raw spelling s\u1ed1 th\u00e0nh categorical; ch\u1ec9 fit preprocessing tr\u00ean train",
+            "Ph\u1ea3i c\u00f3 applicability/missingness contract; zero kh\u00f4ng t\u1ef1 \u0111\u1ed3ng ngh\u0129a absent"
+          ],
+          "decision": "NEEDS_VERIFICATION",
+          "evidence": "artifacts/runs/data001b-ml-semantics-20261106/audit.json#/columns/mqtt.conflag.cleansess",
+          "name": "mqtt.conflag.cleansess",
+          "reason": "Nonzero protocol support ch\u1ec9 \u1edf m\u1ed9t binary side; c\u1ea7n representative protocol coverage, kh\u00f4ng k\u1ebft lu\u1eadn causal leakage"
+        },
+        {
+          "conditions": [
+            "Kh\u00f4ng encode raw spelling s\u1ed1 th\u00e0nh categorical; ch\u1ec9 fit preprocessing tr\u00ean train",
+            "Ph\u1ea3i c\u00f3 applicability/missingness contract; zero kh\u00f4ng t\u1ef1 \u0111\u1ed3ng ngh\u0129a absent"
+          ],
+          "decision": "NEEDS_VERIFICATION",
+          "evidence": "artifacts/runs/data001b-ml-semantics-20261106/audit.json#/columns/mqtt.conflags",
+          "name": "mqtt.conflags",
+          "reason": "Nonzero protocol support ch\u1ec9 \u1edf m\u1ed9t binary side; c\u1ea7n representative protocol coverage, kh\u00f4ng k\u1ebft lu\u1eadn causal leakage"
+        },
+        {
+          "conditions": [
+            "Kh\u00f4ng encode raw spelling s\u1ed1 th\u00e0nh categorical; ch\u1ec9 fit preprocessing tr\u00ean train",
+            "Ph\u1ea3i c\u00f3 applicability/missingness contract; zero kh\u00f4ng t\u1ef1 \u0111\u1ed3ng ngh\u0129a absent"
+          ],
+          "decision": "NEEDS_VERIFICATION",
+          "evidence": "artifacts/runs/data001b-ml-semantics-20261106/audit.json#/columns/mqtt.hdrflags",
+          "name": "mqtt.hdrflags",
+          "reason": "Nonzero protocol support ch\u1ec9 \u1edf m\u1ed9t binary side; c\u1ea7n representative protocol coverage, kh\u00f4ng k\u1ebft lu\u1eadn causal leakage"
+        },
+        {
+          "conditions": [
+            "Kh\u00f4ng encode raw spelling s\u1ed1 th\u00e0nh categorical; ch\u1ec9 fit preprocessing tr\u00ean train",
+            "Ph\u1ea3i c\u00f3 applicability/missingness contract; zero kh\u00f4ng t\u1ef1 \u0111\u1ed3ng ngh\u0129a absent"
+          ],
+          "decision": "NEEDS_VERIFICATION",
+          "evidence": "artifacts/runs/data001b-ml-semantics-20261106/audit.json#/columns/mqtt.len",
+          "name": "mqtt.len",
+          "reason": "Nonzero protocol support ch\u1ec9 \u1edf m\u1ed9t binary side; c\u1ea7n representative protocol coverage, kh\u00f4ng k\u1ebft lu\u1eadn causal leakage"
+        },
+        {
+          "conditions": [
+            "Kh\u00f4ng encode raw spelling s\u1ed1 th\u00e0nh categorical; ch\u1ec9 fit preprocessing tr\u00ean train",
+            "Ph\u1ea3i c\u00f3 applicability/missingness contract; zero kh\u00f4ng t\u1ef1 \u0111\u1ed3ng ngh\u0129a absent"
+          ],
+          "decision": "EXCLUDE",
+          "evidence": "artifacts/runs/data001b-ml-semantics-20261106/audit.json#/columns/mqtt.msg_decoded_as",
+          "name": "mqtt.msg_decoded_as",
+          "reason": "Constant to\u00e0n file; kh\u00f4ng c\u00f3 bi\u1ebfn thi\u00ean quan s\u00e1t, kh\u00f4ng d\u1ef1a tr\u00ean correlation"
+        },
+        {
+          "conditions": [
+            "Kh\u00f4ng encode raw spelling s\u1ed1 th\u00e0nh categorical; ch\u1ec9 fit preprocessing tr\u00ean train",
+            "Ph\u1ea3i c\u00f3 applicability/missingness contract; zero kh\u00f4ng t\u1ef1 \u0111\u1ed3ng ngh\u0129a absent"
+          ],
+          "decision": "EXCLUDE",
+          "evidence": "artifacts/runs/data001b-ml-semantics-20261106/audit.json#/columns/mqtt.msg",
+          "name": "mqtt.msg",
+          "reason": "Capture/device identifiers ho\u1eb7c raw content c\u00f3 r\u1ee7i ro memorization/privacy/deployability"
+        },
+        {
+          "conditions": [
+            "Kh\u00f4ng encode raw spelling s\u1ed1 th\u00e0nh categorical; ch\u1ec9 fit preprocessing tr\u00ean train",
+            "Ph\u1ea3i c\u00f3 applicability/missingness contract; zero kh\u00f4ng t\u1ef1 \u0111\u1ed3ng ngh\u0129a absent"
+          ],
+          "decision": "NEEDS_VERIFICATION",
+          "evidence": "artifacts/runs/data001b-ml-semantics-20261106/audit.json#/columns/mqtt.msgtype",
+          "name": "mqtt.msgtype",
+          "reason": "Nonzero protocol support ch\u1ec9 \u1edf m\u1ed9t binary side; c\u1ea7n representative protocol coverage, kh\u00f4ng k\u1ebft lu\u1eadn causal leakage"
+        },
+        {
+          "conditions": [
+            "Kh\u00f4ng encode raw spelling s\u1ed1 th\u00e0nh categorical; ch\u1ec9 fit preprocessing tr\u00ean train",
+            "Ph\u1ea3i c\u00f3 applicability/missingness contract; zero kh\u00f4ng t\u1ef1 \u0111\u1ed3ng ngh\u0129a absent"
+          ],
+          "decision": "NEEDS_VERIFICATION",
+          "evidence": "artifacts/runs/data001b-ml-semantics-20261106/audit.json#/columns/mqtt.proto_len",
+          "name": "mqtt.proto_len",
+          "reason": "Nonzero protocol support ch\u1ec9 \u1edf m\u1ed9t binary side; c\u1ea7n representative protocol coverage, kh\u00f4ng k\u1ebft lu\u1eadn causal leakage"
+        },
+        {
+          "conditions": [
+            "Kh\u00f4ng encode raw spelling s\u1ed1 th\u00e0nh categorical; ch\u1ec9 fit preprocessing tr\u00ean train",
+            "Ph\u1ea3i c\u00f3 applicability/missingness contract; zero kh\u00f4ng t\u1ef1 \u0111\u1ed3ng ngh\u0129a absent"
+          ],
+          "decision": "QUARANTINE",
+          "evidence": "artifacts/runs/data001b-ml-semantics-20261106/audit.json#/columns/mqtt.protoname",
+          "name": "mqtt.protoname",
+          "reason": "Serialization risk ho\u1eb7c c\u00f3 violations ng\u1eef ngh\u0129a ch\u01b0a gi\u1ea3i quy\u1ebft"
+        },
+        {
+          "conditions": [
+            "Kh\u00f4ng encode raw spelling s\u1ed1 th\u00e0nh categorical; ch\u1ec9 fit preprocessing tr\u00ean train",
+            "Ph\u1ea3i c\u00f3 applicability/missingness contract; zero kh\u00f4ng t\u1ef1 \u0111\u1ed3ng ngh\u0129a absent"
+          ],
+          "decision": "QUARANTINE",
+          "evidence": "artifacts/runs/data001b-ml-semantics-20261106/audit.json#/columns/mqtt.topic",
+          "name": "mqtt.topic",
+          "reason": "Serialization risk ho\u1eb7c c\u00f3 violations ng\u1eef ngh\u0129a ch\u01b0a gi\u1ea3i quy\u1ebft"
+        },
+        {
+          "conditions": [
+            "Kh\u00f4ng encode raw spelling s\u1ed1 th\u00e0nh categorical; ch\u1ec9 fit preprocessing tr\u00ean train",
+            "Ph\u1ea3i c\u00f3 applicability/missingness contract; zero kh\u00f4ng t\u1ef1 \u0111\u1ed3ng ngh\u0129a absent"
+          ],
+          "decision": "NEEDS_VERIFICATION",
+          "evidence": "artifacts/runs/data001b-ml-semantics-20261106/audit.json#/columns/mqtt.topic_len",
+          "name": "mqtt.topic_len",
+          "reason": "Nonzero protocol support ch\u1ec9 \u1edf m\u1ed9t binary side; c\u1ea7n representative protocol coverage, kh\u00f4ng k\u1ebft lu\u1eadn causal leakage"
+        },
+        {
+          "conditions": [
+            "Kh\u00f4ng encode raw spelling s\u1ed1 th\u00e0nh categorical; ch\u1ec9 fit preprocessing tr\u00ean train",
+            "Ph\u1ea3i c\u00f3 applicability/missingness contract; zero kh\u00f4ng t\u1ef1 \u0111\u1ed3ng ngh\u0129a absent"
+          ],
+          "decision": "NEEDS_VERIFICATION",
+          "evidence": "artifacts/runs/data001b-ml-semantics-20261106/audit.json#/columns/mqtt.ver",
+          "name": "mqtt.ver",
+          "reason": "Nonzero protocol support ch\u1ec9 \u1edf m\u1ed9t binary side; c\u1ea7n representative protocol coverage, kh\u00f4ng k\u1ebft lu\u1eadn causal leakage"
+        },
+        {
+          "conditions": [
+            "Kh\u00f4ng encode raw spelling s\u1ed1 th\u00e0nh categorical; ch\u1ec9 fit preprocessing tr\u00ean train",
+            "Ph\u1ea3i c\u00f3 applicability/missingness contract; zero kh\u00f4ng t\u1ef1 \u0111\u1ed3ng ngh\u0129a absent"
+          ],
+          "decision": "EXCLUDE",
+          "evidence": "artifacts/runs/data001b-ml-semantics-20261106/audit.json#/columns/mbtcp.len",
+          "name": "mbtcp.len",
+          "reason": "Constant to\u00e0n file; kh\u00f4ng c\u00f3 bi\u1ebfn thi\u00ean quan s\u00e1t, kh\u00f4ng d\u1ef1a tr\u00ean correlation"
+        },
+        {
+          "conditions": [
+            "Kh\u00f4ng encode raw spelling s\u1ed1 th\u00e0nh categorical; ch\u1ec9 fit preprocessing tr\u00ean train",
+            "Ph\u1ea3i c\u00f3 applicability/missingness contract; zero kh\u00f4ng t\u1ef1 \u0111\u1ed3ng ngh\u0129a absent"
+          ],
+          "decision": "EXCLUDE",
+          "evidence": "artifacts/runs/data001b-ml-semantics-20261106/audit.json#/columns/mbtcp.trans_id",
+          "name": "mbtcp.trans_id",
+          "reason": "Constant to\u00e0n file; kh\u00f4ng c\u00f3 bi\u1ebfn thi\u00ean quan s\u00e1t, kh\u00f4ng d\u1ef1a tr\u00ean correlation"
+        },
+        {
+          "conditions": [
+            "Kh\u00f4ng encode raw spelling s\u1ed1 th\u00e0nh categorical; ch\u1ec9 fit preprocessing tr\u00ean train",
+            "Ph\u1ea3i c\u00f3 applicability/missingness contract; zero kh\u00f4ng t\u1ef1 \u0111\u1ed3ng ngh\u0129a absent"
+          ],
+          "decision": "EXCLUDE",
+          "evidence": "artifacts/runs/data001b-ml-semantics-20261106/audit.json#/columns/mbtcp.unit_id",
+          "name": "mbtcp.unit_id",
+          "reason": "Constant to\u00e0n file; kh\u00f4ng c\u00f3 bi\u1ebfn thi\u00ean quan s\u00e1t, kh\u00f4ng d\u1ef1a tr\u00ean correlation"
+        }
+      ],
+      "global_gates": [
+        "Operator duy\u1ec7t label scope, dataset v\u00e0 feature policy tr\u01b0\u1edbc DATA-002",
+        "Exporter semantics/capture lineage ph\u1ea3i \u0111\u01b0\u1ee3c x\u00e1c minh; kh\u00f4ng s\u1eeda l\u1ed7i c\u0103n c\u1ee9 ch\u1ec9 tr\u00ean class label",
+        "Frozen evaluation boundary; no duplicate/group leakage; kh\u00f4ng claim unseen-capture khi thi\u1ebfu group metadata"
+      ],
+      "id": "extended_v1",
+      "purpose": "M\u1edf r\u1ed9ng sau gates capture/generalization v\u00e0 export mapping"
+    },
+    {
+      "features": [
+        {
+          "conditions": [
+            "Kh\u00f4ng encode raw spelling s\u1ed1 th\u00e0nh categorical; ch\u1ec9 fit preprocessing tr\u00ean train",
+            "Ph\u1ea3i c\u00f3 applicability/missingness contract; zero kh\u00f4ng t\u1ef1 \u0111\u1ed3ng ngh\u0129a absent"
+          ],
+          "decision": "QUARANTINE",
+          "evidence": "artifacts/runs/data001b-ml-semantics-20261106/audit.json#/columns/frame.time",
+          "name": "frame.time",
+          "reason": "D\u1eef li\u1ec7u identity/payload ch\u1ec9 \u0111\u01b0\u1ee3c d\u00f9ng audit b\u1ea3o v\u1ec7 v\u00e0 c\u00f3 ph\u00ea duy\u1ec7t ri\u00eang"
+        },
+        {
+          "conditions": [
+            "Kh\u00f4ng encode raw spelling s\u1ed1 th\u00e0nh categorical; ch\u1ec9 fit preprocessing tr\u00ean train",
+            "Ph\u1ea3i c\u00f3 applicability/missingness contract; zero kh\u00f4ng t\u1ef1 \u0111\u1ed3ng ngh\u0129a absent"
+          ],
+          "decision": "QUARANTINE",
+          "evidence": "artifacts/runs/data001b-ml-semantics-20261106/audit.json#/columns/ip.src_host",
+          "name": "ip.src_host",
+          "reason": "D\u1eef li\u1ec7u identity/payload ch\u1ec9 \u0111\u01b0\u1ee3c d\u00f9ng audit b\u1ea3o v\u1ec7 v\u00e0 c\u00f3 ph\u00ea duy\u1ec7t ri\u00eang"
+        },
+        {
+          "conditions": [
+            "Kh\u00f4ng encode raw spelling s\u1ed1 th\u00e0nh categorical; ch\u1ec9 fit preprocessing tr\u00ean train",
+            "Ph\u1ea3i c\u00f3 applicability/missingness contract; zero kh\u00f4ng t\u1ef1 \u0111\u1ed3ng ngh\u0129a absent"
+          ],
+          "decision": "QUARANTINE",
+          "evidence": "artifacts/runs/data001b-ml-semantics-20261106/audit.json#/columns/ip.dst_host",
+          "name": "ip.dst_host",
+          "reason": "D\u1eef li\u1ec7u identity/payload ch\u1ec9 \u0111\u01b0\u1ee3c d\u00f9ng audit b\u1ea3o v\u1ec7 v\u00e0 c\u00f3 ph\u00ea duy\u1ec7t ri\u00eang"
+        },
+        {
+          "conditions": [
+            "Kh\u00f4ng encode raw spelling s\u1ed1 th\u00e0nh categorical; ch\u1ec9 fit preprocessing tr\u00ean train",
+            "Ph\u1ea3i c\u00f3 applicability/missingness contract; zero kh\u00f4ng t\u1ef1 \u0111\u1ed3ng ngh\u0129a absent"
+          ],
+          "decision": "QUARANTINE",
+          "evidence": "artifacts/runs/data001b-ml-semantics-20261106/audit.json#/columns/arp.dst.proto_ipv4",
+          "name": "arp.dst.proto_ipv4",
+          "reason": "D\u1eef li\u1ec7u identity/payload ch\u1ec9 \u0111\u01b0\u1ee3c d\u00f9ng audit b\u1ea3o v\u1ec7 v\u00e0 c\u00f3 ph\u00ea duy\u1ec7t ri\u00eang"
+        },
+        {
+          "conditions": [
+            "Kh\u00f4ng encode raw spelling s\u1ed1 th\u00e0nh categorical; ch\u1ec9 fit preprocessing tr\u00ean train",
+            "Ph\u1ea3i c\u00f3 applicability/missingness contract; zero kh\u00f4ng t\u1ef1 \u0111\u1ed3ng ngh\u0129a absent"
+          ],
+          "decision": "INCLUDE",
+          "evidence": "artifacts/runs/data001b-ml-semantics-20261106/audit.json#/columns/arp.opcode",
+          "name": "arp.opcode",
+          "reason": "\u0110\u1ed1i ch\u1ee9ng artifact c\u00f3 ki\u1ec3m so\u00e1t, kh\u00f4ng d\u00f9ng l\u00e0m baseline tin c\u1eady"
+        },
+        {
+          "conditions": [
+            "Kh\u00f4ng encode raw spelling s\u1ed1 th\u00e0nh categorical; ch\u1ec9 fit preprocessing tr\u00ean train",
+            "Ph\u1ea3i c\u00f3 applicability/missingness contract; zero kh\u00f4ng t\u1ef1 \u0111\u1ed3ng ngh\u0129a absent"
+          ],
+          "decision": "INCLUDE",
+          "evidence": "artifacts/runs/data001b-ml-semantics-20261106/audit.json#/columns/arp.hw.size",
+          "name": "arp.hw.size",
+          "reason": "\u0110\u1ed1i ch\u1ee9ng artifact c\u00f3 ki\u1ec3m so\u00e1t, kh\u00f4ng d\u00f9ng l\u00e0m baseline tin c\u1eady"
+        },
+        {
+          "conditions": [
+            "Kh\u00f4ng encode raw spelling s\u1ed1 th\u00e0nh categorical; ch\u1ec9 fit preprocessing tr\u00ean train",
+            "Ph\u1ea3i c\u00f3 applicability/missingness contract; zero kh\u00f4ng t\u1ef1 \u0111\u1ed3ng ngh\u0129a absent"
+          ],
+          "decision": "QUARANTINE",
+          "evidence": "artifacts/runs/data001b-ml-semantics-20261106/audit.json#/columns/arp.src.proto_ipv4",
+          "name": "arp.src.proto_ipv4",
+          "reason": "D\u1eef li\u1ec7u identity/payload ch\u1ec9 \u0111\u01b0\u1ee3c d\u00f9ng audit b\u1ea3o v\u1ec7 v\u00e0 c\u00f3 ph\u00ea duy\u1ec7t ri\u00eang"
+        },
+        {
+          "conditions": [
+            "Kh\u00f4ng encode raw spelling s\u1ed1 th\u00e0nh categorical; ch\u1ec9 fit preprocessing tr\u00ean train",
+            "Ph\u1ea3i c\u00f3 applicability/missingness contract; zero kh\u00f4ng t\u1ef1 \u0111\u1ed3ng ngh\u0129a absent"
+          ],
+          "decision": "INCLUDE",
+          "evidence": "artifacts/runs/data001b-ml-semantics-20261106/audit.json#/columns/icmp.checksum",
+          "name": "icmp.checksum",
+          "reason": "\u0110\u1ed1i ch\u1ee9ng artifact c\u00f3 ki\u1ec3m so\u00e1t, kh\u00f4ng d\u00f9ng l\u00e0m baseline tin c\u1eady"
+        },
+        {
+          "conditions": [
+            "Kh\u00f4ng encode raw spelling s\u1ed1 th\u00e0nh categorical; ch\u1ec9 fit preprocessing tr\u00ean train",
+            "Ph\u1ea3i c\u00f3 applicability/missingness contract; zero kh\u00f4ng t\u1ef1 \u0111\u1ed3ng ngh\u0129a absent"
+          ],
+          "decision": "INCLUDE",
+          "evidence": "artifacts/runs/data001b-ml-semantics-20261106/audit.json#/columns/icmp.seq_le",
+          "name": "icmp.seq_le",
+          "reason": "\u0110\u1ed1i ch\u1ee9ng artifact c\u00f3 ki\u1ec3m so\u00e1t, kh\u00f4ng d\u00f9ng l\u00e0m baseline tin c\u1eady"
+        },
+        {
+          "conditions": [
+            "Kh\u00f4ng encode raw spelling s\u1ed1 th\u00e0nh categorical; ch\u1ec9 fit preprocessing tr\u00ean train",
+            "Ph\u1ea3i c\u00f3 applicability/missingness contract; zero kh\u00f4ng t\u1ef1 \u0111\u1ed3ng ngh\u0129a absent"
+          ],
+          "decision": "INCLUDE",
+          "evidence": "artifacts/runs/data001b-ml-semantics-20261106/audit.json#/columns/icmp.transmit_timestamp",
+          "name": "icmp.transmit_timestamp",
+          "reason": "\u0110\u1ed1i ch\u1ee9ng artifact c\u00f3 ki\u1ec3m so\u00e1t, kh\u00f4ng d\u00f9ng l\u00e0m baseline tin c\u1eady"
+        },
+        {
+          "conditions": [
+            "Kh\u00f4ng encode raw spelling s\u1ed1 th\u00e0nh categorical; ch\u1ec9 fit preprocessing tr\u00ean train",
+            "Ph\u1ea3i c\u00f3 applicability/missingness contract; zero kh\u00f4ng t\u1ef1 \u0111\u1ed3ng ngh\u0129a absent"
+          ],
+          "decision": "EXCLUDE",
+          "evidence": "artifacts/runs/data001b-ml-semantics-20261106/audit.json#/columns/icmp.unused",
+          "name": "icmp.unused",
+          "reason": "Constant to\u00e0n file; kh\u00f4ng c\u00f3 bi\u1ebfn thi\u00ean quan s\u00e1t, kh\u00f4ng d\u1ef1a tr\u00ean correlation"
+        },
+        {
+          "conditions": [
+            "Kh\u00f4ng encode raw spelling s\u1ed1 th\u00e0nh categorical; ch\u1ec9 fit preprocessing tr\u00ean train",
+            "Ph\u1ea3i c\u00f3 applicability/missingness contract; zero kh\u00f4ng t\u1ef1 \u0111\u1ed3ng ngh\u0129a absent"
+          ],
+          "decision": "QUARANTINE",
+          "evidence": "artifacts/runs/data001b-ml-semantics-20261106/audit.json#/columns/http.file_data",
+          "name": "http.file_data",
+          "reason": "D\u1eef li\u1ec7u identity/payload ch\u1ec9 \u0111\u01b0\u1ee3c d\u00f9ng audit b\u1ea3o v\u1ec7 v\u00e0 c\u00f3 ph\u00ea duy\u1ec7t ri\u00eang"
+        },
+        {
+          "conditions": [
+            "Kh\u00f4ng encode raw spelling s\u1ed1 th\u00e0nh categorical; ch\u1ec9 fit preprocessing tr\u00ean train",
+            "Ph\u1ea3i c\u00f3 applicability/missingness contract; zero kh\u00f4ng t\u1ef1 \u0111\u1ed3ng ngh\u0129a absent"
+          ],
+          "decision": "INCLUDE",
+          "evidence": "artifacts/runs/data001b-ml-semantics-20261106/audit.json#/columns/http.content_length",
+          "name": "http.content_length",
+          "reason": "\u0110\u1ed1i ch\u1ee9ng artifact c\u00f3 ki\u1ec3m so\u00e1t, kh\u00f4ng d\u00f9ng l\u00e0m baseline tin c\u1eady"
+        },
+        {
+          "conditions": [
+            "Kh\u00f4ng encode raw spelling s\u1ed1 th\u00e0nh categorical; ch\u1ec9 fit preprocessing tr\u00ean train",
+            "Ph\u1ea3i c\u00f3 applicability/missingness contract; zero kh\u00f4ng t\u1ef1 \u0111\u1ed3ng ngh\u0129a absent"
+          ],
+          "decision": "QUARANTINE",
+          "evidence": "artifacts/runs/data001b-ml-semantics-20261106/audit.json#/columns/http.request.uri.query",
+          "name": "http.request.uri.query",
+          "reason": "D\u1eef li\u1ec7u identity/payload ch\u1ec9 \u0111\u01b0\u1ee3c d\u00f9ng audit b\u1ea3o v\u1ec7 v\u00e0 c\u00f3 ph\u00ea duy\u1ec7t ri\u00eang"
+        },
+        {
+          "conditions": [
+            "Kh\u00f4ng encode raw spelling s\u1ed1 th\u00e0nh categorical; ch\u1ec9 fit preprocessing tr\u00ean train",
+            "Ph\u1ea3i c\u00f3 applicability/missingness contract; zero kh\u00f4ng t\u1ef1 \u0111\u1ed3ng ngh\u0129a absent"
+          ],
+          "decision": "INCLUDE",
+          "evidence": "artifacts/runs/data001b-ml-semantics-20261106/audit.json#/columns/http.request.method",
+          "name": "http.request.method",
+          "reason": "\u0110\u1ed1i ch\u1ee9ng artifact c\u00f3 ki\u1ec3m so\u00e1t, kh\u00f4ng d\u00f9ng l\u00e0m baseline tin c\u1eady"
+        },
+        {
+          "conditions": [
+            "Kh\u00f4ng encode raw spelling s\u1ed1 th\u00e0nh categorical; ch\u1ec9 fit preprocessing tr\u00ean train",
+            "Ph\u1ea3i c\u00f3 applicability/missingness contract; zero kh\u00f4ng t\u1ef1 \u0111\u1ed3ng ngh\u0129a absent"
+          ],
+          "decision": "QUARANTINE",
+          "evidence": "artifacts/runs/data001b-ml-semantics-20261106/audit.json#/columns/http.referer",
+          "name": "http.referer",
+          "reason": "D\u1eef li\u1ec7u identity/payload ch\u1ec9 \u0111\u01b0\u1ee3c d\u00f9ng audit b\u1ea3o v\u1ec7 v\u00e0 c\u00f3 ph\u00ea duy\u1ec7t ri\u00eang"
+        },
+        {
+          "conditions": [
+            "Kh\u00f4ng encode raw spelling s\u1ed1 th\u00e0nh categorical; ch\u1ec9 fit preprocessing tr\u00ean train",
+            "Ph\u1ea3i c\u00f3 applicability/missingness contract; zero kh\u00f4ng t\u1ef1 \u0111\u1ed3ng ngh\u0129a absent"
+          ],
+          "decision": "QUARANTINE",
+          "evidence": "artifacts/runs/data001b-ml-semantics-20261106/audit.json#/columns/http.request.full_uri",
+          "name": "http.request.full_uri",
+          "reason": "D\u1eef li\u1ec7u identity/payload ch\u1ec9 \u0111\u01b0\u1ee3c d\u00f9ng audit b\u1ea3o v\u1ec7 v\u00e0 c\u00f3 ph\u00ea duy\u1ec7t ri\u00eang"
+        },
+        {
+          "conditions": [
+            "Kh\u00f4ng encode raw spelling s\u1ed1 th\u00e0nh categorical; ch\u1ec9 fit preprocessing tr\u00ean train",
+            "Ph\u1ea3i c\u00f3 applicability/missingness contract; zero kh\u00f4ng t\u1ef1 \u0111\u1ed3ng ngh\u0129a absent"
+          ],
+          "decision": "INCLUDE",
+          "evidence": "artifacts/runs/data001b-ml-semantics-20261106/audit.json#/columns/http.request.version",
+          "name": "http.request.version",
+          "reason": "\u0110\u1ed1i ch\u1ee9ng artifact c\u00f3 ki\u1ec3m so\u00e1t, kh\u00f4ng d\u00f9ng l\u00e0m baseline tin c\u1eady"
+        },
+        {
+          "conditions": [
+            "Kh\u00f4ng encode raw spelling s\u1ed1 th\u00e0nh categorical; ch\u1ec9 fit preprocessing tr\u00ean train",
+            "Ph\u1ea3i c\u00f3 applicability/missingness contract; zero kh\u00f4ng t\u1ef1 \u0111\u1ed3ng ngh\u0129a absent"
+          ],
+          "decision": "INCLUDE",
+          "evidence": "artifacts/runs/data001b-ml-semantics-20261106/audit.json#/columns/http.response",
+          "name": "http.response",
+          "reason": "\u0110\u1ed1i ch\u1ee9ng artifact c\u00f3 ki\u1ec3m so\u00e1t, kh\u00f4ng d\u00f9ng l\u00e0m baseline tin c\u1eady"
+        },
+        {
+          "conditions": [
+            "Kh\u00f4ng encode raw spelling s\u1ed1 th\u00e0nh categorical; ch\u1ec9 fit preprocessing tr\u00ean train",
+            "Ph\u1ea3i c\u00f3 applicability/missingness contract; zero kh\u00f4ng t\u1ef1 \u0111\u1ed3ng ngh\u0129a absent"
+          ],
+          "decision": "EXCLUDE",
+          "evidence": "artifacts/runs/data001b-ml-semantics-20261106/audit.json#/columns/http.tls_port",
+          "name": "http.tls_port",
+          "reason": "Constant to\u00e0n file; kh\u00f4ng c\u00f3 bi\u1ebfn thi\u00ean quan s\u00e1t, kh\u00f4ng d\u1ef1a tr\u00ean correlation"
+        },
+        {
+          "conditions": [
+            "Kh\u00f4ng encode raw spelling s\u1ed1 th\u00e0nh categorical; ch\u1ec9 fit preprocessing tr\u00ean train",
+            "Ph\u1ea3i c\u00f3 applicability/missingness contract; zero kh\u00f4ng t\u1ef1 \u0111\u1ed3ng ngh\u0129a absent"
+          ],
+          "decision": "INCLUDE",
+          "evidence": "artifacts/runs/data001b-ml-semantics-20261106/audit.json#/columns/tcp.ack",
+          "name": "tcp.ack",
+          "reason": "\u0110\u1ed1i ch\u1ee9ng artifact c\u00f3 ki\u1ec3m so\u00e1t, kh\u00f4ng d\u00f9ng l\u00e0m baseline tin c\u1eady"
+        },
+        {
+          "conditions": [
+            "Kh\u00f4ng encode raw spelling s\u1ed1 th\u00e0nh categorical; ch\u1ec9 fit preprocessing tr\u00ean train",
+            "Ph\u1ea3i c\u00f3 applicability/missingness contract; zero kh\u00f4ng t\u1ef1 \u0111\u1ed3ng ngh\u0129a absent"
+          ],
+          "decision": "INCLUDE",
+          "evidence": "artifacts/runs/data001b-ml-semantics-20261106/audit.json#/columns/tcp.ack_raw",
+          "name": "tcp.ack_raw",
+          "reason": "\u0110\u1ed1i ch\u1ee9ng artifact c\u00f3 ki\u1ec3m so\u00e1t, kh\u00f4ng d\u00f9ng l\u00e0m baseline tin c\u1eady"
+        },
+        {
+          "conditions": [
+            "Kh\u00f4ng encode raw spelling s\u1ed1 th\u00e0nh categorical; ch\u1ec9 fit preprocessing tr\u00ean train",
+            "Ph\u1ea3i c\u00f3 applicability/missingness contract; zero kh\u00f4ng t\u1ef1 \u0111\u1ed3ng ngh\u0129a absent"
+          ],
+          "decision": "INCLUDE",
+          "evidence": "artifacts/runs/data001b-ml-semantics-20261106/audit.json#/columns/tcp.checksum",
+          "name": "tcp.checksum",
+          "reason": "\u0110\u1ed1i ch\u1ee9ng artifact c\u00f3 ki\u1ec3m so\u00e1t, kh\u00f4ng d\u00f9ng l\u00e0m baseline tin c\u1eady"
+        },
+        {
+          "conditions": [
+            "Kh\u00f4ng encode raw spelling s\u1ed1 th\u00e0nh categorical; ch\u1ec9 fit preprocessing tr\u00ean train",
+            "Ph\u1ea3i c\u00f3 applicability/missingness contract; zero kh\u00f4ng t\u1ef1 \u0111\u1ed3ng ngh\u0129a absent"
+          ],
+          "decision": "INCLUDE",
+          "evidence": "artifacts/runs/data001b-ml-semantics-20261106/audit.json#/columns/tcp.connection.fin",
+          "name": "tcp.connection.fin",
+          "reason": "\u0110\u1ed1i ch\u1ee9ng artifact c\u00f3 ki\u1ec3m so\u00e1t, kh\u00f4ng d\u00f9ng l\u00e0m baseline tin c\u1eady"
+        },
+        {
+          "conditions": [
+            "Kh\u00f4ng encode raw spelling s\u1ed1 th\u00e0nh categorical; ch\u1ec9 fit preprocessing tr\u00ean train",
+            "Ph\u1ea3i c\u00f3 applicability/missingness contract; zero kh\u00f4ng t\u1ef1 \u0111\u1ed3ng ngh\u0129a absent"
+          ],
+          "decision": "INCLUDE",
+          "evidence": "artifacts/runs/data001b-ml-semantics-20261106/audit.json#/columns/tcp.connection.rst",
+          "name": "tcp.connection.rst",
+          "reason": "\u0110\u1ed1i ch\u1ee9ng artifact c\u00f3 ki\u1ec3m so\u00e1t, kh\u00f4ng d\u00f9ng l\u00e0m baseline tin c\u1eady"
+        },
+        {
+          "conditions": [
+            "Kh\u00f4ng encode raw spelling s\u1ed1 th\u00e0nh categorical; ch\u1ec9 fit preprocessing tr\u00ean train",
+            "Ph\u1ea3i c\u00f3 applicability/missingness contract; zero kh\u00f4ng t\u1ef1 \u0111\u1ed3ng ngh\u0129a absent"
+          ],
+          "decision": "INCLUDE",
+          "evidence": "artifacts/runs/data001b-ml-semantics-20261106/audit.json#/columns/tcp.connection.syn",
+          "name": "tcp.connection.syn",
+          "reason": "\u0110\u1ed1i ch\u1ee9ng artifact c\u00f3 ki\u1ec3m so\u00e1t, kh\u00f4ng d\u00f9ng l\u00e0m baseline tin c\u1eady"
+        },
+        {
+          "conditions": [
+            "Kh\u00f4ng encode raw spelling s\u1ed1 th\u00e0nh categorical; ch\u1ec9 fit preprocessing tr\u00ean train",
+            "Ph\u1ea3i c\u00f3 applicability/missingness contract; zero kh\u00f4ng t\u1ef1 \u0111\u1ed3ng ngh\u0129a absent"
+          ],
+          "decision": "INCLUDE",
+          "evidence": "artifacts/runs/data001b-ml-semantics-20261106/audit.json#/columns/tcp.connection.synack",
+          "name": "tcp.connection.synack",
+          "reason": "\u0110\u1ed1i ch\u1ee9ng artifact c\u00f3 ki\u1ec3m so\u00e1t, kh\u00f4ng d\u00f9ng l\u00e0m baseline tin c\u1eady"
+        },
+        {
+          "conditions": [
+            "Kh\u00f4ng encode raw spelling s\u1ed1 th\u00e0nh categorical; ch\u1ec9 fit preprocessing tr\u00ean train",
+            "Ph\u1ea3i c\u00f3 applicability/missingness contract; zero kh\u00f4ng t\u1ef1 \u0111\u1ed3ng ngh\u0129a absent"
+          ],
+          "decision": "INCLUDE",
+          "evidence": "artifacts/runs/data001b-ml-semantics-20261106/audit.json#/columns/tcp.dstport",
+          "name": "tcp.dstport",
+          "reason": "\u0110\u1ed1i ch\u1ee9ng artifact c\u00f3 ki\u1ec3m so\u00e1t, kh\u00f4ng d\u00f9ng l\u00e0m baseline tin c\u1eady"
+        },
+        {
+          "conditions": [
+            "Kh\u00f4ng encode raw spelling s\u1ed1 th\u00e0nh categorical; ch\u1ec9 fit preprocessing tr\u00ean train",
+            "Ph\u1ea3i c\u00f3 applicability/missingness contract; zero kh\u00f4ng t\u1ef1 \u0111\u1ed3ng ngh\u0129a absent"
+          ],
+          "decision": "INCLUDE",
+          "evidence": "artifacts/runs/data001b-ml-semantics-20261106/audit.json#/columns/tcp.flags",
+          "name": "tcp.flags",
+          "reason": "\u0110\u1ed1i ch\u1ee9ng artifact c\u00f3 ki\u1ec3m so\u00e1t, kh\u00f4ng d\u00f9ng l\u00e0m baseline tin c\u1eady"
+        },
+        {
+          "conditions": [
+            "Kh\u00f4ng encode raw spelling s\u1ed1 th\u00e0nh categorical; ch\u1ec9 fit preprocessing tr\u00ean train",
+            "Ph\u1ea3i c\u00f3 applicability/missingness contract; zero kh\u00f4ng t\u1ef1 \u0111\u1ed3ng ngh\u0129a absent"
+          ],
+          "decision": "INCLUDE",
+          "evidence": "artifacts/runs/data001b-ml-semantics-20261106/audit.json#/columns/tcp.flags.ack",
+          "name": "tcp.flags.ack",
+          "reason": "\u0110\u1ed1i ch\u1ee9ng artifact c\u00f3 ki\u1ec3m so\u00e1t, kh\u00f4ng d\u00f9ng l\u00e0m baseline tin c\u1eady"
+        },
+        {
+          "conditions": [
+            "Kh\u00f4ng encode raw spelling s\u1ed1 th\u00e0nh categorical; ch\u1ec9 fit preprocessing tr\u00ean train",
+            "Ph\u1ea3i c\u00f3 applicability/missingness contract; zero kh\u00f4ng t\u1ef1 \u0111\u1ed3ng ngh\u0129a absent"
+          ],
+          "decision": "INCLUDE",
+          "evidence": "artifacts/runs/data001b-ml-semantics-20261106/audit.json#/columns/tcp.len",
+          "name": "tcp.len",
+          "reason": "\u0110\u1ed1i ch\u1ee9ng artifact c\u00f3 ki\u1ec3m so\u00e1t, kh\u00f4ng d\u00f9ng l\u00e0m baseline tin c\u1eady"
+        },
+        {
+          "conditions": [
+            "Kh\u00f4ng encode raw spelling s\u1ed1 th\u00e0nh categorical; ch\u1ec9 fit preprocessing tr\u00ean train",
+            "Ph\u1ea3i c\u00f3 applicability/missingness contract; zero kh\u00f4ng t\u1ef1 \u0111\u1ed3ng ngh\u0129a absent"
+          ],
+          "decision": "QUARANTINE",
+          "evidence": "artifacts/runs/data001b-ml-semantics-20261106/audit.json#/columns/tcp.options",
+          "name": "tcp.options",
+          "reason": "D\u1eef li\u1ec7u identity/payload ch\u1ec9 \u0111\u01b0\u1ee3c d\u00f9ng audit b\u1ea3o v\u1ec7 v\u00e0 c\u00f3 ph\u00ea duy\u1ec7t ri\u00eang"
+        },
+        {
+          "conditions": [
+            "Kh\u00f4ng encode raw spelling s\u1ed1 th\u00e0nh categorical; ch\u1ec9 fit preprocessing tr\u00ean train",
+            "Ph\u1ea3i c\u00f3 applicability/missingness contract; zero kh\u00f4ng t\u1ef1 \u0111\u1ed3ng ngh\u0129a absent"
+          ],
+          "decision": "QUARANTINE",
+          "evidence": "artifacts/runs/data001b-ml-semantics-20261106/audit.json#/columns/tcp.payload",
+          "name": "tcp.payload",
+          "reason": "D\u1eef li\u1ec7u identity/payload ch\u1ec9 \u0111\u01b0\u1ee3c d\u00f9ng audit b\u1ea3o v\u1ec7 v\u00e0 c\u00f3 ph\u00ea duy\u1ec7t ri\u00eang"
+        },
+        {
+          "conditions": [
+            "Kh\u00f4ng encode raw spelling s\u1ed1 th\u00e0nh categorical; ch\u1ec9 fit preprocessing tr\u00ean train",
+            "Ph\u1ea3i c\u00f3 applicability/missingness contract; zero kh\u00f4ng t\u1ef1 \u0111\u1ed3ng ngh\u0129a absent"
+          ],
+          "decision": "INCLUDE",
+          "evidence": "artifacts/runs/data001b-ml-semantics-20261106/audit.json#/columns/tcp.seq",
+          "name": "tcp.seq",
+          "reason": "\u0110\u1ed1i ch\u1ee9ng artifact c\u00f3 ki\u1ec3m so\u00e1t, kh\u00f4ng d\u00f9ng l\u00e0m baseline tin c\u1eady"
+        },
+        {
+          "conditions": [
+            "Kh\u00f4ng encode raw spelling s\u1ed1 th\u00e0nh categorical; ch\u1ec9 fit preprocessing tr\u00ean train",
+            "Ph\u1ea3i c\u00f3 applicability/missingness contract; zero kh\u00f4ng t\u1ef1 \u0111\u1ed3ng ngh\u0129a absent"
+          ],
+          "decision": "INCLUDE",
+          "evidence": "artifacts/runs/data001b-ml-semantics-20261106/audit.json#/columns/tcp.srcport",
+          "name": "tcp.srcport",
+          "reason": "\u0110\u1ed1i ch\u1ee9ng artifact c\u00f3 ki\u1ec3m so\u00e1t, kh\u00f4ng d\u00f9ng l\u00e0m baseline tin c\u1eady"
+        },
+        {
+          "conditions": [
+            "Kh\u00f4ng encode raw spelling s\u1ed1 th\u00e0nh categorical; ch\u1ec9 fit preprocessing tr\u00ean train",
+            "Ph\u1ea3i c\u00f3 applicability/missingness contract; zero kh\u00f4ng t\u1ef1 \u0111\u1ed3ng ngh\u0129a absent"
+          ],
+          "decision": "INCLUDE",
+          "evidence": "artifacts/runs/data001b-ml-semantics-20261106/audit.json#/columns/udp.port",
+          "name": "udp.port",
+          "reason": "\u0110\u1ed1i ch\u1ee9ng artifact c\u00f3 ki\u1ec3m so\u00e1t, kh\u00f4ng d\u00f9ng l\u00e0m baseline tin c\u1eady"
+        },
+        {
+          "conditions": [
+            "Kh\u00f4ng encode raw spelling s\u1ed1 th\u00e0nh categorical; ch\u1ec9 fit preprocessing tr\u00ean train",
+            "Ph\u1ea3i c\u00f3 applicability/missingness contract; zero kh\u00f4ng t\u1ef1 \u0111\u1ed3ng ngh\u0129a absent"
+          ],
+          "decision": "QUARANTINE",
+          "evidence": "artifacts/runs/data001b-ml-semantics-20261106/audit.json#/columns/udp.stream",
+          "name": "udp.stream",
+          "reason": "D\u1eef li\u1ec7u identity/payload ch\u1ec9 \u0111\u01b0\u1ee3c d\u00f9ng audit b\u1ea3o v\u1ec7 v\u00e0 c\u00f3 ph\u00ea duy\u1ec7t ri\u00eang"
+        },
+        {
+          "conditions": [
+            "Kh\u00f4ng encode raw spelling s\u1ed1 th\u00e0nh categorical; ch\u1ec9 fit preprocessing tr\u00ean train",
+            "Ph\u1ea3i c\u00f3 applicability/missingness contract; zero kh\u00f4ng t\u1ef1 \u0111\u1ed3ng ngh\u0129a absent"
+          ],
+          "decision": "INCLUDE",
+          "evidence": "artifacts/runs/data001b-ml-semantics-20261106/audit.json#/columns/udp.time_delta",
+          "name": "udp.time_delta",
+          "reason": "\u0110\u1ed1i ch\u1ee9ng artifact c\u00f3 ki\u1ec3m so\u00e1t, kh\u00f4ng d\u00f9ng l\u00e0m baseline tin c\u1eady"
+        },
+        {
+          "conditions": [
+            "Kh\u00f4ng encode raw spelling s\u1ed1 th\u00e0nh categorical; ch\u1ec9 fit preprocessing tr\u00ean train",
+            "Ph\u1ea3i c\u00f3 applicability/missingness contract; zero kh\u00f4ng t\u1ef1 \u0111\u1ed3ng ngh\u0129a absent"
+          ],
+          "decision": "QUARANTINE",
+          "evidence": "artifacts/runs/data001b-ml-semantics-20261106/audit.json#/columns/dns.qry.name",
+          "name": "dns.qry.name",
+          "reason": "D\u1eef li\u1ec7u identity/payload ch\u1ec9 \u0111\u01b0\u1ee3c d\u00f9ng audit b\u1ea3o v\u1ec7 v\u00e0 c\u00f3 ph\u00ea duy\u1ec7t ri\u00eang"
+        },
+        {
+          "conditions": [
+            "Kh\u00f4ng encode raw spelling s\u1ed1 th\u00e0nh categorical; ch\u1ec9 fit preprocessing tr\u00ean train",
+            "Ph\u1ea3i c\u00f3 applicability/missingness contract; zero kh\u00f4ng t\u1ef1 \u0111\u1ed3ng ngh\u0129a absent"
+          ],
+          "decision": "INCLUDE",
+          "evidence": "artifacts/runs/data001b-ml-semantics-20261106/audit.json#/columns/dns.qry.name.len",
+          "name": "dns.qry.name.len",
+          "reason": "\u0110\u1ed1i ch\u1ee9ng artifact c\u00f3 ki\u1ec3m so\u00e1t, kh\u00f4ng d\u00f9ng l\u00e0m baseline tin c\u1eady"
+        },
+        {
+          "conditions": [
+            "Kh\u00f4ng encode raw spelling s\u1ed1 th\u00e0nh categorical; ch\u1ec9 fit preprocessing tr\u00ean train",
+            "Ph\u1ea3i c\u00f3 applicability/missingness contract; zero kh\u00f4ng t\u1ef1 \u0111\u1ed3ng ngh\u0129a absent"
+          ],
+          "decision": "INCLUDE",
+          "evidence": "artifacts/runs/data001b-ml-semantics-20261106/audit.json#/columns/dns.qry.qu",
+          "name": "dns.qry.qu",
+          "reason": "\u0110\u1ed1i ch\u1ee9ng artifact c\u00f3 ki\u1ec3m so\u00e1t, kh\u00f4ng d\u00f9ng l\u00e0m baseline tin c\u1eady"
+        },
+        {
+          "conditions": [
+            "Kh\u00f4ng encode raw spelling s\u1ed1 th\u00e0nh categorical; ch\u1ec9 fit preprocessing tr\u00ean train",
+            "Ph\u1ea3i c\u00f3 applicability/missingness contract; zero kh\u00f4ng t\u1ef1 \u0111\u1ed3ng ngh\u0129a absent"
+          ],
+          "decision": "EXCLUDE",
+          "evidence": "artifacts/runs/data001b-ml-semantics-20261106/audit.json#/columns/dns.qry.type",
+          "name": "dns.qry.type",
+          "reason": "Constant to\u00e0n file; kh\u00f4ng c\u00f3 bi\u1ebfn thi\u00ean quan s\u00e1t, kh\u00f4ng d\u1ef1a tr\u00ean correlation"
+        },
+        {
+          "conditions": [
+            "Kh\u00f4ng encode raw spelling s\u1ed1 th\u00e0nh categorical; ch\u1ec9 fit preprocessing tr\u00ean train",
+            "Ph\u1ea3i c\u00f3 applicability/missingness contract; zero kh\u00f4ng t\u1ef1 \u0111\u1ed3ng ngh\u0129a absent"
+          ],
+          "decision": "INCLUDE",
+          "evidence": "artifacts/runs/data001b-ml-semantics-20261106/audit.json#/columns/dns.retransmission",
+          "name": "dns.retransmission",
+          "reason": "\u0110\u1ed1i ch\u1ee9ng artifact c\u00f3 ki\u1ec3m so\u00e1t, kh\u00f4ng d\u00f9ng l\u00e0m baseline tin c\u1eady"
+        },
+        {
+          "conditions": [
+            "Kh\u00f4ng encode raw spelling s\u1ed1 th\u00e0nh categorical; ch\u1ec9 fit preprocessing tr\u00ean train",
+            "Ph\u1ea3i c\u00f3 applicability/missingness contract; zero kh\u00f4ng t\u1ef1 \u0111\u1ed3ng ngh\u0129a absent"
+          ],
+          "decision": "INCLUDE",
+          "evidence": "artifacts/runs/data001b-ml-semantics-20261106/audit.json#/columns/dns.retransmit_request",
+          "name": "dns.retransmit_request",
+          "reason": "\u0110\u1ed1i ch\u1ee9ng artifact c\u00f3 ki\u1ec3m so\u00e1t, kh\u00f4ng d\u00f9ng l\u00e0m baseline tin c\u1eady"
+        },
+        {
+          "conditions": [
+            "Kh\u00f4ng encode raw spelling s\u1ed1 th\u00e0nh categorical; ch\u1ec9 fit preprocessing tr\u00ean train",
+            "Ph\u1ea3i c\u00f3 applicability/missingness contract; zero kh\u00f4ng t\u1ef1 \u0111\u1ed3ng ngh\u0129a absent"
+          ],
+          "decision": "EXCLUDE",
+          "evidence": "artifacts/runs/data001b-ml-semantics-20261106/audit.json#/columns/dns.retransmit_request_in",
+          "name": "dns.retransmit_request_in",
+          "reason": "Constant to\u00e0n file; kh\u00f4ng c\u00f3 bi\u1ebfn thi\u00ean quan s\u00e1t, kh\u00f4ng d\u1ef1a tr\u00ean correlation"
+        },
+        {
+          "conditions": [
+            "Kh\u00f4ng encode raw spelling s\u1ed1 th\u00e0nh categorical; ch\u1ec9 fit preprocessing tr\u00ean train",
+            "Ph\u1ea3i c\u00f3 applicability/missingness contract; zero kh\u00f4ng t\u1ef1 \u0111\u1ed3ng ngh\u0129a absent"
+          ],
+          "decision": "INCLUDE",
+          "evidence": "artifacts/runs/data001b-ml-semantics-20261106/audit.json#/columns/mqtt.conack.flags",
+          "name": "mqtt.conack.flags",
+          "reason": "\u0110\u1ed1i ch\u1ee9ng artifact c\u00f3 ki\u1ec3m so\u00e1t, kh\u00f4ng d\u00f9ng l\u00e0m baseline tin c\u1eady"
+        },
+        {
+          "conditions": [
+            "Kh\u00f4ng encode raw spelling s\u1ed1 th\u00e0nh categorical; ch\u1ec9 fit preprocessing tr\u00ean train",
+            "Ph\u1ea3i c\u00f3 applicability/missingness contract; zero kh\u00f4ng t\u1ef1 \u0111\u1ed3ng ngh\u0129a absent"
+          ],
+          "decision": "INCLUDE",
+          "evidence": "artifacts/runs/data001b-ml-semantics-20261106/audit.json#/columns/mqtt.conflag.cleansess",
+          "name": "mqtt.conflag.cleansess",
+          "reason": "\u0110\u1ed1i ch\u1ee9ng artifact c\u00f3 ki\u1ec3m so\u00e1t, kh\u00f4ng d\u00f9ng l\u00e0m baseline tin c\u1eady"
+        },
+        {
+          "conditions": [
+            "Kh\u00f4ng encode raw spelling s\u1ed1 th\u00e0nh categorical; ch\u1ec9 fit preprocessing tr\u00ean train",
+            "Ph\u1ea3i c\u00f3 applicability/missingness contract; zero kh\u00f4ng t\u1ef1 \u0111\u1ed3ng ngh\u0129a absent"
+          ],
+          "decision": "INCLUDE",
+          "evidence": "artifacts/runs/data001b-ml-semantics-20261106/audit.json#/columns/mqtt.conflags",
+          "name": "mqtt.conflags",
+          "reason": "\u0110\u1ed1i ch\u1ee9ng artifact c\u00f3 ki\u1ec3m so\u00e1t, kh\u00f4ng d\u00f9ng l\u00e0m baseline tin c\u1eady"
+        },
+        {
+          "conditions": [
+            "Kh\u00f4ng encode raw spelling s\u1ed1 th\u00e0nh categorical; ch\u1ec9 fit preprocessing tr\u00ean train",
+            "Ph\u1ea3i c\u00f3 applicability/missingness contract; zero kh\u00f4ng t\u1ef1 \u0111\u1ed3ng ngh\u0129a absent"
+          ],
+          "decision": "INCLUDE",
+          "evidence": "artifacts/runs/data001b-ml-semantics-20261106/audit.json#/columns/mqtt.hdrflags",
+          "name": "mqtt.hdrflags",
+          "reason": "\u0110\u1ed1i ch\u1ee9ng artifact c\u00f3 ki\u1ec3m so\u00e1t, kh\u00f4ng d\u00f9ng l\u00e0m baseline tin c\u1eady"
+        },
+        {
+          "conditions": [
+            "Kh\u00f4ng encode raw spelling s\u1ed1 th\u00e0nh categorical; ch\u1ec9 fit preprocessing tr\u00ean train",
+            "Ph\u1ea3i c\u00f3 applicability/missingness contract; zero kh\u00f4ng t\u1ef1 \u0111\u1ed3ng ngh\u0129a absent"
+          ],
+          "decision": "INCLUDE",
+          "evidence": "artifacts/runs/data001b-ml-semantics-20261106/audit.json#/columns/mqtt.len",
+          "name": "mqtt.len",
+          "reason": "\u0110\u1ed1i ch\u1ee9ng artifact c\u00f3 ki\u1ec3m so\u00e1t, kh\u00f4ng d\u00f9ng l\u00e0m baseline tin c\u1eady"
+        },
+        {
+          "conditions": [
+            "Kh\u00f4ng encode raw spelling s\u1ed1 th\u00e0nh categorical; ch\u1ec9 fit preprocessing tr\u00ean train",
+            "Ph\u1ea3i c\u00f3 applicability/missingness contract; zero kh\u00f4ng t\u1ef1 \u0111\u1ed3ng ngh\u0129a absent"
+          ],
+          "decision": "EXCLUDE",
+          "evidence": "artifacts/runs/data001b-ml-semantics-20261106/audit.json#/columns/mqtt.msg_decoded_as",
+          "name": "mqtt.msg_decoded_as",
+          "reason": "Constant to\u00e0n file; kh\u00f4ng c\u00f3 bi\u1ebfn thi\u00ean quan s\u00e1t, kh\u00f4ng d\u1ef1a tr\u00ean correlation"
+        },
+        {
+          "conditions": [
+            "Kh\u00f4ng encode raw spelling s\u1ed1 th\u00e0nh categorical; ch\u1ec9 fit preprocessing tr\u00ean train",
+            "Ph\u1ea3i c\u00f3 applicability/missingness contract; zero kh\u00f4ng t\u1ef1 \u0111\u1ed3ng ngh\u0129a absent"
+          ],
+          "decision": "QUARANTINE",
+          "evidence": "artifacts/runs/data001b-ml-semantics-20261106/audit.json#/columns/mqtt.msg",
+          "name": "mqtt.msg",
+          "reason": "D\u1eef li\u1ec7u identity/payload ch\u1ec9 \u0111\u01b0\u1ee3c d\u00f9ng audit b\u1ea3o v\u1ec7 v\u00e0 c\u00f3 ph\u00ea duy\u1ec7t ri\u00eang"
+        },
+        {
+          "conditions": [
+            "Kh\u00f4ng encode raw spelling s\u1ed1 th\u00e0nh categorical; ch\u1ec9 fit preprocessing tr\u00ean train",
+            "Ph\u1ea3i c\u00f3 applicability/missingness contract; zero kh\u00f4ng t\u1ef1 \u0111\u1ed3ng ngh\u0129a absent"
+          ],
+          "decision": "INCLUDE",
+          "evidence": "artifacts/runs/data001b-ml-semantics-20261106/audit.json#/columns/mqtt.msgtype",
+          "name": "mqtt.msgtype",
+          "reason": "\u0110\u1ed1i ch\u1ee9ng artifact c\u00f3 ki\u1ec3m so\u00e1t, kh\u00f4ng d\u00f9ng l\u00e0m baseline tin c\u1eady"
+        },
+        {
+          "conditions": [
+            "Kh\u00f4ng encode raw spelling s\u1ed1 th\u00e0nh categorical; ch\u1ec9 fit preprocessing tr\u00ean train",
+            "Ph\u1ea3i c\u00f3 applicability/missingness contract; zero kh\u00f4ng t\u1ef1 \u0111\u1ed3ng ngh\u0129a absent"
+          ],
+          "decision": "INCLUDE",
+          "evidence": "artifacts/runs/data001b-ml-semantics-20261106/audit.json#/columns/mqtt.proto_len",
+          "name": "mqtt.proto_len",
+          "reason": "\u0110\u1ed1i ch\u1ee9ng artifact c\u00f3 ki\u1ec3m so\u00e1t, kh\u00f4ng d\u00f9ng l\u00e0m baseline tin c\u1eady"
+        },
+        {
+          "conditions": [
+            "Kh\u00f4ng encode raw spelling s\u1ed1 th\u00e0nh categorical; ch\u1ec9 fit preprocessing tr\u00ean train",
+            "Ph\u1ea3i c\u00f3 applicability/missingness contract; zero kh\u00f4ng t\u1ef1 \u0111\u1ed3ng ngh\u0129a absent"
+          ],
+          "decision": "INCLUDE",
+          "evidence": "artifacts/runs/data001b-ml-semantics-20261106/audit.json#/columns/mqtt.protoname",
+          "name": "mqtt.protoname",
+          "reason": "\u0110\u1ed1i ch\u1ee9ng artifact c\u00f3 ki\u1ec3m so\u00e1t, kh\u00f4ng d\u00f9ng l\u00e0m baseline tin c\u1eady"
+        },
+        {
+          "conditions": [
+            "Kh\u00f4ng encode raw spelling s\u1ed1 th\u00e0nh categorical; ch\u1ec9 fit preprocessing tr\u00ean train",
+            "Ph\u1ea3i c\u00f3 applicability/missingness contract; zero kh\u00f4ng t\u1ef1 \u0111\u1ed3ng ngh\u0129a absent"
+          ],
+          "decision": "INCLUDE",
+          "evidence": "artifacts/runs/data001b-ml-semantics-20261106/audit.json#/columns/mqtt.topic",
+          "name": "mqtt.topic",
+          "reason": "\u0110\u1ed1i ch\u1ee9ng artifact c\u00f3 ki\u1ec3m so\u00e1t, kh\u00f4ng d\u00f9ng l\u00e0m baseline tin c\u1eady"
+        },
+        {
+          "conditions": [
+            "Kh\u00f4ng encode raw spelling s\u1ed1 th\u00e0nh categorical; ch\u1ec9 fit preprocessing tr\u00ean train",
+            "Ph\u1ea3i c\u00f3 applicability/missingness contract; zero kh\u00f4ng t\u1ef1 \u0111\u1ed3ng ngh\u0129a absent"
+          ],
+          "decision": "INCLUDE",
+          "evidence": "artifacts/runs/data001b-ml-semantics-20261106/audit.json#/columns/mqtt.topic_len",
+          "name": "mqtt.topic_len",
+          "reason": "\u0110\u1ed1i ch\u1ee9ng artifact c\u00f3 ki\u1ec3m so\u00e1t, kh\u00f4ng d\u00f9ng l\u00e0m baseline tin c\u1eady"
+        },
+        {
+          "conditions": [
+            "Kh\u00f4ng encode raw spelling s\u1ed1 th\u00e0nh categorical; ch\u1ec9 fit preprocessing tr\u00ean train",
+            "Ph\u1ea3i c\u00f3 applicability/missingness contract; zero kh\u00f4ng t\u1ef1 \u0111\u1ed3ng ngh\u0129a absent"
+          ],
+          "decision": "INCLUDE",
+          "evidence": "artifacts/runs/data001b-ml-semantics-20261106/audit.json#/columns/mqtt.ver",
+          "name": "mqtt.ver",
+          "reason": "\u0110\u1ed1i ch\u1ee9ng artifact c\u00f3 ki\u1ec3m so\u00e1t, kh\u00f4ng d\u00f9ng l\u00e0m baseline tin c\u1eady"
+        },
+        {
+          "conditions": [
+            "Kh\u00f4ng encode raw spelling s\u1ed1 th\u00e0nh categorical; ch\u1ec9 fit preprocessing tr\u00ean train",
+            "Ph\u1ea3i c\u00f3 applicability/missingness contract; zero kh\u00f4ng t\u1ef1 \u0111\u1ed3ng ngh\u0129a absent"
+          ],
+          "decision": "EXCLUDE",
+          "evidence": "artifacts/runs/data001b-ml-semantics-20261106/audit.json#/columns/mbtcp.len",
+          "name": "mbtcp.len",
+          "reason": "Constant to\u00e0n file; kh\u00f4ng c\u00f3 bi\u1ebfn thi\u00ean quan s\u00e1t, kh\u00f4ng d\u1ef1a tr\u00ean correlation"
+        },
+        {
+          "conditions": [
+            "Kh\u00f4ng encode raw spelling s\u1ed1 th\u00e0nh categorical; ch\u1ec9 fit preprocessing tr\u00ean train",
+            "Ph\u1ea3i c\u00f3 applicability/missingness contract; zero kh\u00f4ng t\u1ef1 \u0111\u1ed3ng ngh\u0129a absent"
+          ],
+          "decision": "EXCLUDE",
+          "evidence": "artifacts/runs/data001b-ml-semantics-20261106/audit.json#/columns/mbtcp.trans_id",
+          "name": "mbtcp.trans_id",
+          "reason": "Constant to\u00e0n file; kh\u00f4ng c\u00f3 bi\u1ebfn thi\u00ean quan s\u00e1t, kh\u00f4ng d\u1ef1a tr\u00ean correlation"
+        },
+        {
+          "conditions": [
+            "Kh\u00f4ng encode raw spelling s\u1ed1 th\u00e0nh categorical; ch\u1ec9 fit preprocessing tr\u00ean train",
+            "Ph\u1ea3i c\u00f3 applicability/missingness contract; zero kh\u00f4ng t\u1ef1 \u0111\u1ed3ng ngh\u0129a absent"
+          ],
+          "decision": "EXCLUDE",
+          "evidence": "artifacts/runs/data001b-ml-semantics-20261106/audit.json#/columns/mbtcp.unit_id",
+          "name": "mbtcp.unit_id",
+          "reason": "Constant to\u00e0n file; kh\u00f4ng c\u00f3 bi\u1ebfn thi\u00ean quan s\u00e1t, kh\u00f4ng d\u1ef1a tr\u00ean correlation"
+        }
+      ],
+      "global_gates": [
+        "Operator duy\u1ec7t label scope, dataset v\u00e0 feature policy tr\u01b0\u1edbc DATA-002",
+        "Exporter semantics/capture lineage ph\u1ea3i \u0111\u01b0\u1ee3c x\u00e1c minh; kh\u00f4ng s\u1eeda l\u1ed7i c\u0103n c\u1ee9 ch\u1ec9 tr\u00ean class label",
+        "Frozen evaluation boundary; no duplicate/group leakage; kh\u00f4ng claim unseen-capture khi thi\u1ebfu group metadata"
+      ],
+      "id": "diagnostic_v1",
+      "purpose": "Ch\u1ec9 \u0111\u1ed1i ch\u1ee9ng/ablation; kh\u00f4ng l\u00e0 k\u1ebft qu\u1ea3 production \u0111\u00e1ng tin"
+    }
+  ],
+  "raw_feature_order": [
+    "frame.time",
+    "ip.src_host",
+    "ip.dst_host",
+    "arp.dst.proto_ipv4",
+    "arp.opcode",
+    "arp.hw.size",
+    "arp.src.proto_ipv4",
+    "icmp.checksum",
+    "icmp.seq_le",
+    "icmp.transmit_timestamp",
+    "icmp.unused",
+    "http.file_data",
+    "http.content_length",
+    "http.request.uri.query",
+    "http.request.method",
+    "http.referer",
+    "http.request.full_uri",
+    "http.request.version",
+    "http.response",
+    "http.tls_port",
+    "tcp.ack",
+    "tcp.ack_raw",
+    "tcp.checksum",
+    "tcp.connection.fin",
+    "tcp.connection.rst",
+    "tcp.connection.syn",
+    "tcp.connection.synack",
+    "tcp.dstport",
+    "tcp.flags",
+    "tcp.flags.ack",
+    "tcp.len",
+    "tcp.options",
+    "tcp.payload",
+    "tcp.seq",
+    "tcp.srcport",
+    "udp.port",
+    "udp.stream",
+    "udp.time_delta",
+    "dns.qry.name",
+    "dns.qry.name.len",
+    "dns.qry.qu",
+    "dns.qry.type",
+    "dns.retransmission",
+    "dns.retransmit_request",
+    "dns.retransmit_request_in",
+    "mqtt.conack.flags",
+    "mqtt.conflag.cleansess",
+    "mqtt.conflags",
+    "mqtt.hdrflags",
+    "mqtt.len",
+    "mqtt.msg_decoded_as",
+    "mqtt.msg",
+    "mqtt.msgtype",
+    "mqtt.proto_len",
+    "mqtt.protoname",
+    "mqtt.topic",
+    "mqtt.topic_len",
+    "mqtt.ver",
+    "mbtcp.len",
+    "mbtcp.trans_id",
+    "mbtcp.unit_id"
+  ],
+  "schema_version": "1.0.0",
+  "status": "PROPOSED_NOT_APPLIED"
+}

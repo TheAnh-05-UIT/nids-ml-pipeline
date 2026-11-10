@@ -1,0 +1,19 @@
+{
+  "schema_version": "1.0.0",
+  "workspace_root": ".",
+  "dataset": {
+    "id": "edge-iiotset",
+    "version": "kaggle-v5",
+    "manifest_path": null
+  },
+  "paths": {
+    "raw_data": "data/raw",
+    "interim_data": "data/interim",
+    "processed_data": "data/processed",
+    "splits": "data/splits",
+    "artifact_manifests": "artifacts/manifests",
+    "runs": "artifacts/runs",
+    "experiments": "experiments",
+    "notebooks": "notebooks"
+  }
+}

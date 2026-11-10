@@ -1,0 +1,162 @@
+{
+  "capture": {
+    "capture_id": "synthetic-flow-capture",
+    "capture_sha256": "fb185e34a036fe566480d25e10690b73ebb08b1d9cda5132aee3576ab99bf6b4",
+    "run_id": "synthetic-run-1",
+    "segment_id": "segment-1"
+  },
+  "capture_fixture_text": "ARM-011D1 synthetic packets, not a PCAP.",
+  "input_complete": true,
+  "kind": "synthetic_fixture",
+  "packets": [
+    {
+      "capture": {
+        "capture_id": "synthetic-flow-capture",
+        "capture_sha256": "fb185e34a036fe566480d25e10690b73ebb08b1d9cda5132aee3576ab99bf6b4",
+        "run_id": "synthetic-run-1",
+        "segment_id": "segment-1"
+      },
+      "dst_ip": "192.0.2.20",
+      "fragmented": false,
+      "highest_layer": "TCP",
+      "icmp": null,
+      "input_kind": "synthetic_fixture",
+      "ip_flags": 2,
+      "ip_length": 60,
+      "ip_protocol": 6,
+      "ip_version": 4,
+      "ordinal": 1,
+      "protocol_stack": "eth:ethertype:ip:tcp",
+      "schema_version": "1.0.0",
+      "src_ip": "192.0.2.10",
+      "tcp": {
+        "ack": 123,
+        "dst_port": 8080,
+        "flags": 18,
+        "length": 20,
+        "src_port": 40000,
+        "window_size": 4096
+      },
+      "timestamp_ns": 0,
+      "udp": null
+    },
+    {
+      "capture": {
+        "capture_id": "synthetic-flow-capture",
+        "capture_sha256": "fb185e34a036fe566480d25e10690b73ebb08b1d9cda5132aee3576ab99bf6b4",
+        "run_id": "synthetic-run-1",
+        "segment_id": "segment-1"
+      },
+      "dst_ip": "192.0.2.10",
+      "fragmented": false,
+      "highest_layer": "TCP",
+      "icmp": null,
+      "input_kind": "synthetic_fixture",
+      "ip_flags": 2,
+      "ip_length": 60,
+      "ip_protocol": 6,
+      "ip_version": 4,
+      "ordinal": 2,
+      "protocol_stack": "eth:ethertype:ip:tcp",
+      "schema_version": "1.0.0",
+      "src_ip": "192.0.2.20",
+      "tcp": {
+        "ack": 123,
+        "dst_port": 40000,
+        "flags": 18,
+        "length": 20,
+        "src_port": 8080,
+        "window_size": 4096
+      },
+      "timestamp_ns": 2500000000,
+      "udp": null
+    },
+    {
+      "capture": {
+        "capture_id": "synthetic-flow-capture",
+        "capture_sha256": "fb185e34a036fe566480d25e10690b73ebb08b1d9cda5132aee3576ab99bf6b4",
+        "run_id": "synthetic-run-1",
+        "segment_id": "segment-1"
+      },
+      "dst_ip": "192.0.2.20",
+      "fragmented": false,
+      "highest_layer": "DNS",
+      "icmp": null,
+      "input_kind": "synthetic_fixture",
+      "ip_flags": 2,
+      "ip_length": 52,
+      "ip_protocol": 17,
+      "ip_version": 4,
+      "ordinal": 3,
+      "protocol_stack": "eth:ethertype:ip:udp:dns",
+      "schema_version": "1.0.0",
+      "src_ip": "192.0.2.10",
+      "tcp": null,
+      "timestamp_ns": 3000000000,
+      "udp": {
+        "dst_port": 53,
+        "length": 32,
+        "src_port": 40000
+      }
+    },
+    {
+      "capture": {
+        "capture_id": "synthetic-flow-capture",
+        "capture_sha256": "fb185e34a036fe566480d25e10690b73ebb08b1d9cda5132aee3576ab99bf6b4",
+        "run_id": "synthetic-run-1",
+        "segment_id": "segment-1"
+      },
+      "dst_ip": "192.0.2.20",
+      "fragmented": false,
+      "highest_layer": "ICMP",
+      "icmp": {
+        "code": 0,
+        "identifier": 7,
+        "type": 8
+      },
+      "input_kind": "synthetic_fixture",
+      "ip_flags": 2,
+      "ip_length": 64,
+      "ip_protocol": 1,
+      "ip_version": 4,
+      "ordinal": 4,
+      "protocol_stack": "eth:ethertype:ip:icmp",
+      "schema_version": "1.0.0",
+      "src_ip": "192.0.2.10",
+      "tcp": null,
+      "timestamp_ns": 10000000000,
+      "udp": null
+    },
+    {
+      "capture": {
+        "capture_id": "synthetic-flow-capture",
+        "capture_sha256": "fb185e34a036fe566480d25e10690b73ebb08b1d9cda5132aee3576ab99bf6b4",
+        "run_id": "synthetic-run-1",
+        "segment_id": "segment-1"
+      },
+      "dst_ip": "192.0.2.20",
+      "fragmented": false,
+      "highest_layer": "TCP",
+      "icmp": null,
+      "input_kind": "synthetic_fixture",
+      "ip_flags": 2,
+      "ip_length": 60,
+      "ip_protocol": 6,
+      "ip_version": 4,
+      "ordinal": 5,
+      "protocol_stack": "eth:ethertype:ip:tcp",
+      "schema_version": "1.0.0",
+      "src_ip": "192.0.2.10",
+      "tcp": {
+        "ack": 123,
+        "dst_port": 8080,
+        "flags": 18,
+        "length": 20,
+        "src_port": 40000,
+        "window_size": 4096
+      },
+      "timestamp_ns": 10000000001,
+      "udp": null
+    }
+  ]
+}

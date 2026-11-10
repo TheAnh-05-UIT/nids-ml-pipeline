@@ -1,0 +1,236 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "capture": {
+      "additionalProperties": false,
+      "properties": {
+        "capture_id": {
+          "maxLength": 64,
+          "minLength": 1,
+          "pattern": "^[a-z0-9][a-z0-9._-]*$",
+          "type": "string"
+        },
+        "capture_sha256": {
+          "maxLength": 64,
+          "minLength": 64,
+          "pattern": "^[a-f0-9]{64}$",
+          "type": "string"
+        },
+        "run_id": {
+          "maxLength": 64,
+          "minLength": 1,
+          "pattern": "^[a-z0-9][a-z0-9._-]*$",
+          "type": "string"
+        },
+        "segment_id": {
+          "maxLength": 64,
+          "minLength": 1,
+          "pattern": "^[a-z0-9][a-z0-9._-]*$",
+          "type": "string"
+        }
+      },
+      "required": [
+        "capture_id",
+        "capture_sha256",
+        "run_id",
+        "segment_id"
+      ],
+      "type": "object"
+    },
+    "dst_ip": {
+      "maxLength": 64,
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "fragmented": {
+      "type": "boolean"
+    },
+    "highest_layer": {
+      "maxLength": 64,
+      "minLength": 1,
+      "type": "string"
+    },
+    "icmp": {
+      "additionalProperties": false,
+      "properties": {
+        "code": {
+          "maximum": 255,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "identifier": {
+          "maximum": 65535,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "type": {
+          "maximum": 255,
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "type",
+        "code",
+        "identifier"
+      ],
+      "type": [
+        "object",
+        "null"
+      ]
+    },
+    "input_kind": {
+      "const": "synthetic_fixture",
+      "type": "string"
+    },
+    "ip_flags": {
+      "maximum": 7,
+      "minimum": 0,
+      "type": "integer"
+    },
+    "ip_length": {
+      "maximum": 65535,
+      "minimum": 0,
+      "type": "integer"
+    },
+    "ip_protocol": {
+      "maximum": 255,
+      "minimum": 0,
+      "type": "integer"
+    },
+    "ip_version": {
+      "enum": [
+        0,
+        4,
+        6
+      ],
+      "type": "integer"
+    },
+    "ordinal": {
+      "maximum": 18446744073709551615,
+      "minimum": 1,
+      "type": "integer"
+    },
+    "protocol_stack": {
+      "maxLength": 256,
+      "minLength": 1,
+      "type": "string"
+    },
+    "schema_version": {
+      "const": "1.0.0",
+      "type": "string"
+    },
+    "src_ip": {
+      "maxLength": 64,
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "tcp": {
+      "additionalProperties": false,
+      "properties": {
+        "ack": {
+          "maximum": 4294967295,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "dst_port": {
+          "maximum": 65535,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "flags": {
+          "maximum": 65535,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "length": {
+          "maximum": 65535,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "src_port": {
+          "maximum": 65535,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "window_size": {
+          "maximum": 65535,
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "src_port",
+        "dst_port",
+        "length",
+        "ack",
+        "flags",
+        "window_size"
+      ],
+      "type": [
+        "object",
+        "null"
+      ]
+    },
+    "timestamp_ns": {
+      "maximum": 9223372036854775807,
+      "minimum": 0,
+      "type": "integer"
+    },
+    "udp": {
+      "additionalProperties": false,
+      "properties": {
+        "dst_port": {
+          "maximum": 65535,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "length": {
+          "maximum": 65535,
+          "minimum": 8,
+          "type": "integer"
+        },
+        "src_port": {
+          "maximum": 65535,
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "src_port",
+        "dst_port",
+        "length"
+      ],
+      "type": [
+        "object",
+        "null"
+      ]
+    }
+  },
+  "required": [
+    "schema_version",
+    "input_kind",
+    "capture",
+    "ordinal",
+    "timestamp_ns",
+    "ip_version",
+    "src_ip",
+    "dst_ip",
+    "ip_protocol",
+    "ip_length",
+    "ip_flags",
+    "fragmented",
+    "highest_layer",
+    "protocol_stack",
+    "tcp",
+    "udp",
+    "icmp"
+  ],
+  "title": "Decoded synthetic IPv4 packet metadata; no raw capture/labels",
+  "type": "object"
+}

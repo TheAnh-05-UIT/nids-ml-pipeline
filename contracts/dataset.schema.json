@@ -1,0 +1,42 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "NIDS ML dataset manifest 1.0.0",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "dataset_id", "dataset_version", "root_path", "source", "files", "target"],
+  "properties": {
+    "schema_version": {"$ref": "common.schema.json#/$defs/schemaVersion"},
+    "dataset_id": {"$ref": "common.schema.json#/$defs/identifier"},
+    "dataset_version": {"$ref": "common.schema.json#/$defs/identifier"},
+    "root_path": {"allOf": [{"$ref": "common.schema.json#/$defs/relativePath"}, {"pattern": "^data/raw/"}]},
+    "source": {
+      "type": "object", "additionalProperties": false,
+      "required": ["source_uri", "retrieved_at"],
+      "properties": {
+        "source_uri": {"type": "string", "minLength": 1},
+        "retrieved_at": {"type": "string", "format": "date-time"},
+        "license_reference": {"type": ["string", "null"]}
+      }
+    },
+    "files": {
+      "type": "array", "minItems": 1,
+      "items": {
+        "type": "object", "additionalProperties": false,
+        "required": ["path", "size_bytes", "sha256"],
+        "properties": {
+          "path": {"$ref": "common.schema.json#/$defs/relativePath"},
+          "size_bytes": {"type": "integer", "minimum": 0},
+          "sha256": {"$ref": "common.schema.json#/$defs/sha256"}
+        }
+      }
+    },
+    "target": {
+      "type": "object", "additionalProperties": false,
+      "required": ["task_type", "columns"],
+      "properties": {
+        "task_type": {"enum": ["binary_classification", "multiclass_classification", "multilabel_classification"]},
+        "columns": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"type": "string", "minLength": 1}}
+      }
+    }
+  }
+}

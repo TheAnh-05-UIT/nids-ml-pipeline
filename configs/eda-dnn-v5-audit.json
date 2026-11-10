@@ -1,0 +1,15 @@
+{
+  "schema_version": "1.0.0",
+  "limits": {
+    "seed": 42,
+    "sample_rows": 2048,
+    "sample_cells": 131072,
+    "max_columns": 256,
+    "max_record_chars": 1048576,
+    "max_category_chars": 128,
+    "label_report_limit": 1000,
+    "correlation_features": 64,
+    "temp_db_mib": 768
+  },
+  "encoding": "utf-8-sig"
+}

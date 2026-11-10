@@ -1,0 +1,41 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Proposed feature policy, audited ML v5 identity",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "status", "dataset_sha256", "forbidden_labels", "raw_feature_order", "policies", "applied_to_data"],
+  "properties": {
+    "schema_version": {"const": "1.0.0"},
+    "status": {"const": "PROPOSED_NOT_APPLIED"},
+    "dataset_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "forbidden_labels": {"type": "array", "minItems": 2, "maxItems": 2, "uniqueItems": true, "items": {"type": "string"}},
+    "raw_feature_order": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"type": "string", "minLength": 1}},
+    "applied_to_data": {"const": false, "type": "boolean"},
+    "policies": {
+      "type": "array", "minItems": 3, "maxItems": 3,
+      "items": {
+        "type": "object", "additionalProperties": false,
+        "required": ["id", "purpose", "global_gates", "features"],
+        "properties": {
+          "id": {"enum": ["strict_v1", "extended_v1", "diagnostic_v1"]},
+          "purpose": {"type": "string", "minLength": 1},
+          "global_gates": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 1}},
+          "features": {
+            "type": "array", "minItems": 1,
+            "items": {
+              "type": "object", "additionalProperties": false,
+              "required": ["name", "decision", "reason", "conditions", "evidence"],
+              "properties": {
+                "name": {"type": "string", "minLength": 1},
+                "decision": {"enum": ["INCLUDE", "EXCLUDE", "QUARANTINE", "NEEDS_VERIFICATION"]},
+                "reason": {"type": "string", "minLength": 1},
+                "conditions": {"type": "array", "items": {"type": "string", "minLength": 1}},
+                "evidence": {"type": "string", "minLength": 1}
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

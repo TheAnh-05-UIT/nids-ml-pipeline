@@ -1,0 +1,162 @@
+{
+  "approval_document": "{\"approved_rule_set_sha256\":\"e632f73830e07d1971fe0a9196ae304521c701c67a420e2e31100e06ed033031\",\"record_id\":\"fixture-approval\",\"reviewer\":\"synthetic-test-fixture\",\"scope\":\"synthetic_fixture\",\"status\":\"SYNTHETIC_TEST_ONLY\"}",
+  "capture_fixture_text": "Synthetic metadata identity for ARM-011B2A; not a PCAP.",
+  "evidence_documents": {
+    "fixture-evidence": "Synthetic fixture assertion: event roles, interval and reverse behavior, for tests only."
+  },
+  "full_window_complete": true,
+  "kind": "synthetic_fixture",
+  "packets": [
+    {
+      "application": "NONE",
+      "capture_id": "synthetic-capture",
+      "capture_sha256": "3b4fa45c6cf9cd03d054e28c35cfa7d0b439bf5d3a5b04bffd0a76fd77147708",
+      "capture_size_bytes": 55,
+      "dst_ip": "192.0.2.20",
+      "dst_port": 8080,
+      "http_method": "NONE",
+      "icmp_code": 0,
+      "icmp_identifier": 0,
+      "icmp_type": 0,
+      "ordinal": 1,
+      "protocol": "TCP",
+      "run_id": "run-1",
+      "segment_id": "segment-1",
+      "src_ip": "192.0.2.10",
+      "src_port": 40000,
+      "tcp_ack": false,
+      "tcp_syn": true,
+      "timestamp_ns": 151
+    },
+    {
+      "application": "NONE",
+      "capture_id": "synthetic-capture",
+      "capture_sha256": "3b4fa45c6cf9cd03d054e28c35cfa7d0b439bf5d3a5b04bffd0a76fd77147708",
+      "capture_size_bytes": 55,
+      "dst_ip": "192.0.2.20",
+      "dst_port": 8080,
+      "http_method": "NONE",
+      "icmp_code": 0,
+      "icmp_identifier": 0,
+      "icmp_type": 0,
+      "ordinal": 2,
+      "protocol": "TCP",
+      "run_id": "run-1",
+      "segment_id": "segment-1",
+      "src_ip": "192.0.2.10",
+      "src_port": 40000,
+      "tcp_ack": false,
+      "tcp_syn": true,
+      "timestamp_ns": 152
+    },
+    {
+      "application": "NONE",
+      "capture_id": "synthetic-capture",
+      "capture_sha256": "3b4fa45c6cf9cd03d054e28c35cfa7d0b439bf5d3a5b04bffd0a76fd77147708",
+      "capture_size_bytes": 55,
+      "dst_ip": "192.0.2.20",
+      "dst_port": 8080,
+      "http_method": "NONE",
+      "icmp_code": 0,
+      "icmp_identifier": 0,
+      "icmp_type": 0,
+      "ordinal": 3,
+      "protocol": "TCP",
+      "run_id": "run-1",
+      "segment_id": "segment-1",
+      "src_ip": "192.0.2.10",
+      "src_port": 40000,
+      "tcp_ack": false,
+      "tcp_syn": true,
+      "timestamp_ns": 153
+    },
+    {
+      "padding": true
+    }
+  ],
+  "rule_set": {
+    "approval": {
+      "approved_rule_set_sha256": "e632f73830e07d1971fe0a9196ae304521c701c67a420e2e31100e06ed033031",
+      "record_id": "fixture-approval",
+      "record_sha256": "4a87d72c9457bd6aec694a841e18d9197db0a5535577280f5d1c01ed8eabbd8c",
+      "reviewer": "synthetic-test-fixture",
+      "scope": "synthetic_fixture",
+      "status": "SYNTHETIC_TEST_ONLY"
+    },
+    "capture": {
+      "capture_id": "synthetic-capture",
+      "segments": [
+        {
+          "clock": {
+            "basis": "synthetic_epoch_ns",
+            "offset_ns": 0,
+            "uncertainty_ns": 0
+          },
+          "ordinal_end": 10000,
+          "ordinal_start": 1,
+          "run_id": "run-1",
+          "segment_id": "segment-1"
+        }
+      ],
+      "sha256": "3b4fa45c6cf9cd03d054e28c35cfa7d0b439bf5d3a5b04bffd0a76fd77147708",
+      "size_bytes": 55,
+      "source_member": "synthetic-packets.json",
+      "source_revision": "synthetic-v1"
+    },
+    "evidence": [
+      {
+        "anchor": "synthetic assertion 1",
+        "curator": "synthetic-fixture",
+        "evidence_id": "fixture-evidence",
+        "reference": "synthetic://arm-011b2a/evidence",
+        "scope": "synthetic_fixture",
+        "sha256": "75f299e7756d25add6b988d4f4ff0f4b6b593adea60a5671307c3484f4057b69"
+      }
+    ],
+    "input_kind": "synthetic_fixture",
+    "label_target": "packet",
+    "policies": {
+      "max_packets": 20,
+      "mixed": "QUARANTINE",
+      "ordering": "REJECT_REGRESSION",
+      "unknown": "QUARANTINE",
+      "unmatched": "UNKNOWN"
+    },
+    "resolver_version": "flow-label-core/0.1.0",
+    "rule_set_id": "synthetic-rules-v1",
+    "rule_set_sha256": "e632f73830e07d1971fe0a9196ae304521c701c67a420e2e31100e06ed033031",
+    "rules": [
+      {
+        "address_assumption": "STABLE_UNTRANSLATED_UNSPOOFED",
+        "direction": "FORWARD",
+        "evidence_ids": [
+          "fixture-evidence"
+        ],
+        "interval": {
+          "end_ns": 200,
+          "start_ns": 100
+        },
+        "label": 1,
+        "predicate": "TCP_SYN",
+        "protocol": "TCP",
+        "response_evidence_ids": [],
+        "response_policy": "UNKNOWN",
+        "rule_id": "rule-1",
+        "run_id": "run-1",
+        "scenario": "TCP_SYN",
+        "segment_id": "segment-1",
+        "source_ip": "192.0.2.10",
+        "source_ports": [
+          40000
+        ],
+        "source_role": "attacker",
+        "target_ip": "192.0.2.20",
+        "target_ports": [
+          8080
+        ],
+        "target_role": "victim"
+      }
+    ],
+    "schema_version": "1.0.0"
+  }
+}

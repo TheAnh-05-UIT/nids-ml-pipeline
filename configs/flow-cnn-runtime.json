@@ -1,0 +1,24 @@
+{
+  "schema_version": "1.0.0",
+  "purpose": "ARM-011C1 synthetic CPU validation only",
+  "python": "3.11",
+  "framework_pins": {
+    "tensorflow": "2.15.1",
+    "keras": "2.15.0",
+    "numpy": "1.26.4"
+  },
+  "tested_runtime": "Windows AMD64; TensorFlow Intel CPU distribution",
+  "proposed_target": "Linux ARM64 TensorFlow CPU; not validated for this CNN",
+  "auto_install": false,
+  "full_dependency_lock": false,
+  "environment_scope": "Process-local settings and existing OSS dependencies; no global changes",
+  "process_settings": {
+    "CUDA_VISIBLE_DEVICES": "-1",
+    "TF_ENABLE_ONEDNN_OPTS": "0",
+    "OMP_NUM_THREADS": "1",
+    "TF_NUM_INTRAOP_THREADS": "1",
+    "TF_NUM_INTEROP_THREADS": "1",
+    "PYTHONDONTWRITEBYTECODE": "1"
+  },
+  "determinism": "Seeded Glorot initialization tested on one CPU runtime; cross-platform bitwise equality not claimed"
+}

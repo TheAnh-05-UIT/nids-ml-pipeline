@@ -1,0 +1,503 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "approval": {
+      "additionalProperties": false,
+      "properties": {
+        "approved_rule_set_sha256": {
+          "maxLength": 64,
+          "minLength": 64,
+          "pattern": "^[a-f0-9]{64}$",
+          "type": "string"
+        },
+        "record_id": {
+          "maxLength": 256,
+          "minLength": 1,
+          "pattern": "^[a-z0-9][a-z0-9._-]{0,63}$",
+          "type": "string"
+        },
+        "record_sha256": {
+          "maxLength": 64,
+          "minLength": 64,
+          "pattern": "^[a-f0-9]{64}$",
+          "type": "string"
+        },
+        "reviewer": {
+          "maxLength": 256,
+          "minLength": 1,
+          "type": "string"
+        },
+        "scope": {
+          "enum": [
+            "synthetic_fixture"
+          ],
+          "type": "string"
+        },
+        "status": {
+          "enum": [
+            "SYNTHETIC_TEST_ONLY"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "status",
+        "scope",
+        "record_id",
+        "reviewer",
+        "approved_rule_set_sha256",
+        "record_sha256"
+      ],
+      "type": "object"
+    },
+    "capture": {
+      "additionalProperties": false,
+      "properties": {
+        "capture_id": {
+          "maxLength": 256,
+          "minLength": 1,
+          "pattern": "^[a-z0-9][a-z0-9._-]{0,63}$",
+          "type": "string"
+        },
+        "segments": {
+          "items": {
+            "additionalProperties": false,
+            "properties": {
+              "clock": {
+                "additionalProperties": false,
+                "properties": {
+                  "basis": {
+                    "enum": [
+                      "synthetic_epoch_ns"
+                    ],
+                    "type": "string"
+                  },
+                  "offset_ns": {
+                    "maximum": 4611686018427387904,
+                    "minimum": -4611686018427387904,
+                    "type": "integer"
+                  },
+                  "uncertainty_ns": {
+                    "maximum": 1000000000000,
+                    "minimum": 0,
+                    "type": "integer"
+                  }
+                },
+                "required": [
+                  "basis",
+                  "offset_ns",
+                  "uncertainty_ns"
+                ],
+                "type": "object"
+              },
+              "ordinal_end": {
+                "maximum": 9223372036854775807,
+                "minimum": 1,
+                "type": "integer"
+              },
+              "ordinal_start": {
+                "maximum": 9223372036854775807,
+                "minimum": 1,
+                "type": "integer"
+              },
+              "run_id": {
+                "maxLength": 256,
+                "minLength": 1,
+                "pattern": "^[a-z0-9][a-z0-9._-]{0,63}$",
+                "type": "string"
+              },
+              "segment_id": {
+                "maxLength": 256,
+                "minLength": 1,
+                "pattern": "^[a-z0-9][a-z0-9._-]{0,63}$",
+                "type": "string"
+              }
+            },
+            "required": [
+              "segment_id",
+              "run_id",
+              "ordinal_start",
+              "ordinal_end",
+              "clock"
+            ],
+            "type": "object"
+          },
+          "maxItems": 128,
+          "minItems": 1,
+          "type": "array",
+          "uniqueItems": true
+        },
+        "sha256": {
+          "maxLength": 64,
+          "minLength": 64,
+          "pattern": "^[a-f0-9]{64}$",
+          "type": "string"
+        },
+        "size_bytes": {
+          "maximum": 9223372036854775807,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "source_member": {
+          "maxLength": 256,
+          "minLength": 1,
+          "type": "string"
+        },
+        "source_revision": {
+          "maxLength": 256,
+          "minLength": 1,
+          "type": "string"
+        }
+      },
+      "required": [
+        "capture_id",
+        "sha256",
+        "size_bytes",
+        "source_revision",
+        "source_member",
+        "segments"
+      ],
+      "type": "object"
+    },
+    "evidence": {
+      "items": {
+        "additionalProperties": false,
+        "properties": {
+          "anchor": {
+            "maxLength": 256,
+            "minLength": 1,
+            "type": "string"
+          },
+          "curator": {
+            "maxLength": 256,
+            "minLength": 1,
+            "type": "string"
+          },
+          "evidence_id": {
+            "maxLength": 256,
+            "minLength": 1,
+            "pattern": "^[a-z0-9][a-z0-9._-]{0,63}$",
+            "type": "string"
+          },
+          "reference": {
+            "maxLength": 256,
+            "minLength": 1,
+            "pattern": "^synthetic://",
+            "type": "string"
+          },
+          "scope": {
+            "enum": [
+              "synthetic_fixture"
+            ],
+            "type": "string"
+          },
+          "sha256": {
+            "maxLength": 64,
+            "minLength": 64,
+            "pattern": "^[a-f0-9]{64}$",
+            "type": "string"
+          }
+        },
+        "required": [
+          "evidence_id",
+          "sha256",
+          "reference",
+          "anchor",
+          "curator",
+          "scope"
+        ],
+        "type": "object"
+      },
+      "maxItems": 128,
+      "minItems": 1,
+      "type": "array",
+      "uniqueItems": true
+    },
+    "input_kind": {
+      "enum": [
+        "synthetic_fixture"
+      ],
+      "type": "string"
+    },
+    "label_target": {
+      "enum": [
+        "packet"
+      ],
+      "type": "string"
+    },
+    "policies": {
+      "additionalProperties": false,
+      "properties": {
+        "max_packets": {
+          "maximum": 20,
+          "minimum": 20,
+          "type": "integer"
+        },
+        "mixed": {
+          "enum": [
+            "QUARANTINE"
+          ],
+          "type": "string"
+        },
+        "ordering": {
+          "enum": [
+            "REJECT_REGRESSION"
+          ],
+          "type": "string"
+        },
+        "unknown": {
+          "enum": [
+            "QUARANTINE"
+          ],
+          "type": "string"
+        },
+        "unmatched": {
+          "enum": [
+            "UNKNOWN"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "unmatched",
+        "unknown",
+        "mixed",
+        "ordering",
+        "max_packets"
+      ],
+      "type": "object"
+    },
+    "resolver_version": {
+      "const": "flow-label-core/0.1.0",
+      "type": "string"
+    },
+    "rule_set_id": {
+      "maxLength": 256,
+      "minLength": 1,
+      "pattern": "^[a-z0-9][a-z0-9._-]{0,63}$",
+      "type": "string"
+    },
+    "rule_set_sha256": {
+      "maxLength": 64,
+      "minLength": 64,
+      "pattern": "^[a-f0-9]{64}$",
+      "type": "string"
+    },
+    "rules": {
+      "items": {
+        "additionalProperties": false,
+        "properties": {
+          "address_assumption": {
+            "enum": [
+              "STABLE_UNTRANSLATED_UNSPOOFED"
+            ],
+            "type": "string"
+          },
+          "direction": {
+            "enum": [
+              "FORWARD",
+              "BIDIRECTIONAL"
+            ],
+            "type": "string"
+          },
+          "evidence_ids": {
+            "items": {
+              "maxLength": 256,
+              "minLength": 1,
+              "pattern": "^[a-z0-9][a-z0-9._-]{0,63}$",
+              "type": "string"
+            },
+            "maxItems": 128,
+            "minItems": 1,
+            "type": "array",
+            "uniqueItems": true
+          },
+          "interval": {
+            "additionalProperties": false,
+            "properties": {
+              "end_ns": {
+                "maximum": 9223372036854775807,
+                "minimum": 0,
+                "type": "integer"
+              },
+              "start_ns": {
+                "maximum": 9223372036854775807,
+                "minimum": 0,
+                "type": "integer"
+              }
+            },
+            "required": [
+              "start_ns",
+              "end_ns"
+            ],
+            "type": "object"
+          },
+          "label": {
+            "enum": [
+              0,
+              1
+            ],
+            "type": "integer"
+          },
+          "predicate": {
+            "enum": [
+              "BENIGN_EVENT",
+              "TCP_SYN",
+              "UDP_EVENT",
+              "HTTP_GET",
+              "ICMP_ECHO_REQUEST"
+            ],
+            "type": "string"
+          },
+          "protocol": {
+            "enum": [
+              "TCP",
+              "UDP",
+              "ICMP"
+            ],
+            "type": "string"
+          },
+          "response_evidence_ids": {
+            "items": {
+              "maxLength": 256,
+              "minLength": 1,
+              "pattern": "^[a-z0-9][a-z0-9._-]{0,63}$",
+              "type": "string"
+            },
+            "maxItems": 128,
+            "minItems": 0,
+            "type": "array",
+            "uniqueItems": true
+          },
+          "response_policy": {
+            "enum": [
+              "UNKNOWN",
+              "VERIFIED_SAME_LABEL"
+            ],
+            "type": "string"
+          },
+          "rule_id": {
+            "maxLength": 256,
+            "minLength": 1,
+            "pattern": "^[a-z0-9][a-z0-9._-]{0,63}$",
+            "type": "string"
+          },
+          "run_id": {
+            "maxLength": 256,
+            "minLength": 1,
+            "pattern": "^[a-z0-9][a-z0-9._-]{0,63}$",
+            "type": "string"
+          },
+          "scenario": {
+            "enum": [
+              "BENIGN",
+              "TCP_SYN",
+              "UDP",
+              "HTTP",
+              "ICMP"
+            ],
+            "type": "string"
+          },
+          "segment_id": {
+            "maxLength": 256,
+            "minLength": 1,
+            "pattern": "^[a-z0-9][a-z0-9._-]{0,63}$",
+            "type": "string"
+          },
+          "source_ip": {
+            "maxLength": 256,
+            "minLength": 1,
+            "type": "string"
+          },
+          "source_ports": {
+            "items": {
+              "maximum": 65535,
+              "minimum": 0,
+              "type": "integer"
+            },
+            "maxItems": 64,
+            "minItems": 1,
+            "type": "array",
+            "uniqueItems": true
+          },
+          "source_role": {
+            "enum": [
+              "benign",
+              "attacker"
+            ],
+            "type": "string"
+          },
+          "target_ip": {
+            "maxLength": 256,
+            "minLength": 1,
+            "type": "string"
+          },
+          "target_ports": {
+            "items": {
+              "maximum": 65535,
+              "minimum": 0,
+              "type": "integer"
+            },
+            "maxItems": 64,
+            "minItems": 1,
+            "type": "array",
+            "uniqueItems": true
+          },
+          "target_role": {
+            "enum": [
+              "benign",
+              "victim"
+            ],
+            "type": "string"
+          }
+        },
+        "required": [
+          "rule_id",
+          "segment_id",
+          "run_id",
+          "label",
+          "scenario",
+          "evidence_ids",
+          "response_evidence_ids",
+          "interval",
+          "source_ip",
+          "target_ip",
+          "source_role",
+          "target_role",
+          "protocol",
+          "source_ports",
+          "target_ports",
+          "predicate",
+          "direction",
+          "response_policy",
+          "address_assumption"
+        ],
+        "type": "object"
+      },
+      "maxItems": 128,
+      "minItems": 1,
+      "type": "array",
+      "uniqueItems": true
+    },
+    "schema_version": {
+      "const": "1.0.0",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema_version",
+    "resolver_version",
+    "rule_set_id",
+    "input_kind",
+    "label_target",
+    "rule_set_sha256",
+    "capture",
+    "evidence",
+    "approval",
+    "policies",
+    "rules"
+  ],
+  "title": "Synthetic flow label rule set; not a real-data approval",
+  "type": "object"
+}

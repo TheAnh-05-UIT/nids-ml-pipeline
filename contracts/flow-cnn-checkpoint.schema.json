@@ -1,0 +1,79 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "architecture_version": {
+      "type": "string"
+    },
+    "checkpoint_semantics": {
+      "type": "string"
+    },
+    "feature_schema_version": {
+      "type": "string"
+    },
+    "format_version": {
+      "const": "synthetic-flow-cnn-checkpoint/1.0.0",
+      "type": "string"
+    },
+    "label_mapping": {
+      "type": "object"
+    },
+    "model_config": {
+      "type": "object"
+    },
+    "model_hash": {
+      "pattern": "^[a-f0-9]{64}$",
+      "type": "string"
+    },
+    "runtime": {
+      "type": "object"
+    },
+    "schema_version": {
+      "type": "string"
+    },
+    "tensors": {
+      "items": {
+        "type": "object"
+      },
+      "maxItems": 4,
+      "minItems": 4,
+      "type": "array"
+    },
+    "training_configuration": {
+      "type": "object"
+    },
+    "training_state": {
+      "type": "object"
+    },
+    "weights_file": {
+      "type": "string"
+    },
+    "weights_sha256": {
+      "pattern": "^[a-f0-9]{64}$",
+      "type": "string"
+    },
+    "weights_size_bytes": {
+      "const": 8964,
+      "type": "integer"
+    }
+  },
+  "required": [
+    "schema_version",
+    "format_version",
+    "architecture_version",
+    "feature_schema_version",
+    "model_config",
+    "training_configuration",
+    "label_mapping",
+    "runtime",
+    "training_state",
+    "checkpoint_semantics",
+    "weights_file",
+    "weights_sha256",
+    "weights_size_bytes",
+    "tensors",
+    "model_hash"
+  ],
+  "title": "Synthetic Flow CNN weights-only checkpoint; semantic validation required",
+  "type": "object"
+}

@@ -1,0 +1,189 @@
+{
+  "kind": "synthetic_fixture",
+  "source": {
+    "capture": {
+      "capture_id": "synthetic-ordering",
+      "capture_sha256": "4ad7980a9821ef718781b06f1c6faba5d9ebd066ebb87ac1f6ab08b902b3d617",
+      "run_id": "synthetic-run-1",
+      "segment_id": "segment-1"
+    },
+    "expected_packets": 5,
+    "expected_source_order_sha256": "4b09aae8733b630de321e9849be29057a4ca8653c12fad7d4687cb807e0c692a",
+    "input_complete": true,
+    "input_kind": "synthetic_fixture",
+    "ordering_policy": {
+      "default_flow_extractor": "UNCHANGED_CAPTURE_ORDER",
+      "id": "stable-packet-processing-view",
+      "raw_mutation": false,
+      "real_data_enabled": false,
+      "scope": "SYNTHETIC_TEST_ONLY",
+      "sort_keys": [
+        "timestamp_ns",
+        "source_packet_ordinal"
+      ],
+      "tie_breaker": "SOURCE_ORDINAL_ASCENDING",
+      "timestamp_correction": false,
+      "version": "1.0.0"
+    },
+    "schema_version": "1.0.0",
+    "source_first_ordinal": 1,
+    "synthetic_capture_text": "ARM-011D2G synthetic ordering fixture, not a PCAP."
+  },
+  "packets": [
+    {
+      "schema_version": "1.0.0",
+      "input_kind": "synthetic_fixture",
+      "capture": {
+        "capture_id": "synthetic-ordering",
+        "capture_sha256": "4ad7980a9821ef718781b06f1c6faba5d9ebd066ebb87ac1f6ab08b902b3d617",
+        "run_id": "synthetic-run-1",
+        "segment_id": "segment-1"
+      },
+      "ordinal": 1,
+      "timestamp_ns": 10000000001,
+      "ip_version": 4,
+      "src_ip": "192.0.2.10",
+      "dst_ip": "192.0.2.20",
+      "ip_protocol": 6,
+      "ip_length": 60,
+      "ip_flags": 2,
+      "fragmented": false,
+      "highest_layer": "TCP",
+      "protocol_stack": "eth:ethertype:ip:tcp",
+      "tcp": {
+        "src_port": 40000,
+        "dst_port": 8080,
+        "length": 20,
+        "ack": 123,
+        "flags": 18,
+        "window_size": 4096
+      },
+      "udp": null,
+      "icmp": null
+    },
+    {
+      "schema_version": "1.0.0",
+      "input_kind": "synthetic_fixture",
+      "capture": {
+        "capture_id": "synthetic-ordering",
+        "capture_sha256": "4ad7980a9821ef718781b06f1c6faba5d9ebd066ebb87ac1f6ab08b902b3d617",
+        "run_id": "synthetic-run-1",
+        "segment_id": "segment-1"
+      },
+      "ordinal": 2,
+      "timestamp_ns": 0,
+      "ip_version": 4,
+      "src_ip": "192.0.2.10",
+      "dst_ip": "192.0.2.20",
+      "ip_protocol": 6,
+      "ip_length": 60,
+      "ip_flags": 2,
+      "fragmented": false,
+      "highest_layer": "TCP",
+      "protocol_stack": "eth:ethertype:ip:tcp",
+      "tcp": {
+        "src_port": 40000,
+        "dst_port": 8080,
+        "length": 20,
+        "ack": 123,
+        "flags": 18,
+        "window_size": 4096
+      },
+      "udp": null,
+      "icmp": null
+    },
+    {
+      "schema_version": "1.0.0",
+      "input_kind": "synthetic_fixture",
+      "capture": {
+        "capture_id": "synthetic-ordering",
+        "capture_sha256": "4ad7980a9821ef718781b06f1c6faba5d9ebd066ebb87ac1f6ab08b902b3d617",
+        "run_id": "synthetic-run-1",
+        "segment_id": "segment-1"
+      },
+      "ordinal": 3,
+      "timestamp_ns": 10000000000,
+      "ip_version": 4,
+      "src_ip": "192.0.2.10",
+      "dst_ip": "192.0.2.20",
+      "ip_protocol": 6,
+      "ip_length": 60,
+      "ip_flags": 2,
+      "fragmented": false,
+      "highest_layer": "TCP",
+      "protocol_stack": "eth:ethertype:ip:tcp",
+      "tcp": {
+        "src_port": 40000,
+        "dst_port": 8080,
+        "length": 20,
+        "ack": 123,
+        "flags": 18,
+        "window_size": 4096
+      },
+      "udp": null,
+      "icmp": null
+    },
+    {
+      "schema_version": "1.0.0",
+      "input_kind": "synthetic_fixture",
+      "capture": {
+        "capture_id": "synthetic-ordering",
+        "capture_sha256": "4ad7980a9821ef718781b06f1c6faba5d9ebd066ebb87ac1f6ab08b902b3d617",
+        "run_id": "synthetic-run-1",
+        "segment_id": "segment-1"
+      },
+      "ordinal": 4,
+      "timestamp_ns": 10000000000,
+      "ip_version": 4,
+      "src_ip": "192.0.2.10",
+      "dst_ip": "192.0.2.20",
+      "ip_protocol": 6,
+      "ip_length": 60,
+      "ip_flags": 2,
+      "fragmented": false,
+      "highest_layer": "TCP",
+      "protocol_stack": "eth:ethertype:ip:tcp",
+      "tcp": {
+        "src_port": 40000,
+        "dst_port": 8080,
+        "length": 20,
+        "ack": 123,
+        "flags": 18,
+        "window_size": 4096
+      },
+      "udp": null,
+      "icmp": null
+    },
+    {
+      "schema_version": "1.0.0",
+      "input_kind": "synthetic_fixture",
+      "capture": {
+        "capture_id": "synthetic-ordering",
+        "capture_sha256": "4ad7980a9821ef718781b06f1c6faba5d9ebd066ebb87ac1f6ab08b902b3d617",
+        "run_id": "synthetic-run-1",
+        "segment_id": "segment-1"
+      },
+      "ordinal": 5,
+      "timestamp_ns": 2,
+      "ip_version": 4,
+      "src_ip": "192.0.2.10",
+      "dst_ip": "192.0.2.20",
+      "ip_protocol": 6,
+      "ip_length": 60,
+      "ip_flags": 2,
+      "fragmented": false,
+      "highest_layer": "TCP",
+      "protocol_stack": "eth:ethertype:ip:tcp",
+      "tcp": {
+        "src_port": 40000,
+        "dst_port": 8080,
+        "length": 20,
+        "ack": 123,
+        "flags": 18,
+        "window_size": 4096
+      },
+      "udp": null,
+      "icmp": null
+    }
+  ]
+}

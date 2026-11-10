@@ -1,0 +1,24 @@
+{
+  "schema_version": "1.0.0",
+  "kind": "bounded_packet_alignment_audit",
+  "case_id": "edge-v5-http-prefix",
+  "pcap": {
+    "path": "data/raw/Edge-IIoTset dataset/Attack traffic/DDoS HTTP Flood Attacks.pcap",
+    "sha256": "2fb2558d51defd1704a54a7a76df787048e9281d2efd8177703d66a7f78620ba",
+    "size_bytes": 28307602
+  },
+  "csv": {
+    "path": "data/raw/Edge-IIoTset dataset/Attack traffic/DDoS_HTTP_Flood_attack.csv",
+    "sha256": "526ef4221d74c046d35db948e7aa534f2660270321510726f312409d6036ca33",
+    "size_bytes": 95709749
+  },
+  "toolchain": {
+    "tshark_path": "C:/Program Files/Wireshark/tshark.exe",
+    "tshark_sha256": "16fcc57d76fe2e7ce006aad2cbe204ad7cd62837d105b7c619e64e2aa492d229"
+  },
+  "bounds": {
+    "pcap_records": 256,
+    "csv_search_rows": 1024,
+    "calibration_end": 64
+  }
+}

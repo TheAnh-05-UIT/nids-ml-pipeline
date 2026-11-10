@@ -1,0 +1,19 @@
+{
+  "adam_amsgrad": false,
+  "adam_beta_1": 0.9,
+  "adam_beta_2": 0.999,
+  "adam_details_status": "PROPOSED_IMPLEMENTATION; not fully specified in paper",
+  "adam_epsilon": 1e-07,
+  "batch_size": 128,
+  "distributed_optimizer_state": "UNKNOWN; no OpenSwarm integration",
+  "epochs": 10,
+  "label_mapping": {
+    "0": "Benign",
+    "1": "DDoS"
+  },
+  "learning_rate": 0.001,
+  "loss": "binary_crossentropy",
+  "optimizer": "Adam",
+  "reference_values_status": "VERIFIED_FROM_PAPER_TABLE12; Flow-only application PROPOSED_IMPLEMENTATION",
+  "schema_version": "1.0.0"
+}
