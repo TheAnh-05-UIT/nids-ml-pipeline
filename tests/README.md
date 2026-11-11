@@ -63,3 +63,12 @@ UNKNOWN overflow, uncertain-TCP quarantine, cross-connection tensor dedup,
 group-held-out splits, two client partitions, HDF5 tampering, metrics arithmetic,
 checkpoint restoration and Windows RSS-probe lifetime. Cần runtime CNN Python
 3.11/TF 2.15.1 và NumPy/h5py; đây không phải kết quả training Edge-IIoTset.
+
+`test_cnn_swarm.py` kiểm fixed CNN contract/codec, SDK interoperability, weighted
+FedAvg với sample counts không bằng nhau, duplicate/stale/mismatch/timeout,
+controller read retry/ambiguous-create fencing, completion receipts và replay.
+Các SDK tests cần SL/SWOP installed hoặc `NIDS_SL_SOURCE`/`NIDS_SWOP_SOURCE` trỏ
+tới source SDK đã có; không tự tải SDK. Thiếu SDK được ghi SKIP.
+`run_cnn_swarm_integration.py` là integration runner riêng, dùng TCP loopback với
+SN + 2 SL + 2 CNN clients và controller; xem README adapter về các executable/source
+paths bắt buộc. Runner không Docker/deploy và không tự phát hiện/mượn service đang chạy.

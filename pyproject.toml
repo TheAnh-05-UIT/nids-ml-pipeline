@@ -22,6 +22,7 @@ hdf5 = ["numpy==1.26.4", "h5py==3.16.0"]
 [project.scripts]
 nids-data = "nids_ml.cli.eda:main"
 nids-demo = "nids_ml.training.demo:main"
+nids-swarm = "nids_ml.adapters.swarm.job:main"
 nids-labels = "nids_ml.cli.labels:main"
 nids-flow-cnn = "nids_ml.cli.flow_cnn:main"
 nids-flow-extract = "nids_ml.cli.flow_extraction:main"

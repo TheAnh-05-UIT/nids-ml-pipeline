@@ -11,7 +11,7 @@ Edge-IIoTset research pipeline: **PCAP → flow → HDF5 → CNN**, hướng t�
 - Chia theo **connection** từng class, không random các cửa sổ của cùng connection. Loại mọi bản tensor giống hệt thuộc connection khác nhau trước split. Không đủ nhóm/class thì dừng, không fallback gây leakage.
 - Đây là **within-capture pilot**: thời gian giữa connection có thể chồng lấn. Không suy ra nhận diện capture hoặc attack family chưa gặp.
 
-Hạ tầng OpenSwarm và smoke tests ARM64 có nghiệm thu riêng. CNN local không chứng minh CNN đã train bằng Swarm; source demo mới cần kiểm thử trên board. N10, Packet CNN, attack families khác và Continual Learning nằm ngoài demo này.
+Standalone CNN đã chạy native trên RPi5 và Orange Pi theo evidence operator. Adapter CNN Swarm có các role và kiểm thử HTTP local riêng; **CNN FedAvg giữa hai board vẫn chưa được xác minh**. N10, Packet CNN, attack families khác và Continual Learning nằm ngoài demo này.
 
 ## Môi trường / Runtime
 
@@ -60,6 +60,19 @@ python -B -m unittest discover -s tests -p test_demo_pipeline.py -v
 
 Suite demo dùng fixtures synthetic và CPU training nhỏ để kiểm HDF5, split/dedup guards, UNKNOWN overflow và checkpoint. Fixture metrics không phải Edge-IIoTset metrics. Regression khác xem [tests](tests/README.md). Local PASS không chứng minh native ARM64, CNN Swarm hoặc Colab PASS.
 
+## CNN Swarm / Trao đổi weights hai rounds
+
+Xem [hướng dẫn CNN adapter](src/nids_ml/adapters/swarm/README.md) và chạy:
+
+```bash
+python -B scripts/run_swarm.py --help
+```
+
+Các role `sl`, `client`, `controller` mặc định chỉ dry-run; chỉ thao tác network
+khi có `--execute-approved`. Adapter dùng SDK trong các image tương ứng, giữ
+source SN/SL/User-TF/SWOP nguyên trạng. Chưa có thao tác deploy tự động hoặc Docker
+trong script này. Không chạy controller của job TinyRegressor cũ cho CNN.
+
 ## Tìm source / Source map
 
 | Công việc | Nơi đọc |
@@ -68,6 +81,7 @@ Suite demo dùng fixtures synthetic và CPU training nhỏ để kiểm HDF5, sp
 | Mapped labels, connection split, HDF5 | `src/nids_ml/data/demo.py` |
 | Train/evaluate/checkpoint demo | `src/nids_ml/training/demo.py` |
 | CNN đã kiểm thử | `src/nids_ml/models/flow_cnn.py` |
+| CNN exchange contract, launcher và replay | `src/nids_ml/adapters/swarm/` |
 | Decoder, 11 features, windows | `src/nids_ml/pcap/`, `src/nids_ml/flows/` |
 | Công cụ audit và format cũ | [Source map](src/nids_ml/README.md), [scripts](scripts/README.md) |
 | Cấu hình/contract | [configs](configs/README.md), [contracts](contracts/README.md) |

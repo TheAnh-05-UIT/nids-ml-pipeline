@@ -34,6 +34,10 @@ Use Python 3.11 for the pinned native-library path; no automatic installation.
 `inspect`, `train` tạo HDF5 nhãn CSV mapping và train/evaluate CNN nhỏ.
 Xem root README để thiết lập mapping paths và runtime; không dùng fixture làm data thật.
 
+**CNN exchange:** `python -B scripts/run_swarm.py --help`. Tạo bootstrap/config,
+validate offline, launch role có approval rõ ràng và replay FedAvg. Xem
+`src/nids_ml/adapters/swarm/README.md`; không dùng controller job cũ để chạy CNN.
+
 ```bash
 python -B scripts/validate_workspace.py
 python -B scripts/ordered_flow_hdf5.py --help
