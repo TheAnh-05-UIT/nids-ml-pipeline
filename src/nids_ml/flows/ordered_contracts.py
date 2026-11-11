@@ -75,6 +75,13 @@ def validate_metadata(value, config, view):
     try:structural(value,METADATA_SCHEMA)
     except (ValueError,TypeError) as error:raise ExtractionError('ORDERED_METADATA_SCHEMA:'+str(error)) from error
     config=validate_configuration(config)
+    return validate_metadata_invariants(value,config,view)
+
+
+def validate_metadata_invariants(value,config,view):
+    """Share lineage checks after each version has validated its own schema/config.
+    Dùng chung kiểm lineage sau khi mỗi version kiểm schema/config riêng.
+    """
     source=view['source'];start=source['source_first_ordinal'];end=start+view['record_count']-1
     n=config['tensor_shape'][0];count=value['retained_packet_count'];real=value['real_packet_count']
     def require(ok,reason):
@@ -123,6 +130,13 @@ def validate_metadata(value, config, view):
 
 def validate_tensor_bytes(shape, data, metadata, config, view):
     validate_metadata(metadata,config,view)
+    validate_tensor_layout(shape,data,metadata,config)
+
+
+def validate_tensor_layout(shape,data,metadata,config):
+    """Shared finite/normalization/padding checks; no input-scope coercion.
+    Kiểm finite/normalization/padding dùng chung; không đổi scope đầu vào.
+    """
     n=config['tensor_shape'][0];count=metadata['retained_packet_count']
     if (type(shape) is not tuple or any(type(v) is not int for v in shape)
             or shape!=(n,11,1) or type(data) is not bytes or len(data)!=n*44):

@@ -76,12 +76,24 @@ class _LineageState:
 
 class OrderedFlowExtractor(FlowExtractor):
     """Một completed view, một callback lookup; outputs chỉ commit sau ordered_stream_complete."""
+    _validate_view=staticmethod(validate_view_manifest)
+    _configuration=staticmethod(configuration)
+    _validate_configuration=staticmethod(validate_configuration)
+    _packet_bytes=staticmethod(packet_bytes)
+    _extract_features=staticmethod(extract_features)
+    _validate_tensor=staticmethod(validate_tensor_bytes)
+    _digest_seed=staticmethod(_processing_digest)
+    _receipt_event=OrderedPacketReceipt
+    _tensor_event=OrderedFlowTensor
+    _completion_event=OrderedExtractionComplete
+    _input_kind='synthetic_fixture'
+
     def __init__(self,view,config=None,limits=None):
-        self.view=validate_view_manifest(view)
-        self.ordered_config=validate_configuration(configuration() if config is None else config)
+        self.view=self._validate_view(view)
+        self.ordered_config=self._validate_configuration(self._configuration() if config is None else config)
         context=CaptureContext.from_dict(self.view['source']['capture'])
         # Config capture-order chỉ dùng nội bộ cho features/buffer/normalization; không gọi run cũ.
-        super().__init__(context,capture_configuration(self.ordered_config['profile']),limits)
+        super().__init__(context,capture_configuration(self.ordered_config['profile'],input_kind=self._input_kind),limits)
         if self.view['record_count']>self.limits.max_input_packets:
             raise ResourceLimitError('ORDERED_VIEW_EXCEEDS_INPUT_LIMIT')
         self.flow_reservation+=LINEAGE_OVERHEAD_RESERVATION+self.n*INDEX.size
@@ -99,17 +111,17 @@ class OrderedFlowExtractor(FlowExtractor):
             metadata=tensor.metadata
             lineage=self._lineage.pop(tuple(metadata['flow_tuple']))
             count=metadata['retained_packet_count']
-            metadata.update(schema_version=VERSION,extractor_version=self.ordered_config['extractor_version'],
+            metadata.update(schema_version=self.ordered_config['schema_version'],extractor_version=self.ordered_config['extractor_version'],
                 configuration_sha256=hashlib.sha256(canonical_bytes(self.ordered_config)).hexdigest(),
-                input_kind='synthetic_fixture',ordering_contract_version='1.0.0',
+                input_kind=self._input_kind,ordering_contract_version=self.ordered_config['ordering_contract_version'],
                 processing_view_sha256=self.view['processing_order_sha256'],packet_digest_order='PROCESSING_INDEX',
                 first_processing_index=lineage.first_index,last_processing_index=lineage.last_index,
                 retained_processing_indices=[INDEX.unpack_from(lineage.buffer,i*INDEX.size)[0] for i in range(count)],
                 min_source_ordinal=lineage.minimum,max_source_ordinal=lineage.maximum,
                 full_processing_digest=lineage.full.hexdigest(),overflow_processing_digest=lineage.overflow.hexdigest(),
                 real_data_export='BLOCKED',HDF5_integration='NOT_ACTIVE')
-            validate_tensor_bytes(tensor.shape,tensor.tensor_bytes,metadata,self.ordered_config,self.view)
-            yield OrderedFlowTensor(tensor.shape,tensor.tensor_bytes,canonical_bytes(metadata))
+            self._validate_tensor(tensor.shape,tensor.tensor_bytes,metadata,self.ordered_config,self.view)
+            yield self._tensor_event(tensor.shape,tensor.tensor_bytes,canonical_bytes(metadata))
 
     def _check_reference(self,reference,index,previous):
         if type(reference) is not ProcessingRecord or type(reference.processing_index) is not int or reference.processing_index!=index:
@@ -128,7 +140,7 @@ class OrderedFlowExtractor(FlowExtractor):
     def run(self,references,packet_lookup,*,input_complete):
         if self.status!='NEW':raise ExtractionError('ORDERED_EXTRACTOR_CANNOT_REPLAY')
         self.status='RUNNING';anchor=None;index=window_count=0;previous=None
-        iterator=None;digest=_processing_digest(self.view['source'])
+        iterator=None;digest=self._digest_seed(self.view['source'])
         try:
             if input_complete is not True or not callable(packet_lookup):
                 raise ExtractionError('COMPLETE_VIEW_AND_CALLABLE_LOOKUP_REQUIRED')
@@ -140,12 +152,12 @@ class OrderedFlowExtractor(FlowExtractor):
                     raise ResourceLimitError('EXTRA_REFERENCE_OR_INPUT_LIMIT')
                 previous=self._check_reference(reference,number,previous)
                 # Snapshot metadata để callback không thể sửa object đã được kiểm hash sau đó.
-                raw=strict_json(packet_bytes(packet_lookup(reference.source_packet_ordinal)))
+                raw=strict_json(self._packet_bytes(packet_lookup(reference.source_packet_ordinal)))
                 if (raw['ordinal']!=reference.source_packet_ordinal or raw['timestamp_ns']!=reference.timestamp_ns
                         or raw['capture']!=self.context.to_dict()
                         or hashlib.sha256(canonical_bytes(raw)).hexdigest()!=reference.source_packet_sha256):
                     raise ExtractionError('SOURCE_PACKET_HASH_CONTEXT_TIMESTAMP_OR_ORDINAL_MISMATCH')
-                packet=extract_features(raw)
+                packet=self._extract_features(raw)
                 digest.update(canonical_bytes(reference.to_dict())+b'\n')
                 if anchor is None:
                     anchor=packet.timestamp_ns;self._stats['windows']=1
@@ -175,14 +187,14 @@ class OrderedFlowExtractor(FlowExtractor):
                 window_count+=1
                 receipt=PacketReceipt(packet.context,key,index,packet.ordinal,packet.timestamp_ns,
                                       packet.packet_sha256,retained,packet.unknown_protocol_tokens)
-                yield OrderedPacketReceipt(receipt,reference.processing_index,self.view['processing_order_sha256'])
+                yield self._receipt_event(receipt,reference.processing_index,self.view['processing_order_sha256'])
             if self._stats['input_packets']!=self.view['record_count']:
                 raise ExtractionError('MISSING_PROCESSING_REFERENCE')
             if digest.hexdigest()!=self.view['processing_order_sha256']:
                 raise ExtractionError('PROCESSING_VIEW_DIGEST_MISMATCH')
             if anchor is not None:yield from self._flush(anchor,index,True)
             self.status='COMPLETE'
-            yield OrderedExtractionComplete(canonical_bytes(self.stats))
+            yield self._completion_event(canonical_bytes(self.stats))
         except GeneratorExit:
             if self.status=='RUNNING':self.status='ABORTED'
             raise
