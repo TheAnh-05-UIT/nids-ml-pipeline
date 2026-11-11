@@ -162,14 +162,21 @@ def predict_flow(model,values,config):
     return prediction
 
 
-def train_step(model,values,labels,config):
+def train_step(model,values,labels,config,*,sample_weights=None):
     np,tf=backend();x=validate_inputs(values,config);y=validate_labels(labels,len(x));inspect_model(model,config)
     if not hasattr(model,'optimizer') or model.optimizer is None:
         raise ModelContractError('Compile the model before a synthetic training step')
     with tf.device('/CPU:0'):
         with tf.GradientTape() as tape:
             predictions=model(tf.convert_to_tensor(x),training=True)
-            loss=tf.keras.losses.BinaryCrossentropy()(tf.convert_to_tensor(y),predictions)
+            if sample_weights is None:
+                loss=tf.keras.losses.BinaryCrossentropy()(tf.convert_to_tensor(y),predictions)
+            else:
+                weights=np.asarray(sample_weights)
+                if weights.dtype!=np.float32 or weights.shape!=(len(x),) or not np.isfinite(weights).all() or not (weights>0).all():
+                    raise ModelContractError('Expected positive finite float32 sample weights (B,)')
+                per_sample=tf.keras.losses.BinaryCrossentropy(reduction='none')(tf.convert_to_tensor(y),predictions)
+                loss=tf.reduce_mean(per_sample*tf.convert_to_tensor(weights))
         gradients=tape.gradient(loss,model.trainable_weights)
         if not bool(tf.math.is_finite(loss).numpy()) or any(g is None or not bool(tf.reduce_all(tf.math.is_finite(g)).numpy()) for g in gradients):
             raise ModelContractError('Missing or nonfinite gradient/loss')

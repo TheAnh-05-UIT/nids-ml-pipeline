@@ -1,3 +1,3 @@
-"""Reserve real-dataset trainer extensions; not implemented yet.
-Giữ phần mở rộng trainer dữ liệu thật; chưa có implementation.
+"""Group training entry points; demo.py runs the mapped-label CNN baseline.
+Nhóm luồng training; demo.py chạy CNN nhỏ với nhãn CSV đã mapping.
 """
