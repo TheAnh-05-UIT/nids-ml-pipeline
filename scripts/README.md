@@ -11,6 +11,7 @@ Use Python 3.11 for the pinned native-library path; no automatic installation.
 | `validate_workspace.py` | Static structure/schema/import checks | Kiểm cấu trúc, schema và import nhẹ |
 | `packet_ordering.py` | Build/inspect synthetic processing views | Tạo/kiểm processing view synthetic |
 | `pcap_ordering.py` | Index/inspect raw-PCAP record references | Index ordering PCAP gốc, giữ bytes/ordinal/timestamp; chưa nối HDF5 |
+| `ordered_pcap.py` | Sequential decode → spool → ordered UNKNOWN diagnostics | Decode tuần tự, lookup metadata theo index, xuất tensor chẩn đoán; không HDF5/train |
 | `ordered_flow_extraction.py` | Extract ordered synthetic flow events | Trích ordered-flow events synthetic |
 | `ordered_flow_hdf5.py` | Ordered-HDF5 synthetic export/validation | Xuất/kiểm ordered-HDF5 synthetic |
 | `validate_flow_extraction.py` | Capture-order synthetic checks | Kiểm trích flow synthetic theo capture order |
@@ -29,12 +30,16 @@ Use Python 3.11 for the pinned native-library path; no automatic installation.
 
 ## Safe starting point / Điểm bắt đầu
 
+**Real-data demo:** `python -B scripts/run_demo.py --help`. Subcommands `prepare`,
+`inspect`, `train` tạo HDF5 nhãn CSV mapping và train/evaluate CNN nhỏ.
+Xem root README để thiết lập mapping paths và runtime; không dùng fixture làm data thật.
+
 ```bash
 python -B scripts/validate_workspace.py
 python -B scripts/ordered_flow_hdf5.py --help
 ```
 
-For the synthetic demo, use the root README. Historical data-audit commands
+For the mapped-label data demo, use the root README. Historical data-audit commands
 require actual local data and sometimes ignored manifests/evidence. The original
 operator-only `DATA_001B_USAGE.md` remains local and is excluded from the public
 source set. Do not substitute fixtures for real dataset statistics. No script

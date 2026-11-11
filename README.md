@@ -1,156 +1,76 @@
-# NIDS ML Pipeline
+# Flow-Based CNN for DDoS Detection
 
-A research toolkit for traceable, flow-based network intrusion detection.
-It includes bounded PCAP decoding, CSV/PCAP audits, LUCID-style flow tensors,
-strict label contracts, integrity-checked HDF5 and a small Flow CNN.
+Edge-IIoTset research pipeline: **PCAP → flow → HDF5 → CNN**, hướng tới demo Swarm Learning trên Raspberry Pi 5 và Orange Pi 5 Pro. This is a research demo, not a production intrusion-detection system.
 
-Bộ công cụ nghiên cứu phát hiện xâm nhập mạng theo flow: giải mã PCAP,
-audit dữ liệu, tạo flow tensor, kiểm nhãn, lưu HDF5 và thử nghiệm Flow CNN.
+## Phạm vi demo / Demo scope
 
-This is an **in-progress research project**, not a trained production detector.
-Real-data supervised CNN training, final evaluation and CNN Swarm integration
-are not complete. No detection score is claimed from synthetic tests.
+- Hai capture: **Heart Rate Normal (0)** và **HTTP DDoS (1)**, chỉ IPv4 TCP.
+- Flow hai chiều theo 5-tuple; cửa sổ 10 giây; tối đa 20 packet, 11 features, zero padding. CNN input `(N, 20, 11, 1)`, 2.241 parameters.
+- Nhãn **DATASET_PROVIDED_MAPPED** lấy từ CSV cho packet có mapping nội dung + time witness duy nhất đã audit. Đây không phải ground truth packet xác minh độc lập; time witness không chứng nhận múi giờ.
+- UNKNOWN/MIXED không thành Benign. Kiểm nhãn **mọi packet** trong flow-window, cả packet vượt n=20. TCP không giải mã chắc chắn làm cách ly cả cửa sổ; ngoài TCP được thống kê, không train.
+- Chia theo **connection** từng class, không random các cửa sổ của cùng connection. Loại mọi bản tensor giống hệt thuộc connection khác nhau trước split. Không đủ nhóm/class thì dừng, không fallback gây leakage.
+- Đây là **within-capture pilot**: thời gian giữa connection có thể chồng lấn. Không suy ra nhận diện capture hoặc attack family chưa gặp.
 
-## Start here / Bắt đầu từ đâu
+Hạ tầng OpenSwarm và smoke tests ARM64 có nghiệm thu riêng. CNN local không chứng minh CNN đã train bằng Swarm; source demo mới cần kiểm thử trên board. N10, Packet CNN, attack families khác và Continual Learning nằm ngoài demo này.
 
-| Goal / Công việc | Entry point / Nơi đọc |
+## Môi trường / Runtime
+
+Data tools dùng Python 3.11+ và TShark có SHA-256 đã kiểm. CNN/HDF5 dùng **Python 3.11, TensorFlow 2.15.1, NumPy 1.26.4, h5py 3.16.0** trong môi trường đã chuẩn bị. Không tự cài lại Python host hoặc Docker daemon. Python 3.12 host dùng cho audit, không thay runtime CNN 3.11 trong User-TF image. Git pull không cập nhật code nằm trong image.
+
+Clone source không chứa raw data, mapping SQLite hoặc Python environment. Xem [data guide](data/README.md), không tải lại dataset đã có. Không commit raw data, HDF5, checkpoints, caches và artifacts.
+
+## Một điểm chạy chính / Main entry point
+
+`scripts/run_demo.py`: `prepare`, `inspect`, `train`. Chạy từ repo; `python` bên dưới phải là runtime Python 3.11 đã chuẩn bị. Output là thư mục mới dưới `artifacts/runs/`; không ghi đè và không tự cleanup khi lỗi.
+
+```bash
+python -B scripts/run_demo.py --help
+
+# Mỗi mapping directory phải có coverage.json và alignment.sqlite từ full-pair audit.
+# TSHARK và TSHARK_SHA là đường dẫn/hash binary trên máy đang chạy.
+python -B scripts/run_demo.py prepare \
+  --normal-mapping "$NORMAL_MAPPING" \
+  --attack-mapping "$HTTP_MAPPING" \
+  --tshark "$TSHARK" --tshark-sha256 "$TSHARK_SHA" \
+  --max-per-class 1000 --output artifacts/runs/demo-data-01
+
+python -B scripts/run_demo.py inspect --dataset artifacts/runs/demo-data-01
+
+python -B scripts/run_demo.py train \
+  --dataset artifacts/runs/demo-data-01 \
+  --epochs 3 --batch-size 64 --output artifacts/runs/demo-cnn-01
+```
+
+`prepare` kiểm SHA-256 PCAP/CSV và decode **theo source order** để giữ TCP state; sau đó mới sắp metadata theo `(timestamp, source ordinal)`. SQLite giữ lineage với RAM giới hạn. Quét full captures trước khi chọn tối đa số flow/class đã đặt: đây là bounded pilot, không phải toàn dataset. Trước chạy cần 1,5 GiB trống và luôn giữ dự phòng 1 GiB.
+
+Output `dataset.h5`: `X`, `y`, `split`, `client`, `metadata`; `manifest.json` ghi nguồn/checksum, số bị loại và phân bố thật. Client 0/1 có train samples riêng và cả hai classes; validation/test dùng chung để đánh giá.
+
+Đây là format demo riêng `nids-mapped-demo-hdf5/1.0.0`, không nới gate verified-only cũ. `metadata.core` vẫn giữ trạng thái diagnostic UNKNOWN; nhãn số nằm ở wrapper `metadata.y` với provenance DATASET_PROVIDED_MAPPED. Không biến core UNKNOWN thành VERIFIED.
+
+`train` dùng class weights tính **chỉ từ train**, Adam/BCE, seed cố định, một CPU thread. Báo validation mỗi epoch; test đánh giá sau số epoch cố định. Output: `metrics.json`, `test-predictions.csv`, `weights.bin`, `checkpoint.json`, hình nếu có matplotlib. Checkpoint không pickle; kiểm SHA/shape/dtype/finite và prediction sau restore. Chỉ lưu weights, không lưu optimizer state.
+
+`--client 0` hoặc `--client 1` train riêng một partition; **không tự trao đổi weights hoặc gọi Swarm**. Những bước native CNN và Swarm CNN chưa chạy không được ghi PASS.
+
+## Kiểm thử / Tests
+
+```bash
+python -B scripts/validate_workspace.py
+python -B -m unittest discover -s tests -p test_demo_pipeline.py -v
+```
+
+Suite demo dùng fixtures synthetic và CPU training nhỏ để kiểm HDF5, split/dedup guards, UNKNOWN overflow và checkpoint. Fixture metrics không phải Edge-IIoTset metrics. Regression khác xem [tests](tests/README.md). Local PASS không chứng minh native ARM64, CNN Swarm hoặc Colab PASS.
+
+## Tìm source / Source map
+
+| Công việc | Nơi đọc |
 |---|---|
-| Understand the project / Hiểu cấu trúc | [Source map](src/nids_ml/README.md) |
-| Read the coursework / Đọc notebook đồ án | [NT120 notebook](notebooks/NT120_DoAn_NhomXX_FlowCnnDdos.ipynb) |
-| Run a small demo / Chạy demo nhỏ | Synthetic quickstart below / Ví dụ bên dưới |
-| Review settings / Xem cấu hình | [configs](configs/README.md) |
-| Understand data formats / Hiểu format dữ liệu | [contracts](contracts/README.md) |
-| Run tests / Chạy kiểm thử | [tests](tests/README.md) |
-| Check scope and gaps / Xem phần đã làm/chưa làm | Research scope below / Phạm vi nghiên cứu bên dưới |
+| Điểm chạy demo | `scripts/run_demo.py` |
+| Mapped labels, connection split, HDF5 | `src/nids_ml/data/demo.py` |
+| Train/evaluate/checkpoint demo | `src/nids_ml/training/demo.py` |
+| CNN đã kiểm thử | `src/nids_ml/models/flow_cnn.py` |
+| Decoder, 11 features, windows | `src/nids_ml/pcap/`, `src/nids_ml/flows/` |
+| Công cụ audit và format cũ | [Source map](src/nids_ml/README.md), [scripts](scripts/README.md) |
+| Cấu hình/contract | [configs](configs/README.md), [contracts](contracts/README.md) |
+| Notebook NT120 | [Notebook](notebooks/NT120_DoAn_NhomXX_FlowCnnDdos.ipynb) |
 
-## Project layout / Cấu trúc
-
-```text
-src/nids_ml/   Domain code / Thuật toán và contracts thực thi
-scripts/       CLI launchers and audit utilities / Lệnh chạy và công cụ audit
-configs/       Portable examples and labelled reference configs / Ví dụ và config tham khảo
-contracts/     Versioned JSON Schemas / Schema có version
-tests/         Small synthetic fixtures and regression tests / Fixtures nhỏ và tests
-notebooks/     NT120 report and guided demo / Báo cáo đồ án và demo có giải thích
-data/          Local dataset storage; ignored / Dataset local, không đưa lên Git
-artifacts/     Local outputs and manifests; ignored / Outputs local, không đưa lên Git
-```
-
-Each Python file starts with a short English/Vietnamese purpose statement. Examples
-call the package implementation instead of duplicating it inside notebooks.
-Mỗi file Python có mô tả đầu file bằng Anh–Việt; xem file đó để biết đúng trách
-nhiệm. Các package mở rộng còn trống được ghi rõ là **placeholder**.
-
-## Environment / Môi trường
-
-Use **Python 3.11** for the validated HDF5/CNN path. Core data/ordering tools
-mostly use the standard library. Optional HDF5 pins are NumPy 1.26.4 and
-h5py 3.16.0; CNN additionally expects TensorFlow 2.15.1 / Keras 2.15.0.
-Direct pins are not a complete transitive lock. TShark is a separate requirement
-for PCAP decoding; the synthetic quickstart does not need it.
-
-Nếu cần môi trường mới, operator tạo venv riêng; không thay global Python hoặc
-môi trường OpenSwarm đang chạy:
-
-```bash
-python3.11 -m venv .venv
-.venv/bin/python -m pip install --editable '.[hdf5]'
-.venv/bin/python -B scripts/validate_workspace.py
-```
-
-Windows: use `py -3.11 -m venv .venv`, then `.venv\Scripts\python.exe`.
-Add `-X utf8` if the terminal encoding does not display Vietnamese correctly.
-Installing dependencies may need Internet; no command runs automatically.
-The HDF5 extra does not install TensorFlow, Jupyter or TShark.
-
-## Synthetic quickstart / Demo synthetic
-
-Run from this directory with the prepared Python 3.11/HDF5 environment. Pick a
-**new** output directory each time. Đây là kiểm pipeline, không phải dataset
-Edge-IIoTset thật hoặc kết quả training.
-
-```bash
-mkdir artifacts/runs/my-ordered-demo
-python -B scripts/packet_ordering.py build-synthetic --fixture configs/packet-ordering-synthetic.example.json --output artifacts/runs/my-ordered-demo/view
-python -B scripts/ordered_flow_hdf5.py export-synthetic --fixture configs/packet-ordering-synthetic.example.json --view artifacts/runs/my-ordered-demo/view --profile flow-cnn-n20-t10 --output artifacts/runs/my-ordered-demo/n20.hdf5
-python -B scripts/ordered_flow_hdf5.py validate --input artifacts/runs/my-ordered-demo/n20.hdf5
-```
-
-For n10, select `paper-table3-n10` and a new output `n10.hdf5`.
-X has shape `(N,n,11,1)`. Source ordinals, processing indices and full/overflow
-lineage are separate. UNKNOWN/MIXED samples retain `y=-1`, mask=false and are
-excluded from supervised training. Capture-order HDF5 and ordered-HDF5 have
-different contracts; readers reject the wrong format.
-
-## Tests / Kiểm thử
-
-These suites use synthetic inputs and do not train a CNN:
-
-```bash
-python -B -m unittest discover -s tests -p test_packet_ordering.py -v
-python -B -m unittest discover -s tests -p test_ordered_flow.py -v
-python -B -m unittest discover -s tests -p test_ordered_hdf5.py -v
-```
-
-Do not assume full unittest discovery is a no-training check: some CNN tests
-perform tiny synthetic optimizer updates. Xem [test guide](tests/README.md)
-để chọn đúng phạm vi và dependencies. Synthetic test metrics are not dataset
-metrics; local tests are not proof of native ARM64 or live Colab execution.
-
-## Research scope / Phạm vi nghiên cứu
-
-Target workflow: **PCAP + verified annotations → flow/HDF5 → leakage-safe split
-→ centralized CNN baseline → evaluation → Swarm adapter on edge nodes**.
-
-The local Edge-IIoTset dataset already exists and is not redistributed here.
-Read the [data guide](data/README.md). CSV row labels do not by
-themselves establish PCAP/flow ground truth. Không đổi unmatched traffic thành
-benign, dùng folder name làm nhãn hoặc đưa metadata identity vào CNN inputs.
-
-The Colab notebook is a draft: it requires this source checkout and compatible
-dependencies; live Colab execution is not verified. Existing two-board tiny-model
-FedAvg evidence does not establish CNN Swarm training. Pulling source does not
-update the code already baked into a running container image.
-
-## Real-PCAP preparation / Chuẩn bị PCAP thật
-
-The full-pair auditor now supports a guarded TCP v2 profile for Heart Rate,
-alongside unchanged legacy HTTP v1 defaults. It counts all source records and
-reports global candidate ambiguity; dataset CSV labels stay unverified.
-`configs/full-pair-heart-rate-arm64-v2.json` pins the transferred sources and the
-TShark binary observed on the boards. Audit toàn cặp chưa được chạy với code mới;
-không dùng synthetic test coverage làm coverage của dataset.
-
-`scripts/pcap_ordering.py` builds a separate SQLite reference index ordered by
-`(timestamp_ns, source_ordinal)`. `ordering/pcap.py::PcapRecordLookup` verifies and
-seeks original captured bytes without copying payloads to the index. Unsupported
-traffic remains in the index; sorting does not establish clock or label truth.
-
-This raw-record view **does not feed the synthetic ordered-flow/HDF5 pipeline**.
-Sequential full-PCAP decoding must preserve TCP state before decoded metadata is
-reordered. Adapter decoded metadata → ordered-flow thật và verified annotations
-vẫn là các bước còn thiếu; source/tests mới không chứng minh training readiness.
-No command in this section installs packages, starts Docker or connects to boards.
-
-```bash
-python3 -B scripts/audit_full_pair.py --help
-python3 -B scripts/pcap_ordering.py --help
-python3 -B -m unittest discover -s tests -p test_real_pcap_ordering.py -v
-python3 -B -m unittest discover -s tests -p test_tcp_full_pair_v2.py -v
-```
-
-## GitHub scope / Phần đưa lên Git
-
-Keep source, tests, configs, schemas, notebooks and documentation. Keep raw data,
-runtime manifests, HDF5/checkpoints, SQLite indexes, caches and secrets local.
-Only `README.md` files are included as Markdown documentation; other `.md` files
-remain local and are ignored. Chỉ các README được chọn commit; không xóa các
-ghi chú lịch sử còn cần dùng ở local.
-Only README/`.gitkeep` markers from data/artifacts belong in the source repo.
-Historical host-specific audit configs are marked **reference-only**; their
-TShark pins must be revalidated for a different host. `.gitignore` does not
-replace a secrets review or prevent publishing files explicitly force-added.
-
-The project license has not been selected in this workspace. Choose the intended
-license and review applicable notices before granting public reuse rights;
-this documentation does not assign a license or change dataset terms.
+Công cụ audit cũ giữ để tái lập bằng chứng, không phải tất cả đều cần chạy lại. Notebook hiện có chưa được xác minh với đường demo mới. Báo cáo/evidence task lưu ngoài repo source. Project license chưa chọn; không tự tái phân phối dataset hay third-party artifacts khi chưa rõ điều kiện.

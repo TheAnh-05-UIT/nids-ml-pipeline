@@ -30,6 +30,13 @@ syntax. SHA thể hiện consistency, không tự chứng minh provenance hoặc
 UNKNOWN/MIXED không được chuyển thành supervised numeric labels. Breaking changes
 cần version mới; không sửa semantics của schema cũ để vượt kiểm thử.
 
+Decoded-spool and decoded ordered-flow diagnostics use separate runtime contracts
+in `ordering/decoded.py` and `flows/decoded_ordered.py` (metadata/events v3).
+They reuse field/lineage checks without accepting real metadata as synthetic v2.
+Whole-capture EOF/count, raw-record bindings, SQLite/blob limits, UNKNOWN labels
+and diagnostic completion are additionally checked in code. HDF5 v2 stays closed
+to the new event types; no schema file was relaxed to activate training.
+
 Các schema files cần commit vì source/tests dùng chúng. Raw manifests, scores
 và model weights thuộc local artifacts, không được thay bằng dữ liệu giả trong
 contracts. File README này giải thích schema thay vì thêm comment không hợp lệ vào JSON.
