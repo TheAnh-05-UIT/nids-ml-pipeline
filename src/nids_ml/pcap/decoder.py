@@ -5,6 +5,7 @@ Mỗi source record được kiểm riêng; không filter/sort hay giữ cả ca
 RSS thresholds là ngưỡng abort được lấy mẫu, không là OS hard memory limit.
 """
 from collections import deque
+from functools import lru_cache
 from dataclasses import asdict, dataclass
 import hashlib
 import os
@@ -173,6 +174,17 @@ class PDMLParser:
     def _forbidden(self,*_):
         raise DecoderError('DTD_OR_ENTITY_FORBIDDEN')
 
+    def _position(self):
+        # Windows Expat can expose a signed 32-bit byte index for a >2 GiB stream.
+        # Khôi phục offset stream trên Windows; giữ nguyên mọi giới hạn record/stdout.
+        index=self.parser.CurrentByteIndex
+        if -2**31<=index<0:index+=2**32
+        if self.total>=2**32 and 0<=index<2**32:
+            index+=(self.total//2**32)*2**32
+            if index>self.total:index-=2**32
+        if not 0<=index<=self.total:raise DecoderError('INVALID_EXPAT_BYTE_INDEX')
+        return index
+
     def _declaration(self,version,encoding,standalone):
         if version!='1.0' or (encoding and encoding.lower().replace('-','')!='utf8'):
             raise DecoderError('UNSUPPORTED_XML_DECLARATION')
@@ -195,7 +207,7 @@ class PDMLParser:
         elif depth==1:
             if name!='packet' or self.count>=self.limits.packet_count:
                 raise DecoderError('PACKET_COUNT_OR_ROOT_CHILD')
-            self.packet_start=self.parser.CurrentByteIndex
+            self.packet_start=self._position()
             self.layers=[];self.protocols=[];self.fields=[];self.field_count=0
         else:
             if name not in ('proto','field'):
@@ -224,11 +236,11 @@ class PDMLParser:
             raise DecoderError('XML_NESTING')
         if name=='proto':self.protocol_stack.pop()
         if name=='packet':
-            size=self.parser.CurrentByteIndex+len('</packet>')-self.packet_start
+            size=self._position()+len('</packet>')-self.packet_start
             if size>self.limits.record_bytes:raise DecoderError('RECORD_BYTE_LIMIT')
             self.peak_record_bytes=max(self.peak_record_bytes,size)
             self.records.append(PDMLRecord(tuple(self.layers),tuple(self.protocols),tuple(self.fields)))
-            self.count+=1;self.packet_start=None;self.last_boundary=self.parser.CurrentByteIndex+len('</packet>')
+            self.count+=1;self.packet_start=None;self.last_boundary=self._position()+len('</packet>')
         if name=='pdml':self.closed_root=True
         self.stack.pop()
 
@@ -307,8 +319,33 @@ def map_record(record,context):
 
 
 def process_rss(pid):
-    """Working set Windows của đúng PID; None nếu hệ thống không hỗ trợ probe."""
+    """Read RSS for an owned PID on Linux/Windows; unavailable is never zero RAM.
+    Đọc RSS đúng PID trên Linux/Windows; không coi thiếu probe là RAM bằng 0.
+    """
+    if type(pid) is not int or pid<=0:return None
+    if sys_platform_linux():
+        try:
+            with open('/proc/'+str(pid)+'/status',encoding='ascii') as stream:
+                for line in stream:
+                    match=re.fullmatch(r'VmRSS:\s+(\d+)\s+kB\s*',line)
+                    if match:return int(match[1])*1024
+        except (OSError,UnicodeError):pass
+        return None
     if os.name!='nt':return None
+    import ctypes
+    Counters,kernel,psapi=_windows_memory_api()
+    handle=kernel.OpenProcess(0x1000|0x10,False,pid)
+    if not handle:return None
+    try:
+        counters=Counters();counters.cb=ctypes.sizeof(counters)
+        return counters.WorkingSetSize if psapi.GetProcessMemoryInfo(handle,ctypes.byref(counters),counters.cb) else None
+    finally:kernel.CloseHandle(handle)
+
+
+@lru_cache(maxsize=1)
+def _windows_memory_api():
+    # Cache the ctypes type: POINTER(type) retains each new type globally.
+    # Tái sử dụng type ctypes để việc đo RAM không tự gây tăng RAM qua pointer cache.
     import ctypes
     from ctypes import wintypes
     class Counters(ctypes.Structure):
@@ -320,16 +357,19 @@ def process_rss(pid):
     kernel.OpenProcess.argtypes=[wintypes.DWORD,wintypes.BOOL,wintypes.DWORD];kernel.OpenProcess.restype=wintypes.HANDLE
     kernel.CloseHandle.argtypes=[wintypes.HANDLE]
     psapi.GetProcessMemoryInfo.argtypes=[wintypes.HANDLE,ctypes.POINTER(Counters),wintypes.DWORD]
-    handle=kernel.OpenProcess(0x1000|0x10,False,pid)
-    if not handle:return None
-    try:
-        counters=Counters();counters.cb=ctypes.sizeof(counters)
-        return counters.WorkingSetSize if psapi.GetProcessMemoryInfo(handle,ctypes.byref(counters),counters.cb) else None
-    finally:kernel.CloseHandle(handle)
+    return Counters,kernel,psapi
+
+
+def sys_platform_linux():
+    import sys
+    return sys.platform.startswith('linux')
 
 
 class TSharkDecoder:
     """Session sở hữu đúng một child process; caller phải drain hoặc close."""
+
+    protocol_tree_filter=None
+    protocol_tree_filter_flag='-J'
 
     def __init__(self,source,*,expected_sha256,expected_size,tshark,tshark_sha256,limits=None):
         self.source=regular_file(source);self.executable=regular_file(tshark)
@@ -382,6 +422,7 @@ class TSharkDecoder:
         if self.reader_error:raise DecoderError(self.reader_error)
         for name,pid,limit in [('python',os.getpid(),self.limits.python_rss_bytes),
                                ('decoder',self.process.pid,self.limits.decoder_rss_bytes)]:
+            if name=='decoder' and self.process.poll() is not None:continue
             rss=process_rss(pid)
             if rss is None:self.stats['memory_probe_available']=False
             else:
@@ -395,6 +436,7 @@ class TSharkDecoder:
         self.command=[str(self.executable),'-n','-l','-r',str(self.source),'-T','pdml',
                       '-c',str(self.limits.packet_count)]
         for key,value in PREFERENCES.items():self.command+=['-o',key+':'+value]
+        if self.protocol_tree_filter is not None:self.command+=[self.protocol_tree_filter_flag,self.protocol_tree_filter]
         try:
             self.process=subprocess.Popen(self.command,stdout=subprocess.PIPE,stderr=subprocess.PIPE,
                                           stdin=subprocess.DEVNULL)
