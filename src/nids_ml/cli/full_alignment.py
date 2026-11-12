@@ -1,5 +1,5 @@
-"""Audit full HTTP or versioned TCP pairs without importing training labels.
-Audit toàn cặp HTTP hoặc TCP theo version; không nhập nhãn training.
+"""Audit legacy pairs and map large TCP/ICMP pairs to dataset-provided NIDS annotations.
+Giữ audit cũ; profile mới mapping TCP/ICMP lớn với nhãn CSV, chưa xuất flow hoặc training.
 """
 import argparse
 from dataclasses import asdict, replace
@@ -30,6 +30,9 @@ def validate_audit_config(config):
     """Keep legacy HTTP v1 fixed; TCP v2 declares exact PCAP and CSV counts.
     Giữ profile HTTP v1; TCP v2 phải khai báo số records của cả hai nguồn.
     """
+    if type(config) is dict and config.get('schema_version')=='1.2.0':
+        from nids_ml.alignment.large import validate_large_config
+        return validate_large_config(config),True
     limits=FullAuditLimits().validate()
     if type(config) is not dict or config.get('kind')!='full_pair_mapping_audit':
         raise AlignmentError('FULL_AUDIT_CONFIG')
@@ -69,6 +72,15 @@ def full_audit(config,workspace,output,progress=None):
     limits,guarded=validate_audit_config(config)
     fields=AUDIT_SCALAR_FIELDS if guarded else SCALAR_FIELDS
     record_factory=guarded_tcp_record if guarded else make_record
+    ingestion_options={}
+    large=config.get('schema_version')=='1.2.0'
+    if large and (not output.parent.is_dir() or output.is_symlink() or any(p.is_symlink() for p in output.parents)):
+        raise AlignmentError('FRESH_INDEPENDENT_OUTPUT_WITH_EXISTING_PARENT_REQUIRED')
+    if large:
+        from functools import partial
+        from nids_ml.alignment.large import large_record,compact_key_storage
+        record_factory=partial(large_record,protocol=config['protocol'])
+        ingestion_options['key_encoder']=compact_key_storage
     free_bytes=shutil.disk_usage(workspace).free
     if free_bytes<limits.min_free_mib*1048576+limits.scratch_mib*1048576:
         raise AlignmentError('INSUFFICIENT_DISK_FOR_DECLARED_SCRATCH_AND_HEADROOM: available_bytes='+str(free_bytes))
@@ -90,28 +102,36 @@ def full_audit(config,workspace,output,progress=None):
         check_temp=db.execute('PRAGMA temp_store_directory').fetchone()
         if not check_temp or Path(check_temp[0]).resolve()!=output.resolve():raise AlignmentError('SQLITE_TEMP_DIRECTORY_NOT_CONFIRMED')
         if progress:progress('verified_sources_and_disk',0)
-        csv_stats=ingest_csv(db,cs,config['csv']['sha256'],budget,progress,record_factory=record_factory)
+        csv_stats=ingest_csv(db,cs,config['csv']['sha256'],budget,progress,record_factory=record_factory,**ingestion_options)
         if guarded and csv_stats['rows']!=config['expected_csv_rows']:
             raise AlignmentError('WHOLE_CSV_COUNT_NOT_CONFIRMED')
         if progress:progress('csv_complete',csv_stats['rows'])
-        command=[str(executable),'-n','-l','-r',str(pc),'-c',str(limits.record_cap),'-T','fields',
+        scan_count=config['expected_pcap_records']+1 if large else limits.record_cap
+        command=[str(executable),'-n','-l','-r',str(pc),'-c',str(scan_count),'-T','fields',
             '-E','separator=|','-E','quote=d','-E','occurrence=a','-E','aggregator=;']
+        if large:command+=['-M','50000']
         for field in fields:command+=['-e',field]
         for name,value in PREFERENCES.items():command+=['-o',name+':'+value]
-        stream=FieldStream(command,budget,fields=fields)
-        pcap_stats=ingest_pcap(db,stream,config['pcap']['sha256'],budget,progress,record_factory=record_factory)
+        stream=FieldStream(command,budget,fields=fields,session_reset_packets=50000 if large else None)
+        pcap_stats=ingest_pcap(db,stream,config['pcap']['sha256'],budget,progress,record_factory=record_factory,**ingestion_options)
         if pcap_stats['records']!=config['expected_pcap_records'] or pcap_stats['records']>=limits.record_cap or not stream.complete:
             raise AlignmentError('WHOLE_CAPTURE_EOF_COUNT_NOT_CONFIRMED')
         if progress:progress('pcap_complete',pcap_stats['records'])
-        matches=build_matches(db)
+        matches=build_matches(db,compact=large)
         if progress:progress('global_mapping_complete',pcap_stats['records'])
         for path,signature,identity in ((pc,pc_signature,config['pcap']),(cs,cs_signature,config['csv'])):
             if file_signature(path)!=signature or file_sha256(path)!=identity['sha256'] or file_signature(path)!=signature:
                 raise AlignmentError('SOURCE_CHANGED_AFTER_AUDIT')
         labels=[dict(Attack_label=a,Attack_type=b,rows=n) for a,b,n in db.execute('SELECT alabel,atype,count(*) FROM c GROUP BY alabel,atype')]
         ranges=db.execute('SELECT min(ts),max(ts) FROM p').fetchone()
-        duplicates={name:dict(db.execute('SELECT n,count(*) FROM '+name+' WHERE n>1 GROUP BY n').fetchall()) for name in ('pg','cg')}
+        duplicates=matches.pop('working_table_histograms') if large else {
+            name:dict(db.execute('SELECT n,count(*) FROM '+name+' WHERE n>1 GROUP BY n').fetchall()) for name in ('pg','cg')}
         ordering=ordering_gate(pcap_stats['timestamp_regressions'],source_complete=True)
+        annotations=None
+        if large:
+            from nids_ml.alignment.large import install_label_view
+            annotations=install_label_view(db)
+            if db.execute('PRAGMA quick_check').fetchall()!=[('ok',)]:raise AlignmentError('SQLITE_INTEGRITY')
         budget.check(force=True)
         coverage=dict(status='COMPLETE_FULL_PAIR_AUDIT',observed_utc=dt.datetime.now(dt.timezone.utc).isoformat(),
             scope='Complete TCP candidate audit; no verified labels or Flow tensors' if guarded else
@@ -129,8 +149,19 @@ def full_audit(config,workspace,output,progress=None):
             decoder=dict(command=command,stdout_bytes=stream.total,stderr=stream.stderr.decode('utf-8',errors='replace'),
                          child_exited=stream.process.poll() is not None),
             labels_assigned=False,flow_tensors_created=False,training=False,native_ARM64='NOT VERIFIED')
+        if large:
+            from nids_ml.alignment.large import mapping_contract
+            coverage.update(scope='Complete '+config['protocol']+' shared-header/time mapping with dataset-provided binary NIDS labels',
+                annotations=annotations,labels_assigned=annotations['mapped_packets']>0,
+                contract=mapping_contract(),
+                evidence_tier='DATASET_PROVIDED_MAPPED; not independently verified ground truth',
+                key_limitations='ICMP shared CSV key lacks type/code/identifier; TCP key also is not full packet identity; exact global uniqueness and clock witness required',
+                index_sha256=file_sha256(output/'alignment.sqlite'))
+            coverage['decoder'].update(mapping_session_reset_packets=50000,
+                source_ordinal='Validated global input counter; TShark frame.number is session-local',
+                extraction_scope='Raw shared-header mapping only; do not apply session reset to LUCID feature extraction')
         save_new(output/'coverage.json',coverage)
-        save_new(output/'label-ordering-contract.json',label_ordering_contract())
+        save_new(output/'label-ordering-contract.json',coverage['contract'])
         return coverage
     except Exception as error:
         save_new(output/'FAILED.json',dict(status='FAILED_RETAINED_FOR_REVIEW',error=str(error),budget_error=budget.error,
@@ -153,10 +184,45 @@ def main(argv=None):
     parser=argparse.ArgumentParser(description='Full CSV/PCAP candidate audit; no verified labels or training.')
     parser.add_argument('--config',required=True);parser.add_argument('--output',required=True)
     parser.add_argument('--workspace',default=str(Path(__file__).resolve().parents[3]))
+    parser.add_argument('--case',help='Select one capture from the versioned multi-attack manifest')
+    parser.add_argument('--tshark',help='Explicit local executable, used only with --case')
+    parser.add_argument('--tshark-sha256',help='Expected executable SHA-256, used only with --case')
+    parser.add_argument('--dry-run',action='store_true',help='Validate multi-attack inputs/budgets without starting TShark or creating outputs')
     args=parser.parse_args(argv)
     try:
         def progress(stage,records):print(json.dumps(dict(stage=stage,records=records)),flush=True)
-        result=full_audit(read_fixture_json(args.config),args.workspace,args.output,progress)
+        config=read_fixture_json(args.config)
+        if args.case is not None:
+            from nids_ml.alignment.large import select_case
+            if not args.tshark or not args.tshark_sha256:raise AlignmentError('EXPLICIT_TSHARK_AND_HASH_REQUIRED')
+            config=select_case(config,args.case,dict(tshark_path=args.tshark,tshark_sha256=args.tshark_sha256))
+        elif args.tshark is not None or args.tshark_sha256 is not None:
+            raise AlignmentError('TOOLCHAIN_OVERRIDE_REQUIRES_CASE_MANIFEST')
+        if args.dry_run:
+            if config.get('schema_version')!='1.2.0':raise AlignmentError('DRY_RUN_REQUIRES_LARGE_PROFILE')
+            limits,_=validate_audit_config(config)
+            output=Path(args.output).absolute()
+            if (output.exists() or output.is_symlink() or not output.parent.is_dir()
+                or any(p.is_symlink() for p in output.parents)
+                or not output.resolve().is_relative_to(Path(args.workspace).resolve()/'artifacts/runs')):
+                raise AlignmentError('FRESH_OUTPUT_UNDER_ARTIFACTS_RUNS_REQUIRED')
+            for kind in ('pcap','csv'):verified_source(config[kind],args.workspace)
+            if file_sha256(regular_file(config['toolchain']['tshark_path']))!=config['toolchain']['tshark_sha256']:
+                raise AlignmentError('TSHARK_IDENTITY_MISMATCH')
+            available=shutil.disk_usage(args.workspace).free
+            required=(limits.min_free_mib+limits.scratch_mib)*1048576
+            if available<required:raise AlignmentError('INSUFFICIENT_DISK_FOR_DECLARED_SCRATCH_AND_HEADROOM')
+            print(json.dumps(dict(status='PASS_MAPPING_PREFLIGHT',case_id=config['case_id'],protocol=config['protocol'],
+                expected_pcap_records=config['expected_pcap_records'],expected_csv_rows=config['expected_csv_rows'],
+                disk_available_bytes=available,disk_required_bytes=required,limits=config['limits'],
+                child_started=False,outputs_created=False,training=False)),flush=True)
+            return 0
+        result=full_audit(config,args.workspace,args.output,progress)
+        if config.get('schema_version')=='1.2.0':
+            print(json.dumps(dict(status=result['status'],case_id=config['case_id'],PCAP=result['PCAP'],CSV=result['CSV'],
+                mapping=result['mapping'],annotations=result['annotations'],resources=result['resources'],
+                index_sha256=result['index_sha256'],ordering_gate=result['ordering_gate'],output=str(Path(args.output).resolve())),sort_keys=True))
+            return 0
         print(json.dumps(dict(status=result['status'],PCAP=result['PCAP'],CSV=result['CSV'],mapping=result['mapping'],
             resources=result['resources'],ordering_gate=result['ordering_gate'],output=str(Path(args.output).resolve())),sort_keys=True))
         return 0

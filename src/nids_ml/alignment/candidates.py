@@ -64,7 +64,7 @@ class HeaderRecord:
 def make_record(row,*,source_sha256,ordinal,kind,ordinal_ceiling=100000):
     if kind not in ('pcap','csv') or type(row) is not dict:raise AlignmentError('INPUT_KIND')
     if type(source_sha256) is not str or not re.fullmatch('[a-f0-9]{64}',source_sha256):raise AlignmentError('SOURCE_SHA_REQUIRED')
-    if type(ordinal_ceiling) is not int or ordinal_ceiling not in (100000,250000):raise AlignmentError('ORDINAL_PROFILE')
+    if type(ordinal_ceiling) is not int or ordinal_ceiling not in (100000,250000,3500000):raise AlignmentError('ORDINAL_PROFILE')
     if type(ordinal) is not int or not 1<=ordinal<=ordinal_ceiling:raise AlignmentError('ORDINAL_RANGE')
     timestamp=None;year=tod=seq=None
     if kind=='pcap':

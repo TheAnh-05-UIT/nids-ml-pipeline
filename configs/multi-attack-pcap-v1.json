@@ -1,0 +1,438 @@
+{
+  "format": "nids-multi-attack-mapping/1.0.0",
+  "label_policy": "DATASET_PROVIDED_MAPPED_NORMAL_ATTACK/1.0.0",
+  "cases": [
+    {
+      "case_id": "backdoor",
+      "enabled": true,
+      "block_reason": null,
+      "protocol": "TCP",
+      "pcap": {
+        "path": "data/raw/Edge-IIoTset dataset/Attack traffic/Backdoor_attack.pcap",
+        "sha256": "2f22c751442017f745397d517df9837da378362f670ad238faeac0decd58e3e9",
+        "size_bytes": 6694092
+      },
+      "csv": {
+        "path": "data/raw/Edge-IIoTset dataset/Attack traffic/Backdoor_attack.csv",
+        "sha256": "a3da7bfd919c5f238e5c721cbd0e24a0b2b717d7f231c87c3bc9bc083582295b",
+        "size_bytes": 17889603
+      },
+      "expected_pcap_records": 24914,
+      "expected_csv_rows": 24862
+    },
+    {
+      "case_id": "ddos-http",
+      "enabled": true,
+      "block_reason": null,
+      "protocol": "TCP",
+      "pcap": {
+        "path": "data/raw/Edge-IIoTset dataset/Attack traffic/DDoS HTTP Flood Attacks.pcap",
+        "sha256": "2fb2558d51defd1704a54a7a76df787048e9281d2efd8177703d66a7f78620ba",
+        "size_bytes": 28307602
+      },
+      "csv": {
+        "path": "data/raw/Edge-IIoTset dataset/Attack traffic/DDoS_HTTP_Flood_attack.csv",
+        "sha256": "526ef4221d74c046d35db948e7aa534f2660270321510726f312409d6036ca33",
+        "size_bytes": 95709749
+      },
+      "expected_pcap_records": 229142,
+      "expected_csv_rows": 229022
+    },
+    {
+      "case_id": "ddos-icmp",
+      "enabled": true,
+      "block_reason": null,
+      "protocol": "ICMP",
+      "pcap": {
+        "path": "data/raw/Edge-IIoTset dataset/Attack traffic/DDoS ICMP Flood Attacks.pcap",
+        "sha256": "1152be31c21b9b0f146eaef63ede8092946ebe999a91935f557c5083b490e30b",
+        "size_bytes": 212434878
+      },
+      "csv": {
+        "path": "data/raw/Edge-IIoTset dataset/Attack traffic/DDoS_ICMP_Flood_attack.csv",
+        "sha256": "bd3a180a18e331976b1e320aa0def408fa9adeff002035758cd2d3e36f25d325",
+        "size_bytes": 892080000
+      },
+      "expected_pcap_records": 2914356,
+      "expected_csv_rows": 2914354
+    },
+    {
+      "case_id": "ddos-tcp",
+      "enabled": true,
+      "block_reason": null,
+      "protocol": "TCP",
+      "pcap": {
+        "path": "data/raw/Edge-IIoTset dataset/Attack traffic/DDoS TCP SYN Flood Attacks.pcap",
+        "sha256": "5fa4d774b6b03c160e2c4c619c79ca55c5a673581c5c40d6f46350f50d55ae80",
+        "size_bytes": 282613890
+      },
+      "csv": {
+        "path": "data/raw/Edge-IIoTset dataset/Attack traffic/DDoS_TCP_SYN_Flood_attack.csv",
+        "sha256": "623e8a331af6412b002a6ee18df1fb914d026de4906bdebdc3d29890487283e1",
+        "size_bytes": 941188405
+      },
+      "expected_pcap_records": 2020152,
+      "expected_csv_rows": 2020120
+    },
+    {
+      "case_id": "ddos-udp",
+      "enabled": false,
+      "block_reason": "CSV_CLOCK_INVALID_AND_NO_DIRECTIONAL_UDP_KEY",
+      "protocol": "UDP",
+      "pcap": {
+        "path": "data/raw/Edge-IIoTset dataset/Attack traffic/DDoS UDP Flood Attacks.pcap",
+        "sha256": "6de0341f27093cac8a5eba657b8a49ecbac4dd5bf6c452a6274472df69172ce5",
+        "size_bytes": 247560012
+      },
+      "csv": {
+        "path": "data/raw/Edge-IIoTset dataset/Attack traffic/DDoS_UDP_Flood_attack.csv",
+        "sha256": "62dcd279cd2068d2f7055028fd823dfec526bd6167a5b6180eca460e1b5c9333",
+        "size_bytes": 900233551
+      },
+      "expected_pcap_records": 3215732,
+      "expected_csv_rows": 3201626
+    },
+    {
+      "case_id": "mitm",
+      "enabled": false,
+      "block_reason": "CSV_CLOCK_INVALID_AND_ARP_OUTSIDE_IPV4_FLOW_SCHEMA",
+      "protocol": "TCP",
+      "pcap": {
+        "path": "data/raw/Edge-IIoTset dataset/Attack traffic/MITM (ARP spoofing + DNS) Attack.pcap",
+        "sha256": "ef952aff57dd30f04a98511cae2f34f642a64720fcde31df8b2f6dcf0351d536",
+        "size_bytes": 127852
+      },
+      "csv": {
+        "path": "data/raw/Edge-IIoTset dataset/Attack traffic/MITM_attack.csv",
+        "sha256": "c4fd9f0d33c1bcbf37a0c4e0cc378157d6af650300e657340ae3d86b40cfd498",
+        "size_bytes": 329947
+      },
+      "expected_pcap_records": 1229,
+      "expected_csv_rows": 1229
+    },
+    {
+      "case_id": "fingerprinting",
+      "enabled": true,
+      "block_reason": null,
+      "protocol": "TCP",
+      "pcap": {
+        "path": "data/raw/Edge-IIoTset dataset/Attack traffic/OS Fingerprinting attack.pcap",
+        "sha256": "68c0464ac92f1d08a050f4e013dd5e0d0e870f39b8f70f26acde133b6d7e00c4",
+        "size_bytes": 114041
+      },
+      "csv": {
+        "path": "data/raw/Edge-IIoTset dataset/Attack traffic/OS_Fingerprinting_attack.csv",
+        "sha256": "b2dc428e1b5159ccbfff0e252b5fb096cd5c67fecca169f348a8d30342088613",
+        "size_bytes": 311171
+      },
+      "expected_pcap_records": 1176,
+      "expected_csv_rows": 1001
+    },
+    {
+      "case_id": "password",
+      "enabled": true,
+      "block_reason": null,
+      "protocol": "TCP",
+      "pcap": {
+        "path": "data/raw/Edge-IIoTset dataset/Attack traffic/Password attacks.pcap",
+        "sha256": "5e2393acebb92806205eb87bff5dd82cdece3cd183e760b1cf737ed1c8a663c2",
+        "size_bytes": 194557494
+      },
+      "csv": {
+        "path": "data/raw/Edge-IIoTset dataset/Attack traffic/Password_attack.csv",
+        "sha256": "e8458c89e71706226ecd9d3730e3b0db5ae2d5f3fb87655fccf1d6e5f1730eba",
+        "size_bytes": 653290138
+      },
+      "expected_pcap_records": 1053893,
+      "expected_csv_rows": 1053385
+    },
+    {
+      "case_id": "port-scanning",
+      "enabled": true,
+      "block_reason": null,
+      "protocol": "TCP",
+      "pcap": {
+        "path": "data/raw/Edge-IIoTset dataset/Attack traffic/Port Scanning attack.pcap",
+        "sha256": "9fa4c8527951c2ea935b1ae5e932063c1b7fb8cc1e2b0f24defbe3a7b99058d9",
+        "size_bytes": 1801807
+      },
+      "csv": {
+        "path": "data/raw/Edge-IIoTset dataset/Attack traffic/Port_Scanning_attack.csv",
+        "sha256": "26f7f094254daa23e85ec7df1b7ad9352cf208d9ee9b55d7d7928d3415c793ad",
+        "size_bytes": 7335171
+      },
+      "expected_pcap_records": 23329,
+      "expected_csv_rows": 22564
+    },
+    {
+      "case_id": "ransomware",
+      "enabled": false,
+      "block_reason": "CAPTURE_SPANS_MULTIPLE_UTC_DAYS_NO_APPROVED_CALENDAR_MAPPING",
+      "protocol": "TCP",
+      "pcap": {
+        "path": "data/raw/Edge-IIoTset dataset/Attack traffic/Ransomware attack.pcap",
+        "sha256": "f38a731096f61391384adad975537de2de6cea89f38e1c1421e5b328f4b17116",
+        "size_bytes": 2842688
+      },
+      "csv": {
+        "path": "data/raw/Edge-IIoTset dataset/Attack traffic/Ransomware_attack.csv",
+        "sha256": "60fa5257c73f0eef6736a56953c7afe6a99e08942a32c3b9716a64abd2be0c7a",
+        "size_bytes": 7592169
+      },
+      "expected_pcap_records": 11030,
+      "expected_csv_rows": 10925
+    },
+    {
+      "case_id": "sql-injection",
+      "enabled": true,
+      "block_reason": null,
+      "protocol": "TCP",
+      "pcap": {
+        "path": "data/raw/Edge-IIoTset dataset/Attack traffic/SQL injection attack.pcap",
+        "sha256": "374b06418c3dddd831561a8b5521c18a47bd1cd9bfa83f83e33b70d134517491",
+        "size_bytes": 8173215
+      },
+      "csv": {
+        "path": "data/raw/Edge-IIoTset dataset/Attack traffic/SQL_injection_attack.csv",
+        "sha256": "59d62ccfab6b708ce1c437a33b4c285e20e614e612edcd86260d4e5c2461c63d",
+        "size_bytes": 26933868
+      },
+      "expected_pcap_records": 51228,
+      "expected_csv_rows": 51203
+    },
+    {
+      "case_id": "uploading",
+      "enabled": true,
+      "block_reason": null,
+      "protocol": "TCP",
+      "pcap": {
+        "path": "data/raw/Edge-IIoTset dataset/Attack traffic/Uploading attack.pcap",
+        "sha256": "29a16de3410e3c2ff5c3dad8a54d0092dd98c63ea3c13994f4416414bd74d490",
+        "size_bytes": 5488666
+      },
+      "csv": {
+        "path": "data/raw/Edge-IIoTset dataset/Attack traffic/Uploading_attack.csv",
+        "sha256": "f65ae75444183004a47fcda9e197daa42b38e485ea58ebc28464e21f830197e3",
+        "size_bytes": 17513308
+      },
+      "expected_pcap_records": 37644,
+      "expected_csv_rows": 37634
+    },
+    {
+      "case_id": "vulnerability-scanner",
+      "enabled": false,
+      "block_reason": "PCAP_INVALID_RECORD_HEADER_AT_ORDINAL_265828",
+      "protocol": "TCP",
+      "pcap": {
+        "path": "data/raw/Edge-IIoTset dataset/Attack traffic/Vulnerability scanner attack.pcap",
+        "sha256": "af8cb9e7707000bab20618f5f6c4efe09b637b21e7d0e3cb2a055a6d75524083",
+        "size_bytes": 140377652
+      },
+      "csv": {
+        "path": "data/raw/Edge-IIoTset dataset/Attack traffic/Vulnerability_scanner_attack.csv",
+        "sha256": "5b8d9bca352875d9b8c76d517ecb33808c45d6a1259f718e21bd1c4d6fea7d59",
+        "size_bytes": 175747472
+      },
+      "expected_pcap_records": null,
+      "expected_csv_rows": 145869
+    },
+    {
+      "case_id": "xss",
+      "enabled": true,
+      "block_reason": null,
+      "protocol": "TCP",
+      "pcap": {
+        "path": "data/raw/Edge-IIoTset dataset/Attack traffic/XSS attacks.pcap",
+        "sha256": "9e155d46254db96acdf0f97245da6734a7de2c82a0c3e31936c9e5792fc8f92e",
+        "size_bytes": 2068899
+      },
+      "csv": {
+        "path": "data/raw/Edge-IIoTset dataset/Attack traffic/XSS_attack.csv",
+        "sha256": "acce72d7e9f8d373d4be61d67576c10c55b3eb59063f4a9a1a63715ab85ebf48",
+        "size_bytes": 6963363
+      },
+      "expected_pcap_records": 16215,
+      "expected_csv_rows": 15915
+    },
+    {
+      "case_id": "normal-distance",
+      "enabled": true,
+      "block_reason": null,
+      "protocol": "TCP",
+      "pcap": {
+        "path": "data/raw/Edge-IIoTset dataset/Normal traffic/Distance/Distance.pcap",
+        "sha256": "6b16348f1139dcb83c12e6855e7202f7ae5b77bbca8eed467ab0b6aa3ab78922",
+        "size_bytes": 85424784
+      },
+      "csv": {
+        "path": "data/raw/Edge-IIoTset dataset/Normal traffic/Distance/Distance.csv",
+        "sha256": "067fcf364a6c4e35a6aa436e6263466ef4c8f3f84c423d0aadf932f65d6e1ee5",
+        "size_bytes": 366056131
+      },
+      "expected_pcap_records": 1143948,
+      "expected_csv_rows": 1143540
+    },
+    {
+      "case_id": "normal-flame-sensor",
+      "enabled": true,
+      "block_reason": null,
+      "protocol": "TCP",
+      "pcap": {
+        "path": "data/raw/Edge-IIoTset dataset/Normal traffic/Flame_Sensor/Flame_Sensor.pcap",
+        "sha256": "57bf51ae5cd8848c688affee6b71f4b10a6bae4fa297aa18e57cf3ba85cdc2db",
+        "size_bytes": 79692841
+      },
+      "csv": {
+        "path": "data/raw/Edge-IIoTset dataset/Normal traffic/Flame_Sensor/Flame_Sensor.csv",
+        "sha256": "e0f6812bd54e564d18e6f87d8d0566f86bde384f822d3252d7535f4239160528",
+        "size_bytes": 343523471
+      },
+      "expected_pcap_records": 1070510,
+      "expected_csv_rows": 1070196
+    },
+    {
+      "case_id": "normal-heart-rate",
+      "enabled": true,
+      "block_reason": null,
+      "protocol": "TCP",
+      "pcap": {
+        "path": "data/raw/Edge-IIoTset dataset/Normal traffic/Heart_Rate/Heart_Rate.pcap",
+        "sha256": "45af68c5dc56f1e135102069ee6d86a62e5d2b14dd23cac0bee39dcc40e832fb",
+        "size_bytes": 12840229
+      },
+      "csv": {
+        "path": "data/raw/Edge-IIoTset dataset/Normal traffic/Heart_Rate/Heart_Rate.csv",
+        "sha256": "f5104511c7b67988ec67fc2f8262913b4ad6d4285db047500a04307491f4b9d5",
+        "size_bytes": 52569102
+      },
+      "expected_pcap_records": 170435,
+      "expected_csv_rows": 165319
+    },
+    {
+      "case_id": "normal-ir-receiver",
+      "enabled": false,
+      "block_reason": "CAPTURE_SPANS_MULTIPLE_UTC_DAYS_NO_APPROVED_CALENDAR_MAPPING",
+      "protocol": "TCP",
+      "pcap": {
+        "path": "data/raw/Edge-IIoTset dataset/Normal traffic/IR_Receiver/IR_Receiver.pcap",
+        "sha256": "bcaa33d74dc03e34b7d6ed3f427cc69c6457f2c0ad52b4deab2861526209ec84",
+        "size_bytes": 96912648
+      },
+      "csv": {
+        "path": "data/raw/Edge-IIoTset dataset/Normal traffic/IR_Receiver/IR_Receiver.csv",
+        "sha256": "40325a578b4edc4714eef585095a1f92e1cc076e510ad93edc3507dea8e4eef7",
+        "size_bytes": 412738438
+      },
+      "expected_pcap_records": 1308238,
+      "expected_csv_rows": 1307778
+    },
+    {
+      "case_id": "normal-modbus",
+      "enabled": false,
+      "block_reason": "CSV_CLOCK_INVALID",
+      "protocol": "TCP",
+      "pcap": {
+        "path": "data/raw/Edge-IIoTset dataset/Normal traffic/Modbus/Modbus.pcap",
+        "sha256": "1e9d186b5846402cd52e6048a39423f104cb19d68de501ad0a0ac8dbb2cc63c9",
+        "size_bytes": 21040950
+      },
+      "csv": {
+        "path": "data/raw/Edge-IIoTset dataset/Normal traffic/Modbus/Modbus.csv",
+        "sha256": "6ae11be7ebd506429f43a0ebb7aa38e836ffea39165fc0247e2a6c96c019c37a",
+        "size_bytes": 67899662
+      },
+      "expected_pcap_records": 159514,
+      "expected_csv_rows": 159502
+    },
+    {
+      "case_id": "normal-phvalue",
+      "enabled": false,
+      "block_reason": "CAPTURE_SPANS_MULTIPLE_UTC_DAYS_NO_APPROVED_CALENDAR_MAPPING",
+      "protocol": "TCP",
+      "pcap": {
+        "path": "data/raw/Edge-IIoTset dataset/Normal traffic/phValue/phValue.pcap",
+        "sha256": "7676af0ae72776ae54fb128adcb55959bbe95729d10313e30b74d96f8c9010f6",
+        "size_bytes": 56548929
+      },
+      "csv": {
+        "path": "data/raw/Edge-IIoTset dataset/Normal traffic/phValue/phValue.csv",
+        "sha256": "7cd2d143bd079f2a6744bf22b1930c81ab034cf85ea4f8e3a815114d8b7fe07b",
+        "size_bytes": 237328348
+      },
+      "expected_pcap_records": 759665,
+      "expected_csv_rows": 746908
+    },
+    {
+      "case_id": "normal-soil-moisture",
+      "enabled": true,
+      "block_reason": null,
+      "protocol": "TCP",
+      "pcap": {
+        "path": "data/raw/Edge-IIoTset dataset/Normal traffic/Soil_Moisture/Soil_Moisture.pcap",
+        "sha256": "7d8d1304aa403e0b937eb475e637d8466101999c93c0052164a056f3abef00d1",
+        "size_bytes": 89832523
+      },
+      "csv": {
+        "path": "data/raw/Edge-IIoTset dataset/Normal traffic/Soil_Moisture/Soil_Moisture.csv",
+        "sha256": "d3bf5662fd28b515e29c2b1b296b3b79ffc415836cb5a5da1666e164c099c440",
+        "size_bytes": 381588722
+      },
+      "expected_pcap_records": 1200751,
+      "expected_csv_rows": 1192777
+    },
+    {
+      "case_id": "normal-sound-sensor",
+      "enabled": true,
+      "block_reason": null,
+      "protocol": "TCP",
+      "pcap": {
+        "path": "data/raw/Edge-IIoTset dataset/Normal traffic/Sound_Sensor/Sound_Sensor.pcap",
+        "sha256": "8e33158f8fa935e48852ba4a1a5c760588aacecbf1427cf7a3b6ec90b0ebc276",
+        "size_bytes": 112118593
+      },
+      "csv": {
+        "path": "data/raw/Edge-IIoTset dataset/Normal traffic/Sound_Sensor/Sound_Sensor.csv",
+        "sha256": "1ac318ea539be09ac0ae4c9ae6d7e0e2d0013633131354c37d4f76663c3dc52b",
+        "size_bytes": 478970099
+      },
+      "expected_pcap_records": 1513318,
+      "expected_csv_rows": 1512883
+    },
+    {
+      "case_id": "normal-temperature-and-humidity",
+      "enabled": false,
+      "block_reason": "CAPTURE_SPANS_MULTIPLE_UTC_DAYS_NO_APPROVED_CALENDAR_MAPPING",
+      "protocol": "TCP",
+      "pcap": {
+        "path": "data/raw/Edge-IIoTset dataset/Normal traffic/Temperature_and_Humidity/Temperature_and_Humidity.pcap",
+        "sha256": "2b37027b1575f1d5bba7ab6cf87503df303ea2c9ab07a69b20f8d0f28696da6f",
+        "size_bytes": 345868816
+      },
+      "csv": {
+        "path": "data/raw/Edge-IIoTset dataset/Normal traffic/Temperature_and_Humidity/Temperature_and_Humidity.csv",
+        "sha256": "2b48ddce8f1d60dbd0d189568c614ee04d4bc57b65f1c9089ea731b1a02a0c21",
+        "size_bytes": 922587674
+      },
+      "expected_pcap_records": 1629749,
+      "expected_csv_rows": 1615722
+    },
+    {
+      "case_id": "normal-water-level",
+      "enabled": false,
+      "block_reason": "CAPTURE_SPANS_MULTIPLE_UTC_DAYS_NO_APPROVED_CALENDAR_MAPPING",
+      "protocol": "TCP",
+      "pcap": {
+        "path": "data/raw/Edge-IIoTset dataset/Normal traffic/Water_Level/Water_Level.pcap",
+        "sha256": "1b76b1881bde98a15d311da6f9be2ac2fdeeee97d60e99e044e097afae6c2b4e",
+        "size_bytes": 172482137
+      },
+      "csv": {
+        "path": "data/raw/Edge-IIoTset dataset/Normal traffic/Water_Level/Water_Level.csv",
+        "sha256": "19153cba2da0c69e2fd4f682a9e872af787fd04af5d7806cebb2ec01a6d83025",
+        "size_bytes": 731458402
+      },
+      "expected_pcap_records": 2302497,
+      "expected_csv_rows": 2295288
+    }
+  ]
+}

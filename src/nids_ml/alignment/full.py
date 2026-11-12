@@ -84,10 +84,14 @@ def verified_source(manifest,workspace):
 
 class FieldStream:
     """Sở hữu một TShark child; stdout queue2×8192, stderr tail64KiB."""
-    def __init__(self,command,budget,*,fields=SCALAR_FIELDS):
+    def __init__(self,command,budget,*,fields=SCALAR_FIELDS,session_reset_packets=None):
         if type(fields) is not tuple or fields not in (SCALAR_FIELDS,AUDIT_SCALAR_FIELDS):
             raise AlignmentError('UNAPPROVED_FULL_SCALAR_FIELDS')
+        if session_reset_packets is not None and (
+            type(session_reset_packets) is not int or session_reset_packets!=50000 or fields!=AUDIT_SCALAR_FIELDS
+        ):raise AlignmentError('UNAPPROVED_MAPPING_SESSION_RESET')
         self.fields=fields
+        self.session_reset_packets=session_reset_packets
         self.command=command;self.budget=budget;self.process=None;self.stop=threading.Event()
         self.queue=queue.Queue(maxsize=2);self.threads=[];self.error=None
         self.stderr=bytearray();self.stderr_total=0;self.total=0;self.peak_child_rss=0;self.complete=False
@@ -152,8 +156,11 @@ class FieldStream:
                     values=next(csv.reader([line.decode('utf-8')],delimiter='|',quotechar='"',strict=True))
                     if len(values)!=len(self.fields):raise AlignmentError('SCALAR_WIDTH')
                     row=dict(zip(self.fields,values));previous+=1
-                    if previous>self.budget.limits.record_cap or row['frame.number']!=str(previous):
+                    expected=previous if self.session_reset_packets is None else (previous-1)%self.session_reset_packets+1
+                    if previous>self.budget.limits.record_cap or row['frame.number']!=str(expected):
                         raise AlignmentError('SCALAR_ORDINAL_OR_RECORD_CAP')
+                    # Return global source order separately; TShark's local field is not rewritten.
+                    # Ordinal nguồn là counter toàn capture; giữ nguyên frame.number cục bộ sau reset.
                     yield previous,row
                 if len(buffer)>65536:raise AlignmentError('SCALAR_LINE_LIMIT')
                 if not block:break
@@ -188,7 +195,7 @@ def key_storage(row):
     return hashlib.sha256(raw).digest(),raw.decode('ascii')
 
 
-def ingest_csv(db,path,source_sha,budget,progress=None,*,record_factory=make_record):
+def ingest_csv(db,path,source_sha,budget,progress=None,*,record_factory=make_record,key_encoder=key_storage):
     old=csv.field_size_limit(1048576);counts=Counter();previous=None;regressions=0
     try:
         with path.open(encoding='utf-8-sig',newline='') as file:
@@ -201,8 +208,8 @@ def ingest_csv(db,path,source_sha,budget,progress=None,*,record_factory=make_rec
                 except StopIteration:break
                 ordinal+=1
                 if ordinal>budget.limits.record_cap or len(values)!=len(header):raise AlignmentError('FULL_CSV_COUNT_OR_WIDTH')
-                item=dict(zip(header,values));row=record_factory(item,source_sha256=source_sha,ordinal=ordinal,kind='csv',ordinal_ceiling=250000)
-                kh,kj=key_storage(row)
+                item=dict(zip(header,values));row=record_factory(item,source_sha256=source_sha,ordinal=ordinal,kind='csv',ordinal_ceiling=budget.limits.record_cap)
+                kh,kj=key_encoder(row)
                 label,kind=item.get('Attack_label',''),item.get('Attack_type','')
                 if len(label)>128 or len(kind)>128:raise AlignmentError('LABEL_TOKEN_LIMIT')
                 db.execute('INSERT INTO c VALUES(?,?,?,?,?,?,?,?,?)',
@@ -218,11 +225,11 @@ def ingest_csv(db,path,source_sha,budget,progress=None,*,record_factory=make_rec
     finally:csv.field_size_limit(old)
 
 
-def ingest_pcap(db,stream,source_sha,budget,progress=None,*,record_factory=make_record):
+def ingest_pcap(db,stream,source_sha,budget,progress=None,*,record_factory=make_record,key_encoder=key_storage):
     previous=None;regressions=0;counts=Counter();count=0
     for ordinal,item in stream.rows():
-        row=record_factory(item,source_sha256=source_sha,ordinal=ordinal,kind='pcap',ordinal_ceiling=250000)
-        kh,kj=key_storage(row)
+        row=record_factory(item,source_sha256=source_sha,ordinal=ordinal,kind='pcap',ordinal_ceiling=budget.limits.record_cap)
+        kh,kj=key_encoder(row)
         db.execute('INSERT INTO p VALUES(?,?,?,?,?,?,?)',(ordinal,kh,kj,row.timestamp_ns,row.time_of_day_ns,row.relative_seq,row.reason))
         if previous is not None and row.timestamp_ns<previous:regressions+=1
         previous=row.timestamp_ns;count=ordinal;counts[row.reason or 'TCP_KEY_AVAILABLE']+=1
@@ -236,7 +243,7 @@ def status_counts(db,table):
     return dict(db.execute('SELECT status,count(*) FROM '+table+' GROUP BY status').fetchall())
 
 
-def build_matches(db):
+def build_matches(db,*,compact=False):
     """Group counts ngăn Cartesian explosion; không tạo mọi cross-product candidates."""
     db.executescript('''
       CREATE INDEX pk ON p(kh,kj); CREATE INDEX ck ON c(kh,kj);
@@ -272,6 +279,16 @@ def build_matches(db):
         trusted_clock_conversion=False,timestamps_modified=False)
     enabled=offset is not None and heldout_count>=16 and disagree==0 and days==1 and csv_years==pcap_years
     clock['time_witness_enabled']=enabled
+    content_summary=None
+    histograms=None
+    if compact:
+        # All these tables belong to the new index currently being built, not old artifacts.
+        # Chỉ thu hồi bảng làm việc của index mới trước khi seal; p/c/annotations vẫn giữ đầy đủ.
+        content_summary=dict(counts=status_counts(db,'content'),
+            without_unique=db.execute('SELECT count(*) FROM c WHERE ord NOT IN (SELECT cord FROM content WHERE cord IS NOT NULL)').fetchone()[0],
+            one_to_one=db.execute('SELECT count(*) FROM (SELECT cord FROM content WHERE cord IS NOT NULL GROUP BY cord HAVING count(*)>1)').fetchone()[0]==0)
+        histograms={name:dict(db.execute('SELECT n,count(*) FROM '+name+' WHERE n>1 GROUP BY n').fetchall()) for name in ('pg','cg')}
+        db.executescript('DROP TABLE content; DROP TABLE pg; DROP TABLE cg; DROP INDEX pk; DROP INDEX ck;')
     if enabled:
         db.executescript('''
           CREATE INDEX pkt ON p(kh,kj,tod); CREATE INDEX ckt ON c(kh,kj,tod);
@@ -291,8 +308,19 @@ def build_matches(db):
     else:
         db.execute("CREATE TABLE witnessed AS SELECT ord pord,'BLOCKED_CLOCK_WITNESS' status,NULL cord FROM p")
     db.commit()
-    result=dict(content_counts=status_counts(db,'content'),time_counts=status_counts(db,'witnessed'),clock=clock)
+    result=dict(content_counts=content_summary['counts'] if compact else status_counts(db,'content'),
+                time_counts=status_counts(db,'witnessed'),clock=clock)
     for table in ('content','witnessed'):
+        if compact and table=='content':
+            result[table+'_CSV_without_unique_pair']=content_summary['without_unique']
+            result[table+'_max_one_to_one']=content_summary['one_to_one']
+            continue
         result[table+'_CSV_without_unique_pair']=db.execute('SELECT count(*) FROM c WHERE ord NOT IN (SELECT cord FROM '+table+' WHERE cord IS NOT NULL)').fetchone()[0]
         result[table+'_max_one_to_one']=db.execute('SELECT count(*) FROM (SELECT cord FROM '+table+' WHERE cord IS NOT NULL GROUP BY cord HAVING count(*)>1)').fetchone()[0]==0
+    if compact:
+        if enabled:
+            db.executescript('DROP TABLE pgt; DROP TABLE cgt; DROP INDEX pkt; DROP INDEX ckt;')
+        db.commit()
+        db.execute('VACUUM')
+        result['working_table_histograms']=histograms
     return result
