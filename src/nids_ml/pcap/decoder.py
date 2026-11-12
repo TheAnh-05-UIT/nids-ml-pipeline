@@ -262,8 +262,9 @@ class PDMLParser:
         while self.records:yield self.records.popleft()
 
 
-def map_record(record,context):
+def map_record(record,context,*,return_feature=False):
     """Ánh xạ packet thật sang scope decoded_pcap, giữ metadata ngoài features."""
+    if type(return_feature) is not bool:raise DecoderError('EXPLICIT_FEATURE_RETURN_FLAG')
     ordinal=record.number('frame.number');timestamp=record.timestamp_ns()
     if record.layers[:2]!=('geninfo','frame'):
         raise DecoderError('GENINFO_FRAME_LAYER_ORDER')
@@ -315,7 +316,9 @@ def map_record(record,context):
         tcp=tcp,udp=udp,icmp=icmp)
     feature=extract_features(packet,input_kind='decoded_pcap')
     sidecar.update(packet_sha256=feature.packet_sha256,hash_domain='canonical_D1_decoded_metadata_JSON')
-    return packet,sidecar
+    # Reuse the validated feature in large streams instead of validating every packet twice.
+    # Stream lớn dùng lại feature đã kiểm; default tuple(packet, sidecar) cũ giữ nguyên.
+    return (feature if return_feature else packet),sidecar
 
 
 def process_rss(pid):
