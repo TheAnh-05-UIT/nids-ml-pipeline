@@ -23,7 +23,10 @@ Use Python 3.11 for the pinned native-library path; no automatic installation.
 | `audit_dataset_quality.py` | Detailed CSV quality | Audit chất lượng CSV chi tiết |
 | `audit_feature_semantics.py` | Semantics / overlap audit | Audit semantics hoặc overlap |
 | `audit_packet_alignment.py` | Prefix CSV/PCAP candidates | Đối chiếu prefix CSV/PCAP |
-| `audit_full_pair.py` | Legacy HTTP or guarded TCP full-pair audit | Audit HTTP v1 hoặc TCP v2 có kiểm fragment; không nhập nhãn |
+| `audit_full_pair.py` | Legacy audit or versioned large TCP/ICMP mapping | Giữ HTTP/TCP cũ; manifest nhiều capture có nhãn Normal/Attack từ unique mapping |
+| `node_mapping.sh` | Native ARM64 host mapping, dry-run by default | TShark/Python host tạo SQLite annotations; không Docker hoặc training |
+| `run_flows.py` | Mapped PCAP → ordered cache → HDF5 shards | `decode` dùng host/TShark; `export`/`inspect` dùng NumPy/h5py, không train hoặc deploy |
+| `run_training.py` | Global dedup/group catalog and batched NIDS training | `catalog`/`inspect`/`train`; chia connection, train riêng client 0/1, không gọi Swarm runtime |
 | `audit_multicapture.py` | Multi-capture quality/ordering audit | Audit chất lượng/thứ tự nhiều capture |
 | `validate_feature_policy.py` | Check a policy against local EDA evidence | Cần đúng report EDA local; không hoạt động trên clone trống dữ liệu |
 | `acquire_approved_ml_csv.py` | Historical approved acquisition entry point | Giữ để tái lập/guard tests; không tải lại dataset đã có |
