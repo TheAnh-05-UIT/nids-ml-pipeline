@@ -41,6 +41,10 @@ Xem root README để thiết lập mapping paths và runtime; không dùng fixt
 validate offline, launch role có approval rõ ràng và replay FedAvg. Xem
 `src/nids_ml/adapters/swarm/README.md`; không dùng controller job cũ để chạy CNN.
 
+**NIDS batch exchange:** `python -B scripts/run_batch_swarm.py --help`. Dùng catalog,
+HDF5 shards và subset xoay vòng tối đa 4.096 samples/client/round. Giữ nguyên image/
+SDK, CLI pilot cũ; bootstrap/validate/verify offline, network roles cần approval.
+
 ```bash
 python -B scripts/validate_workspace.py
 python -B scripts/ordered_flow_hdf5.py --help

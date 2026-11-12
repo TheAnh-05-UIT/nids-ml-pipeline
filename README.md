@@ -174,6 +174,34 @@ Output `metrics.json` có overall/per-family counts, recall cho Attack và FPR c
 Normal; family không có mẫu ghi NOT_EVALUATED. Model chỉ trả Normal/Attack, không
 trả tên loại tấn công. Đây là functional pipeline, chưa bảo đảm chất lượng detection.
 
+### Batch Swarm / Trao weights từ catalog NIDS
+
+`scripts/run_batch_swarm.py` dùng batch trainer và SDK SN/SL/User-TF/SWOP hiện có.
+Giữ nguyên service source/images. Vì SDK giới hạn **4.096 samples/update**, mỗi round
+dùng tối đa 4.096 mẫu/client, không giả toàn bộ pool đã được train trong một round.
+Subset chọn bằng SQL theo SHA/id, xoay vòng ở round 2; không dùng nhãn để chọn mẫu.
+Pool 5.523/5.522 mẫu hiện tại được đi qua hết trong hai rounds, có overlap giữa rounds.
+Pool lớn hơn 8.192 mẫu/client không bảo đảm được đi qua hết trong hai rounds.
+Subset một lớp bị reject, không tự đổi membership hoặc resample theo nhãn.
+
+```bash
+python -B scripts/run_batch_swarm.py --help
+python -B scripts/run_batch_swarm.py bootstrap --catalog "$NIDS_CATALOG" \
+  --sn-url "$SN_URL" --sl-a-url "$SL_A_URL" --sl-b-url "$SL_B_URL" \
+  --controller-url "$CONTROLLER_URL" --output artifacts/runs/batch-job-01
+python -B scripts/run_batch_swarm.py validate --config artifacts/runs/batch-job-01/job.json
+```
+
+Đây là CLI trong Python runtime đã chuẩn bị, chưa là lệnh triển khai board. Chỉ tạo
+**một bootstrap**, chuyển cùng file/config sang hai hosts; không tạo riêng theo seed.
+`sl`, `client`, `controller` mặc định dry-run; chỉ mở network khi thêm
+`--execute-approved`. `verify` tính lại FedAvg từ evidence, không training lại.
+Catalog được gắn vào wire model identity, khác model ID pilot và local checkpoint.
+Model vẫn Normal/Attack; labels `DATASET_PROVIDED_MAPPED`, không ground truth độc lập.
+Xem [adapter README](src/nids_ml/adapters/swarm/README.md) về commands/semantics.
+Native local batch đã được kiểm riêng; native/multi-host của **adapter batch Swarm**
+cần job mới được phê duyệt. Không chạy nó với controller/SL session của pilot cũ.
+
 `scripts/run_demo.py`: `prepare`, `inspect`, `train`. Chạy từ repo; `python` bên dưới phải là runtime Python 3.11 đã chuẩn bị. Output là thư mục mới dưới `artifacts/runs/`; không ghi đè và không tự cleanup khi lỗi.
 
 ```bash

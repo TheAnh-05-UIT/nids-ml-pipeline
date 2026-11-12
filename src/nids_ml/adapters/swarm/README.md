@@ -1,5 +1,62 @@
 # CNN Swarm adapter
 
+## Catalog-bound batch jobs / Job NIDS theo batch
+
+`run_batch_swarm.py` là entrypoint riêng; các phần bên dưới về `run_swarm.py` giữ
+cho pilot cũ. Không trộn bootstrap, config hoặc session của hai loại job.
+
+Batch job `nids-batch-swarm-job/1.0.0` ghim catalog ID, wire model ID, pool counts,
+sample counts thật mỗi round, subset policy, initial SHA và endpoints. Wire model
+ID bọc architecture ID Normal/Attack cùng catalog ID; đổi catalog phải tạo job mới.
+Raw numeric body vẫn 8.964 bytes, `IUTFW001` và SL API v1 giữ nguyên. SL không giữ data.
+
+Service SDK chưa hỗ trợ hơn 4.096 samples/update. Theo lựa chọn operator, adapter
+dùng `min(subset_cap,pool_size)` mẫu/client/round, cap tối đa 4.096, không scale giả
+sample counts. SQL sắp theo tensor SHA/id rồi lấy cửa sổ xoay vòng, không replacement
+trong round, có thể overlap giữa hai rounds. Class weights chỉ tính từ training
+subset hiện tại. Subset chỉ có một lớp dừng; không chọn lại bằng nhãn. Với pool lớn
+hơn hai lần cap, báo rõ chưa dùng hết pool. Không dùng validation/test để chọn subset.
+
+```bash
+# Trong đúng runtime Python/SDK đã có; các role này chưa execute network.
+python -B scripts/run_batch_swarm.py validate --config "$BATCH_CONFIG"
+python -B scripts/run_batch_swarm.py sl --config "$BATCH_CONFIG" \
+  --peer-id sl-a --bind 0.0.0.0 --port 9000
+python -B scripts/run_batch_swarm.py client --config "$BATCH_CONFIG" \
+  --peer-id sl-a --catalog "$NIDS_CATALOG" --source "$DATASET_SHA=$LOCAL_SHARDS" \
+  --output artifacts/runs/batch-client-a-01
+python -B scripts/run_batch_swarm.py controller --config "$BATCH_CONFIG" \
+  --bind 0.0.0.0 --port 9600 --output artifacts/runs/batch-controller-01
+python -B scripts/run_batch_swarm.py verify --config "$BATCH_CONFIG" \
+  --controller "$CONTROLLER_OUTPUT" --client-a "$CLIENT_A_OUTPUT" --client-b "$CLIENT_B_OUTPUT"
+```
+
+Network roles cần `--execute-approved` ở task runtime riêng. SL/controller không
+đọc HDF5 và không cần TensorFlow. Client cần TensorFlow 2.15.1/NumPy/h5py và SDK
+User-TF đã có. Không dependency mới. Địa chỉ advertised là LAN IP/DNS của host;
+`--bind` là interface listener trong container, không đồng nghĩa advertised URL.
+Hai Docker Engines không chia sẻ DNS. Không expose API thiếu authentication ra Internet.
+
+Giữ completion receipts, fencing epoch/model/base, không retry ambiguous create/
+upload, chỉ retry identical receipt. Controller chưa mở round tiếp nếu thiếu receipt.
+Batch checkpoints weights-only reset Adam; không resume sau restart. Output ghi
+subset IDs/hash, counts/coverage, local/global artifacts, checkpoint, validation,
+final shared test và resources. `verify` dùng NumPy replay FedAvg độc lập.
+
+Integration test local (không Docker hoặc thiết bị):
+
+```bash
+python -B tests/run_batch_swarm_integration.py --service-python "$SERVICE_PYTHON" \
+  --sn-source "$SN_SOURCE" --sl-source "$SL_SOURCE" --swop-source "$SWOP_SOURCE" \
+  --catalog "$NIDS_CATALOG" --output artifacts/runs/batch-integration-01
+```
+
+Service Python phải là absolute path có FastAPI/Uvicorn đã chuẩn bị; ML Python có
+SDK User-TF/TF. Test chỉ tạo/đóng process của mình trên loopback. Native batch Swarm
+và multi-host của adapter này phải được kiểm riêng; không suy từ local TCP PASS.
+
+## Existing pilot / Pilot cũ
+
 Adapt the existing SL exchange and SWOP controller to the fixed Flow CNN.
 Kết nối CNN đã kiểm thử với data plane hiện có; không sửa hoặc monkey-patch SDK.
 

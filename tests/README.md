@@ -72,3 +72,10 @@ tới source SDK đã có; không tự tải SDK. Thiếu SDK được ghi SKIP.
 `run_cnn_swarm_integration.py` là integration runner riêng, dùng TCP loopback với
 SN + 2 SL + 2 CNN clients và controller; xem README adapter về các executable/source
 paths bắt buộc. Runner không Docker/deploy và không tự phát hiện/mượn service đang chạy.
+
+`test_batch_swarm.py` kiểm catalog-bound model identity, codec interop với SDK cũ,
+subset deterministic/rotation/counts, stream batches, fail-closed config, dry-run,
+epoch fencing, unknown-upload không retry và training deadline. Fixture 5.523 IDs
+là synthetic SQL, không kết quả dataset thật. `run_batch_swarm_integration.py` dùng
+catalog/HDF5 có sẵn và TCP loopback với SN+2SL+2clients+controller, hai rounds thật,
+replay FedAvg độc lập; không Docker, raw-PCAP preprocessing hoặc board deployment.

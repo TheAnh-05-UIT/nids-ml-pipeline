@@ -13,6 +13,7 @@ ROOT=Path(__file__).resolve().parents[1]
 sys.path.insert(0,str(ROOT/'src'))
 parser=argparse.ArgumentParser()
 for name in ('sn-source','sl-source','initial','ready','stop'):parser.add_argument('--'+name,required=True)
+parser.add_argument('--batch-config',help='Optional catalog-bound batch job; old pilot fixture stays unchanged')
 args=parser.parse_args()
 sys.path[:0]=[str(Path(args.sn_source).resolve()),str(Path(args.sl_source).resolve())]
 import uvicorn
@@ -20,6 +21,12 @@ from sn_mvp.api import create_app
 from sn_mvp.state import MemoryState
 from nids_ml.adapters.swarm.contract import read_artifact,write_json
 from nids_ml.adapters.swarm.job import launch_sl
+template=None
+if args.batch_config:
+    from nids_ml.adapters.swarm.batch_job import load_batch_job
+    from nids_ml.adapters.swarm.batch_data import CatalogTemplate
+    batch_cfg=load_batch_job(args.batch_config)
+    template=CatalogTemplate(batch_cfg['catalog_id'])
 
 state=MemoryState(peer_ttl_seconds=60)
 sock=socket.socket();sock.bind(('127.0.0.1',0));sock.listen(128)
@@ -33,7 +40,7 @@ try:
     while not server.started:
         if time.monotonic()>deadline:raise RuntimeError('SN fixture startup timeout')
         time.sleep(.02)
-    read_artifact(args.initial)
+    read_artifact(args.initial,template=template)
     reservations=[];ports={}
     for peer in ('sl-a','sl-b'):
         reservation=socket.socket();reservation.bind(('127.0.0.1',0))
@@ -42,7 +49,7 @@ try:
     cfg=dict(sn_url=sn_url,peers=peers,job_id=Path(args.ready).parent.name,
              initial_weights=args.initial,round_timeout=120.,request_timeout=1.,poll_interval=.1)
     def worker(peer):
-        try:launch_sl(cfg,peer,'127.0.0.1',ports[peer],stop)
+        try:launch_sl(cfg,peer,'127.0.0.1',ports[peer],stop,template=template)
         except BaseException as error:errors.append(str(error));stop.set()
     for reservation in reservations:reservation.close()
     for peer in peers:
