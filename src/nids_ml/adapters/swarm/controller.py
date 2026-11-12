@@ -7,9 +7,9 @@ from swop.controller_io import ControllerError, TransportError, ensure
 from .contract import CNNTemplate, context, unpack_message, validate_artifact
 
 
-def cnn_digest(raw, expected_context):
+def cnn_digest(raw, expected_context, template=None):
     try:
-        return validate_artifact(raw, expected_context)[2]
+        return validate_artifact(raw, expected_context, template=template)[2]
     except (ValueError, KeyError, TypeError):
         raise ControllerError('CNN_ARTIFACT_INVALID') from None
 
@@ -18,6 +18,10 @@ class CNNController(Controller):
     """Reuse fresh-job fencing, single create, read retries, journal and receipt barrier.
     Tái sử dụng guards job mới, không retry create mơ hồ, không mở round sau thiếu receipt.
     """
+    def __init__(self, *args, template=None, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.template = CNNTemplate() if template is None else template
+
     def _session(self, peer, deadline):
         s = self._get(self.cfg.peers[peer], '/v1/ml/session', deadline)
         ensure(set(s) == {'protocol_version','job_id','sn_instance_id','peer_id','participants',
@@ -25,7 +29,7 @@ class CNNController(Controller):
         ensure(type(s['protocol_version']) is int and s['protocol_version'] == 1
                and s['job_id'] == self.cfg.job and s['sn_instance_id'] == self.epoch
                and s['peer_id'] == peer and s['participants'] == self.members
-               and s['model_id'] == self.cfg.model_id == CNNTemplate().identity, 'SL_SESSION_IDENTITY')
+               and s['model_id'] == self.cfg.model_id == self.template.identity, 'SL_SESSION_IDENTITY')
         ensure(s['round'] is None or isinstance(s['round'],dict), 'SL_ROUND_SCHEMA')
         c = s['committed']
         ensure(isinstance(c,dict) and set(c) == {'version','round_id','aggregator','weights_sha256','weights_b64'},
@@ -41,8 +45,8 @@ class CNNController(Controller):
                    and c['aggregator'] == self.members[(version-1)%2], 'SL_COMMITTED_CONTEXT')
             ctx = context(self.epoch, version, c['aggregator'], 'global')
         try:
-            raw = unpack_message(c, ctx)
-            tensor = cnn_digest(raw, ctx)
+            raw = unpack_message(c, ctx, template=self.template)
+            tensor = cnn_digest(raw, ctx, self.template)
         except (ValueError, KeyError, TypeError):
             raise ControllerError('CNN_COMMITTED_INVALID') from None
         if version == 0:
@@ -85,7 +89,7 @@ class CNNController(Controller):
                         ensure(self._round(self._current(deadline),rid)['status'] == 'synchronized', 'SN_NOT_SYNCHRONIZED')
                         committed = next(iter(sessions.values()))['committed']
                         ctx = context(self.epoch,rid,committed['aggregator'],'global')
-                        expected = cnn_digest(unpack_message(committed,ctx),ctx)
+                        expected = cnn_digest(unpack_message(committed,ctx,template=self.template),ctx,self.template)
                         ensure(all(rec['global_tensor_sha256'] == expected for rec in receipts.values()),
                                'CLIENT_GLOBAL_NOT_APPLIED')
                         result = dict(round_id=rid,base_sha256=base,global_sha256=digest,global_version=rid,

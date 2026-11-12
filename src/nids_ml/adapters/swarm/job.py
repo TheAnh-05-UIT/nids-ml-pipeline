@@ -80,13 +80,14 @@ def load_job(path):
     return cfg
 
 
-def launch_sl(cfg,peer,bind,port,stop=None):
+def launch_sl(cfg,peer,bind,port,stop=None,*,template=None):
     from sl_runtime.exchange_state import ExchangeState
     from sl_runtime.exchange_server import ExchangeNode
     from sl_runtime.runtime import RuntimeConfig
     require(peer in cfg['peers'],'PEER_IDENTITY')
-    raw=read_artifact(cfg['initial_weights'])
-    state=ExchangeState(peer,PARTICIPANTS,raw,cfg['job_id'],CNNTemplate(),cfg['round_timeout'])
+    template=CNNTemplate() if template is None else template
+    raw=read_artifact(cfg['initial_weights'],template=template)
+    state=ExchangeState(peer,PARTICIPANTS,raw,cfg['job_id'],template,cfg['round_timeout'])
     node=ExchangeNode(state,cfg['sn_url'],cfg['peers'],bind=(bind,port),
         request_timeout=cfg['request_timeout'],
         runtime_config=RuntimeConfig(peer,cfg['peers'][peer],heartbeat_interval=1.,poll_interval=cfg['poll_interval']))
@@ -98,14 +99,15 @@ def launch_sl(cfg,peer,bind,port,stop=None):
     finally:node.close()
 
 
-def run_controller(cfg,output,bind,port):
+def run_controller(cfg,output,bind,port,*,template=None):
     from swop.controller_io import Journal
     from swop.controller_receipts import ReceiptStore,ReceiptServer
     from .controller import CNNController,ControllerConfig
     target=fresh_output(output);target.mkdir()
     journal=Journal(target/'events.jsonl');server=None;stop=threading.Event()
     handlers={}
-    cc=ControllerConfig(cfg['sn_url'],cfg['peers'],cfg['samples'],cfg['job_id'],CNNTemplate().identity,
+    template=CNNTemplate() if template is None else template
+    cc=ControllerConfig(cfg['sn_url'],cfg['peers'],cfg['samples'],cfg['job_id'],template.identity,
         cfg['initial_sha256'],cfg['run_id'],(1,2),cfg['startup_timeout'],cfg['round_timeout'],
         cfg['poll_interval'],cfg['request_timeout'],2)
     try:
@@ -114,10 +116,13 @@ def run_controller(cfg,output,bind,port):
         store=ReceiptStore(cc,journal)
         server=ReceiptServer(store,(bind,port),cfg['request_timeout']).start()
         write_json(target/'ready.json',dict(listener=server.url,model_id=cc.model_id))
-        result=CNNController(cc,journal,store,stop=stop).run()
+        result=CNNController(cc,journal,store,stop=stop,template=template).run()
         stop.wait(3*cfg['request_timeout']+2*cfg['poll_interval']+.5)
         result=dict(result,model_id=cc.model_id,job_id=cfg['job_id'],run_id=cfg['run_id'],
                     label_provenance='DATASET_PROVIDED_MAPPED',independent_ground_truth_verified=False)
+        if 'catalog_id' in cfg:
+            result.update(catalog_id=cfg['catalog_id'],pool_samples=cfg['pool_samples'],
+                          subset_policy=cfg['subset_policy'],per_round_samples=cfg['samples'])
         write_json(target/'result.json',result);return result
     except Exception as error:
         write_json(target/'FAILED.json',dict(error=str(error),automatic_create_retry=False));raise

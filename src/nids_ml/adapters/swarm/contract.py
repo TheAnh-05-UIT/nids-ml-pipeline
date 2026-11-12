@@ -52,7 +52,7 @@ def context(epoch, rid, producer, role):
     return dict(sn_instance_id=epoch, round_id=rid, producer_peer_id=producer, role=role)
 
 
-def validate_artifact(raw, expected_context=None):
+def validate_artifact(raw, expected_context=None, *, template=None):
     require(isinstance(raw, bytes) and 12 <= len(raw) <= MAX_WEIGHTS, 'WEIGHTS_SIZE')
     require(raw[:8] == b'IUTFW001', 'WEIGHTS_FORMAT')
     size = struct.unpack('>I', raw[8:12])[0]
@@ -62,7 +62,7 @@ def validate_artifact(raw, expected_context=None):
                            'training_step', 'context', 'tensors'}, 'WEIGHTS_HEADER_FIELDS')
     require(header['format'] == 'independent-user-tf.weights' and type(header['format_version']) is int
             and header['format_version'] == 1, 'WEIGHTS_FORMAT_VERSION')
-    spec = CNNTemplate()
+    spec = CNNTemplate() if template is None else template
     require(header['model_identity'] == spec.identity and
             canonical_bytes(header['model_spec']) == canonical_bytes(spec.description()), 'CNN_MODEL_MISMATCH')
     require(type(header['training_step']) is int and 0 <= header['training_step'] <= 2**53-1, 'TRAINING_STEP')
@@ -92,9 +92,9 @@ def validate_artifact(raw, expected_context=None):
     return header, tuple(blobs), sha(b''.join(blobs))
 
 
-def encode_weights(weights, step=0, transfer_context=None):
+def encode_weights(weights, step=0, transfer_context=None, *, template=None):
     import numpy as np
-    spec = CNNTemplate()
+    spec = CNNTemplate() if template is None else template
     require(isinstance(weights, (list, tuple)) and len(weights) == 4, 'TENSOR_COUNT')
     tensors, blobs = [], []
     for array, (name, shape) in zip(weights, spec.tensors):
@@ -107,19 +107,19 @@ def encode_weights(weights, step=0, transfer_context=None):
         model_identity=spec.identity, model_spec=spec.description(), training_step=step,
         context=transfer_context, tensors=tensors))
     raw = b'IUTFW001' + struct.pack('>I', len(header)) + header + b''.join(blobs)
-    validate_artifact(raw, transfer_context)
+    validate_artifact(raw, transfer_context, template=spec)
     return raw
 
 
-def read_artifact(path, expected_context=None):
+def read_artifact(path, expected_context=None, *, template=None):
     path = regular_file(path)
     require(path.stat().st_size <= MAX_WEIGHTS, 'WEIGHTS_SIZE')
     raw = path.read_bytes()
-    validate_artifact(raw, expected_context)
+    validate_artifact(raw, expected_context, template=template)
     return raw
 
 
-def unpack_message(message, expected_context=None):
+def unpack_message(message, expected_context=None, *, template=None):
     require(isinstance(message, dict) and isinstance(message.get('weights_b64'), str)
             and len(message['weights_b64']) <= 4*((MAX_WEIGHTS+2)//3), 'ENCODED_WEIGHTS_SIZE')
     try:
@@ -127,7 +127,7 @@ def unpack_message(message, expected_context=None):
     except ValueError:
         raise ValueError('INVALID_BASE64') from None
     require(sha(raw) == message.get('weights_sha256'), 'PAYLOAD_HASH')
-    validate_artifact(raw, expected_context)
+    validate_artifact(raw, expected_context, template=template)
     return raw
 
 
