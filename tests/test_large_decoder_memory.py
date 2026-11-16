@@ -7,6 +7,7 @@ from dataclasses import fields,replace
 import io
 import json
 import os
+import subprocess
 from pathlib import Path
 import sys
 import tempfile
@@ -134,7 +135,101 @@ class LargeMemoryDecoderTests(unittest.TestCase):
              patch('nids_ml.pcap.decoder.process_rss',return_value=None):
             with self.assertRaisesRegex(DecoderError,'RSS_PROBE_UNAVAILABLE'):
                 list(decoder.records())
-        self.assertTrue(child.terminated)
+        self.assertTrue(decoder.report()['child_exited'])
+
+    def exit_during_rss_probe(self,*,code=0,raw=None):
+        decoder=self.decoder()
+        child=FakeDecoderProcess(pdml(self.fixture['records']) if raw is None else raw,exit_code=code)
+        def rss(pid):
+            if pid==os.getpid():return 1024
+            child.returncode=code
+            return None
+        return decoder,child,rss
+
+    def test_child_exit_between_poll_and_rss_does_not_fail_complete_capture(self):
+        decoder,child,rss=self.exit_during_rss_probe()
+        with patch('nids_ml.pcap.decoder.subprocess.Popen',return_value=child), \
+             patch('nids_ml.pcap.decoder.process_rss',side_effect=rss):
+            records=list(decoder.records())
+        self.assertEqual(len(records),4)
+        self.assertTrue(decoder.stats['source_complete'])
+        self.assertTrue(decoder.stats['memory_probe_available'])
+        self.assertFalse(child.terminated)
+
+    def test_exiting_child_missing_rss_never_masks_nonzero_exit(self):
+        decoder,child,rss=self.exit_during_rss_probe(code=1)
+        with patch('nids_ml.pcap.decoder.subprocess.Popen',return_value=child), \
+             patch('nids_ml.pcap.decoder.process_rss',side_effect=rss):
+            with self.assertRaisesRegex(DecoderError,'TSHARK_NONZERO_EXIT'):
+                list(decoder.records())
+        self.assertFalse(decoder.stats['source_complete'])
+
+    def test_exiting_child_missing_rss_never_masks_truncated_xml(self):
+        decoder,child,rss=self.exit_during_rss_probe(raw=pdml(self.fixture['records'],close=False))
+        with patch('nids_ml.pcap.decoder.subprocess.Popen',return_value=child), \
+             patch('nids_ml.pcap.decoder.process_rss',side_effect=rss):
+            with self.assertRaises(DecoderError) as error:
+                list(decoder.records())
+        self.assertNotIn('RSS_PROBE_UNAVAILABLE',str(error.exception))
+        self.assertFalse(decoder.stats['source_complete'])
+
+    def test_still_live_child_missing_rss_remains_fail_closed(self):
+        decoder=self.decoder();child=FakeDecoderProcess(pdml(self.fixture['records']))
+        original_wait=child.wait
+        def wait(timeout=None):
+            if child.returncode is None:
+                raise subprocess.TimeoutExpired('SYNTHETIC_LIVE_CHILD',timeout)
+            return original_wait(timeout)
+        with patch('nids_ml.pcap.decoder.subprocess.Popen',return_value=child), \
+             patch.object(child,'wait',side_effect=wait), \
+             patch('nids_ml.pcap.decoder.process_rss',side_effect=lambda pid:1024 if pid==os.getpid() else None):
+            with self.assertRaisesRegex(DecoderError,'RSS_PROBE_UNAVAILABLE'):
+                list(decoder.records())
+        self.assertTrue(child.terminated);self.assertFalse(decoder.stats['source_complete'])
+
+    def test_live_python_missing_rss_is_not_ignored_after_child_exit(self):
+        decoder=self.decoder();child=FakeDecoderProcess(pdml(self.fixture['records']))
+        child.returncode=0
+        with patch('nids_ml.pcap.decoder.subprocess.Popen',return_value=child), \
+             patch('nids_ml.pcap.decoder.process_rss',return_value=None):
+            with self.assertRaisesRegex(DecoderError,'RSS_PROBE_UNAVAILABLE'):
+                list(decoder.records())
+        self.assertFalse(decoder.stats['source_complete'])
+
+    def test_rss_unavailable_while_child_finishes_wait_is_bounded(self):
+        decoder,child,_=self.exit_during_rss_probe()
+        def wait(timeout=None):
+            if child.returncode is None:
+                self.assertIsNotNone(timeout);self.assertLessEqual(timeout,.05)
+            child.returncode=0
+            return 0
+        with patch('nids_ml.pcap.decoder.subprocess.Popen',return_value=child), \
+             patch.object(child,'wait',side_effect=wait) as waiter, \
+             patch('nids_ml.pcap.decoder.process_rss',side_effect=lambda pid:1024 if pid==os.getpid() else None):
+            records=list(decoder.records())
+        self.assertEqual(len(records),4);self.assertTrue(decoder.stats['source_complete'])
+        self.assertGreaterEqual(waiter.call_count,1)
+        self.assertLessEqual(waiter.call_args_list[0].kwargs['timeout'],.05)
+
+    def test_real_child_exit_still_drains_buffered_pdml_and_validates_eof(self):
+        decoder=self.decoder();raw=pdml(self.fixture['records'])
+        original_popen=subprocess.Popen;children=[]
+        def start(command,**kwargs):
+            child=original_popen([sys.executable,'-X','utf8','-B','-c',
+                'import sys;sys.stdout.buffer.write('+repr(raw)+')'],**kwargs)
+            children.append(child)
+            return child
+        def rss(pid):
+            if pid==os.getpid():return 1024
+            children[0].wait(timeout=10)
+            return None
+        with patch('nids_ml.pcap.decoder.subprocess.Popen',side_effect=start), \
+             patch('nids_ml.pcap.decoder.process_rss',side_effect=rss):
+            records=list(decoder.records())
+        self.assertEqual(len(children),1);self.assertEqual(children[0].returncode,0)
+        self.assertEqual(len(records),4);self.assertTrue(decoder.stats['source_complete'])
+        self.assertTrue(decoder.stats['memory_probe_available'])
+        self.assertEqual(decoder.report()['child_returncode'],0)
 
     def test_host_reserve_is_sampled_once_per_second(self):
         decoder=self.decoder();decoder.started=100.;decoder.process=FakeDecoderProcess(b'')

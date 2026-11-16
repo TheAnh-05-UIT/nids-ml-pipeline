@@ -149,6 +149,7 @@ class LargeMemoryFlowDecoder(LargeFlowDecoder):
     Giữ TCP state liên tục; dừng child của mình khi vượt RSS hoặc host thiếu RAM.
     """
     limits_type=LargeMemoryFlowDecodeLimits
+    rss_exit_grace_seconds=.05
 
     def __init__(self,*args,**kwargs):
         available=require_large_memory_start()
@@ -172,5 +173,6 @@ class LargeMemoryFlowDecoder(LargeFlowDecoder):
         result=super().report()
         result['memory_policy']=dict(profile='large-memory',minimum_start_available_bytes=LARGE_MEMORY_START_BYTES,
             minimum_runtime_available_bytes=LARGE_MEMORY_RESERVE_BYTES,host_probe_interval_seconds=1,
+            rss_exit_grace_seconds=self.rss_exit_grace_seconds,
             sampled_abort_thresholds=True,hard_os_memory_limit=False)
         return result

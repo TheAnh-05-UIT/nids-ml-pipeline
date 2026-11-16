@@ -373,6 +373,7 @@ class TSharkDecoder:
 
     protocol_tree_filter=None
     protocol_tree_filter_flag='-J'
+    rss_exit_grace_seconds=0.0
 
     def __init__(self,source,*,expected_sha256,expected_size,tshark,tshark_sha256,limits=None):
         self.source=regular_file(source);self.executable=regular_file(tshark)
@@ -427,7 +428,18 @@ class TSharkDecoder:
                                ('decoder',self.process.pid,self.limits.decoder_rss_bytes)]:
             if name=='decoder' and self.process.poll() is not None:continue
             rss=process_rss(pid)
-            if rss is None:self.stats['memory_probe_available']=False
+            if rss is None:
+                # Child exit can remove /proc RSS between poll() and the read.
+                # Chi bo mau RSS khi child cua minh da thoat; child con song van fail closed.
+                if name=='decoder':
+                    returncode=self.process.poll()
+                    if returncode is None and self.rss_exit_grace_seconds>0:
+                        try:returncode=self.process.wait(timeout=min(self.rss_exit_grace_seconds,self.limits.close_seconds))
+                        except subprocess.TimeoutExpired:returncode=None
+                    if returncode is not None:
+                        self.stats['child_exits_during_rss_probe']=self.stats.get('child_exits_during_rss_probe',0)+1
+                        continue
+                self.stats['memory_probe_available']=False
             else:
                 key='peak_'+name+'_rss_bytes';self.stats[key]=max(self.stats[key],rss)
                 if rss>limit:raise DecoderError(name.upper()+'_RSS_ABORT_THRESHOLD')
@@ -501,4 +513,5 @@ class TSharkDecoder:
                     preferences=dict(PREFERENCES),stats=dict(self.stats),
                     stderr_bytes=self.stderr_total,stderr_sha256=self.stderr_digest.hexdigest(),
                     stderr_tail=self.stderr_tail.decode('utf-8',errors='replace'),
+                    child_returncode=None if self.process is None else self.process.returncode,
                     child_exited=self.process is None or self.process.poll() is not None)
