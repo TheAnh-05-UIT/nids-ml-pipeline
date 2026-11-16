@@ -128,8 +128,10 @@ TShark 1536 MiB; timeout 2 giờ, Python 384 MiB, parser/packet caps, TCP state 
 lớn sẽ hoàn tất; vẫn phải đo RSS, kiểm EOF và manifest thực tế.
 
 Nếu TShark thoát giữa `poll()` và lần đọc RSS, decoder xác nhận lại exit code;
-profile RAM lớn chờ tối đa 50 ms cho tình huống này. RSS chỉ được bỏ qua khi child
-đã thoát, còn Python/child đang sống mà thiếu probe vẫn bị từ chối. Dữ liệu stdout
+profile RAM lớn chờ tối đa 5 giây, chia thành các lần chờ không quá 50 ms, để child
+giải phóng address space lớn. Trong lúc chờ vẫn kiểm timeout, RSS của Python và
+host RAM reserve; thời gian chờ được ghi trong `rss_exit_wait_seconds`. Chỉ chấp
+nhận mất RSS khi child đã thoát; quá budget mà child còn sống vẫn bị từ chối. Dữ liệu stdout
 còn trong pipe vẫn phải được đọc hết, kiểm XML/EOF/count và exit code trước khi
 cache được ghi COMPLETE; không chuyển cache FAILED thành dữ liệu hợp lệ.
 
