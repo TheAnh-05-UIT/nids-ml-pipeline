@@ -127,6 +127,12 @@ TShark 1536 MiB; timeout 2 giờ, Python 384 MiB, parser/packet caps, TCP state 
 11 features không đổi. Chỉ nới budget của tiến trình TShark, không bảo đảm capture
 lớn sẽ hoàn tất; vẫn phải đo RSS, kiểm EOF và manifest thực tế.
 
+Nếu TShark thoát giữa `poll()` và lần đọc RSS, decoder xác nhận lại exit code;
+profile RAM lớn chờ tối đa 50 ms cho tình huống này. RSS chỉ được bỏ qua khi child
+đã thoát, còn Python/child đang sống mà thiếu probe vẫn bị từ chối. Dữ liệu stdout
+còn trong pipe vẫn phải được đọc hết, kiểm XML/EOF/count và exit code trước khi
+cache được ghi COMPLETE; không chuyển cache FAILED thành dữ liệu hợp lệ.
+
 ```bash
 python3 -B scripts/run_flows.py decode \
   --mapping "$MAPPING_DIR" --tshark "$TSHARK" --tshark-sha256 "$TSHARK_SHA" \
