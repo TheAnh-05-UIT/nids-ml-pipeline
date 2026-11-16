@@ -1,7 +1,7 @@
 """Build a disk-backed global deduplication and connection split catalog.
 Lập catalog toàn cục trên đĩa: chống trùng tensor, chia theo connection và giao client.
 """
-from collections import Counter
+from collections import Counter,OrderedDict
 import hashlib
 import json
 from pathlib import Path
@@ -72,16 +72,21 @@ def build_catalog(inputs,workspace,output,*,seed=42,progress=None):
         db.executescript('PRAGMA page_size=4096; PRAGMA max_page_count=393216; PRAGMA cache_size=-16384; '
             'PRAGMA journal_mode=DELETE; PRAGMA temp_store=FILE; '
             'CREATE TABLE samples(id INTEGER PRIMARY KEY,dataset TEXT,shard INTEGER,row_no INTEGER,sha TEXT,'
-            'group_id TEXT,y INTEGER,family TEXT,owner INTEGER,eligible INTEGER DEFAULT 0,split TEXT,client INTEGER);')
+            'group_id TEXT,y INTEGER,family TEXT,owner INTEGER,eligible INTEGER DEFAULT 1,split TEXT,client INTEGER); '
+            'CREATE TABLE group_seen(group_id TEXT,y INTEGER,owner INTEGER,PRIMARY KEY(group_id,y,owner)) WITHOUT ROWID;')
         previous=db.execute('PRAGMA temp_store_directory').fetchone()
         db.execute('PRAGMA temp_store_directory='+db.execute('SELECT quote(?)',(str(output),)).fetchone()[0])
         db.set_progress_handler(budget.sqlite_progress,20000)
-        sources=[];total=0
+        capture_counts=Counter(s['context']['capture_sha256']
+            for _,directory,_ in declared for s in read_manifest(directory).get('sources',[]))
+        sources=[];total=0;hot_shas=OrderedDict();all_families=set()
         for dataset_id,directory,owner in sorted(declared,key=lambda item:item[0]):
             reader=FlowShardReader(directory);m=reader.manifest
             require(canonical_bytes(m['feature_configuration'])==canonical_bytes(configuration(input_kind='decoded_pcap')),
                     'FEATURE_CONFIGURATION_MISMATCH')
             captures={s['context']['capture_sha256'] for s in m['sources']}
+            need_group_audit=len(m['label_counts'])>1 or any(capture_counts[c]>1 for c in captures)
+            seen_owner=-1 if owner is None else owner
             require(sum(len(s['shards']) for s in sources)+len(m['shards'])<=2048,'GLOBAL_SHARD_COUNT_CAP')
             shard=0;row=0;counts=Counter();families_observed=Counter()
             for batch in reader.batches(256,metadata=True):
@@ -98,10 +103,27 @@ def build_catalog(inputs,workspace,output,*,seed=42,progress=None):
                     if family=='MULTI_ATTACK':
                         require(type(meta['attack_types']) is list and 2<=len(meta['attack_types'])<=14
                                 and all(v in ATTACK_TYPES for v in meta['attack_types']),'MULTI_ATTACK_LINEAGE')
-                    db.execute('INSERT INTO samples(dataset,shard,row_no,sha,group_id,y,family,owner) VALUES(?,?,?,?,?,?,?,?)',
-                               (dataset_id,shard,row,sha,group,y,family,owner))
-                    counts[str(y)]+=1;families_observed[family]+=1;total+=1;row+=1
+                    counts[str(y)]+=1;families_observed[family]+=1;all_families.add(family);total+=1
                     require(total<=8000000,'CATALOG_SAMPLE_CAP')
+                    if need_group_audit:
+                        db.execute('INSERT OR IGNORE INTO group_seen(group_id,y,owner) VALUES(?,?,?)',
+                                   (group,y,seen_owner))
+                    # Bound RAM with a 32k LRU cache while still writing at least one conflict witness to SQLite.
+                    state=hot_shas.get(sha)
+                    insert_row=True
+                    if state is not None:
+                        hot_shas.move_to_end(sha)
+                        if state[2] or (group==state[0] and y==state[1]):
+                            insert_row=False
+                        else:
+                            state[2]=True
+                    else:
+                        if len(hot_shas)>=32768:hot_shas.popitem(last=False)
+                        hot_shas[sha]=[group,y,False]
+                    if insert_row:
+                        db.execute('INSERT INTO samples(id,dataset,shard,row_no,sha,group_id,y,family,owner) VALUES(?,?,?,?,?,?,?,?,?)',
+                                   (total,dataset_id,shard,row,sha,group,y,family,owner))
+                    row+=1
                     if row==m['shards'][shard]['samples']:shard+=1;row=0
                     if total%4096==0:
                         db.commit();budget.check()
@@ -113,23 +135,22 @@ def build_catalog(inputs,workspace,output,*,seed=42,progress=None):
             try:hint=directory.relative_to(Path(workspace).resolve()).as_posix()
             except ValueError:hint=str(directory)
             sources.append(dict(dataset_id=dataset_id,owner=owner,path_hint=hint,shards=m['shards']))
+        hot_shas.clear()
         db.execute('CREATE INDEX by_sha ON samples(sha)')
         excluded_patterns=db.execute('SELECT count(*) FROM (SELECT 1 FROM samples INDEXED BY by_sha '
             'GROUP BY sha HAVING count(DISTINCT group_id)>1 OR count(DISTINCT y)>1)').fetchone()[0]
-        db.execute('UPDATE samples SET eligible=1 WHERE id IN (SELECT min(id) FROM samples INDEXED BY by_sha '
+        db.execute('DELETE FROM samples WHERE id NOT IN (SELECT min(id) FROM samples INDEXED BY by_sha '
             'GROUP BY sha HAVING count(DISTINCT group_id)=1 AND count(DISTINCT y)=1)')
         db.commit();db.execute('DROP INDEX by_sha');db.commit()
-        db.execute('CREATE INDEX by_group ON samples(group_id)')
-        require(not db.execute('SELECT 1 FROM samples INDEXED BY by_group GROUP BY group_id '
-            'HAVING count(DISTINCT coalesce(owner,-1))>1 LIMIT 1').fetchone(),'GROUP_OWNER_CONFLICT')
-        excluded_mixed=db.execute('SELECT count(*) FROM (SELECT 1 FROM samples INDEXED BY by_group '
-            'GROUP BY group_id HAVING count(DISTINCT y)>1)').fetchone()[0]
+        require(not db.execute('SELECT 1 FROM group_seen GROUP BY group_id HAVING count(DISTINCT owner)>1 LIMIT 1').fetchone(),
+                'GROUP_OWNER_CONFLICT')
+        excluded_mixed=db.execute('SELECT count(*) FROM (SELECT 1 FROM group_seen GROUP BY group_id '
+            'HAVING count(DISTINCT y)>1)').fetchone()[0]
         if excluded_mixed:
-            db.execute('UPDATE samples SET eligible=0 WHERE eligible=1 AND group_id IN '
-                '(SELECT group_id FROM samples INDEXED BY by_group GROUP BY group_id HAVING count(DISTINCT y)>1)')
-        db.commit();db.execute('DROP INDEX by_group');db.commit()
-        distinct_families=[f for (f,) in db.execute('SELECT DISTINCT family FROM samples ORDER BY family')]
-        db.execute('DELETE FROM samples WHERE eligible=0');db.commit();db.execute('VACUUM')
+            db.execute('DELETE FROM samples WHERE group_id IN (SELECT group_id FROM group_seen '
+                'GROUP BY group_id HAVING count(DISTINCT y)>1)')
+        db.commit();db.execute('DROP TABLE group_seen');db.commit()
+        distinct_families=sorted(all_families)
         db.executescript('CREATE TABLE groups AS SELECT group_id,min(y) y,min(owner) owner,count(*) n,'
             'nids_priority(group_id) priority,NULL split,NULL client FROM samples WHERE eligible=1 GROUP BY group_id; '
             'CREATE UNIQUE INDEX group_key ON groups(group_id);')
@@ -161,7 +182,9 @@ def build_catalog(inputs,workspace,output,*,seed=42,progress=None):
             'CREATE INDEX by_group ON samples(eligible,group_id,split,client); '
             'CREATE INDEX selection ON samples(eligible,split,client,sha); '
             'CREATE UNIQUE INDEX location ON samples(dataset,shard,row_no);')
-        db.commit();audit(db);budget.check(force=True)
+        db.commit();audit(db)
+        require(db.execute('PRAGMA quick_check').fetchall()==[('ok',)],'SQLITE_INTEGRITY_CHECK')
+        budget.check(force=True)
         counts={s:class_counts(db,s) for s in SPLITS}
         clients={str(c):{s:class_counts(db,s,c) for s in SPLITS} for c in (0,1)}
         families=[dict(split=s,family=f,samples=n) for s,f,n in db.execute(
