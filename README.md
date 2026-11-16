@@ -118,6 +118,26 @@ SQLite cap1536MiB/cache16MiB. Decode budget tối đa3,5 triệu packet/capture,
 Python384MiB/TShark1536MiB sampled RSS; TShark nhiều TCP connections có thể chạm
 ngưỡng và phải dừng, không reset state để vượt test. Không tự cleanup khi lỗi.
 
+Host Linux có RAM lớn có thể chọn rõ `--decoder-profile large-memory` khi `decode`:
+TShark RSS tối đa **6 GiB**, yêu cầu **8 GiB MemAvailable** trước khi bắt đầu và
+dừng nếu host còn dưới **1 GiB MemAvailable** trong các lần đo cách nhau khoảng
+1 giây. Thiếu thông tin RAM/RSS thì profile này từ chối chạy. Đây là ngưỡng abort
+được lấy mẫu, không phải hard memory limit của OS. Mặc định `standard` vẫn giữ
+TShark 1536 MiB; timeout 2 giờ, Python 384 MiB, parser/packet caps, TCP state và
+11 features không đổi. Chỉ nới budget của tiến trình TShark, không bảo đảm capture
+lớn sẽ hoàn tất; vẫn phải đo RSS, kiểm EOF và manifest thực tế.
+
+```bash
+python3 -B scripts/run_flows.py decode \
+  --mapping "$MAPPING_DIR" --tshark "$TSHARK" --tshark-sha256 "$TSHARK_SHA" \
+  --decoder-profile large-memory --output artifacts/runs/flow-cache-large-01
+```
+
+Khi lỗi, `FAILED.json` ghi profile và thông tin decoder/RSS nếu decoder đã được
+tạo. Dùng output mới cho lần thử lại, giữ mapping đã hoàn tất và cache lỗi để
+đối chiếu. Chạy tác vụ dài trong `nohup`/terminal session phù hợp; không pull code
+mới vào source đang được một tác vụ khác sử dụng.
+
 **Shards này chưa có split/client assignment, chưa dedup tensor và chưa train-ready.**
 Cần bước group split/dedup toàn cục chống leakage trước training lớn. Không đưa
 thẳng format mới vào `run_demo.py train` hoặc job CNN Swarm pilot cũ. `attack_type`
