@@ -231,6 +231,75 @@ class LargeMemoryDecoderTests(unittest.TestCase):
         self.assertTrue(decoder.stats['memory_probe_available'])
         self.assertEqual(decoder.report()['child_returncode'],0)
 
+    def run_delayed_teardown(self,*,delay=.2,code=0,raw=None,python_rss=1024,host_available=16*GIB):
+        """Simulate RSS disappearing before waitpid can reap an exiting child.
+        Mô phỏng teardown dài hơn 50 ms; không cấp phát RAM lớn trong unit test.
+        """
+        decoder=self.decoder();elapsed=[0.];waits=[]
+        child=FakeDecoderProcess(pdml(self.fixture['records']) if raw is None else raw,exit_code=code)
+        def wait(timeout=None):
+            if child.returncode is not None:return child.returncode
+            waits.append(timeout);elapsed[0]+=timeout
+            if elapsed[0]+1e-8<delay:raise subprocess.TimeoutExpired('SYNTHETIC_TEARDOWN',timeout)
+            child.returncode=code
+            return code
+        def rss(pid):
+            if pid!=os.getpid():return None
+            return python_rss(elapsed[0]) if callable(python_rss) else python_rss
+        def available():
+            return host_available(elapsed[0]) if callable(host_available) else host_available
+        with patch('nids_ml.pcap.decoder.subprocess.Popen',return_value=child), \
+             patch.object(child,'wait',side_effect=wait), \
+             patch('nids_ml.pcap.decoder.process_rss',side_effect=rss), \
+             patch('nids_ml.pcap.decoder.time.monotonic',side_effect=lambda:100.+elapsed[0]), \
+             patch('nids_ml.pcap.whole.available_memory_bytes',side_effect=available):
+            try:
+                records=list(decoder.records())
+            except DecoderError as error:
+                return decoder,child,waits,error
+        return decoder,child,waits,records
+
+    def test_slow_memory_teardown_drains_all_packets_after_child_exit(self):
+        decoder,child,waits,result=self.run_delayed_teardown()
+        self.assertNotIsInstance(result,Exception)
+        self.assertEqual(len(result),4);self.assertTrue(decoder.stats['source_complete'])
+        self.assertTrue(decoder.stats['memory_probe_available']);self.assertEqual(child.returncode,0)
+        self.assertFalse(child.terminated)
+        self.assertGreater(len(waits),1)
+        self.assertTrue(all(0<value<=.05 for value in waits))
+
+    def test_slow_memory_teardown_still_rejects_nonzero_exit(self):
+        decoder,_,_,error=self.run_delayed_teardown(code=7)
+        self.assertIsInstance(error,DecoderError);self.assertEqual(str(error),'TSHARK_NONZERO_EXIT')
+        self.assertFalse(decoder.stats['source_complete'])
+
+    def test_slow_memory_teardown_still_rejects_incomplete_xml_or_count(self):
+        for raw in (pdml(self.fixture['records'],close=False),pdml(self.fixture['records'][:-1])):
+            with self.subTest(raw_length=len(raw)):
+                decoder,_,_,error=self.run_delayed_teardown(raw=raw)
+                self.assertIsInstance(error,DecoderError)
+                self.assertNotIn('RSS_PROBE_UNAVAILABLE',str(error))
+                self.assertFalse(decoder.stats['source_complete'])
+
+    def test_persistent_rss_loss_has_bounded_wait_and_never_publishes(self):
+        decoder,child,waits,error=self.run_delayed_teardown(delay=10.)
+        self.assertIsInstance(error,DecoderError);self.assertIn('RSS_PROBE_UNAVAILABLE',str(error))
+        self.assertLessEqual(sum(waits),5.001)
+        self.assertTrue(child.terminated);self.assertFalse(decoder.stats['source_complete'])
+
+    def test_python_rss_guard_remains_active_during_teardown_wait(self):
+        decoder,child,_,error=self.run_delayed_teardown(
+            python_rss=lambda seconds:1024 if seconds<.1 else 384*1048576+1)
+        self.assertIsInstance(error,DecoderError);self.assertEqual(str(error),'PYTHON_RSS_ABORT_THRESHOLD')
+        self.assertTrue(child.terminated);self.assertFalse(decoder.stats['source_complete'])
+
+    def test_host_reserve_guard_remains_active_during_teardown_wait(self):
+        decoder,child,_,error=self.run_delayed_teardown(delay=1.5,
+            host_available=lambda seconds:16*GIB if seconds<1 else GIB-1)
+        self.assertIsInstance(error,DecoderError)
+        self.assertEqual(str(error),'HOST_AVAILABLE_MEMORY_BELOW_1_GIB_RESERVE')
+        self.assertTrue(child.terminated);self.assertFalse(decoder.stats['source_complete'])
+
     def test_host_reserve_is_sampled_once_per_second(self):
         decoder=self.decoder();decoder.started=100.;decoder.process=FakeDecoderProcess(b'')
         with patch('nids_ml.pcap.whole.available_memory_bytes',return_value=9*GIB) as probe, \
