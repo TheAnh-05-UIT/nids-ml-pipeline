@@ -13,6 +13,7 @@ from nids_ml.flows.mapped import FlowLimits,new_output,require,PROVENANCE
 from nids_ml.labeling.contracts import canonical_bytes,strict_json
 from nids_ml.ordering.view import _new_json
 from nids_ml.pcap.decoder import regular_file,file_sha256
+from nids_ml.evaluation.thresholds import validate_threshold
 
 
 def model_description():
@@ -38,13 +39,15 @@ class TrainingLimits(FlowLimits):
 
 
 class BinaryMetrics:
-    def __init__(self):self.n=self.tp=self.tn=self.fp=self.fn=0;self.loss=0.
+    def __init__(self,threshold=.5):
+        self.threshold=validate_threshold(threshold)
+        self.n=self.tp=self.tn=self.fp=self.fn=0;self.loss=0.
     def update(self,y,probability):
         import numpy as np
         y=np.asarray(y).reshape(-1);p=np.asarray(probability).reshape(-1).astype('float64')
         require(len(y)==len(p)>0 and np.isin(y,[0,1]).all() and np.isfinite(p).all()
                 and ((p>=0)&(p<=1)).all(),'INVALID_EVALUATION_BATCH')
-        predicted=p>=.5;self.n+=len(y)
+        predicted=p>=self.threshold;self.n+=len(y)
         self.tp+=int(((y==1)&predicted).sum());self.tn+=int(((y==0)&~predicted).sum())
         self.fp+=int(((y==0)&predicted).sum());self.fn+=int(((y==1)&~predicted).sum())
         p=np.clip(p,1e-7,1-1e-7);self.loss+=float(-(y*np.log(p)+(1-y)*np.log(1-p)).sum())
@@ -55,7 +58,7 @@ class BinaryMetrics:
             recall=self.tp/(self.tp+self.fn) if self.tp+self.fn else None,
             f1=2*self.tp/(2*self.tp+self.fp+self.fn) if 2*self.tp+self.fp+self.fn else None,
             false_positive_rate=self.fp/(self.fp+self.tn) if self.fp+self.tn else None,
-            confusion_matrix=[[self.tn,self.fp],[self.fn,self.tp]],threshold=.5)
+            confusion_matrix=[[self.tn,self.fp],[self.fn,self.tp]],threshold=self.threshold)
 
 
 class StreamTrainer:
@@ -112,8 +115,8 @@ class StreamTrainer:
             initial_tensor_sha256=initial,trained_tensor_sha256=hashlib.sha256(b''.join(v.tobytes() for v in self.get_weights())).hexdigest())
 
 
-def evaluate(trainer,reader,split,client=None,*,batch_size=64,predictions=None):
-    total=BinaryMetrics();families={f:BinaryMetrics() for f in reader.manifest['family_coverage']}
+def evaluate(trainer,reader,split,client=None,*,batch_size=64,predictions=None,threshold=.5):
+    total=BinaryMetrics(threshold);families={f:BinaryMetrics(threshold) for f in reader.manifest['family_coverage']}
     writer=None
     if predictions is not None:
         writer=csv.writer(predictions);writer.writerow(('sample_id','y','probability','attack_type','group_id'))
@@ -160,22 +163,24 @@ def restore_checkpoint(directory,*,expected_catalog_id=None):
     trainer.set_weights(values);return trainer,value
 
 
-def train_catalog(catalog,workspace,output,*,client=None,epochs=1,batch_size=64,seed=42,sources=None):
+def train_catalog(catalog,workspace,output,*,client=None,epochs=1,batch_size=64,seed=42,sources=None,
+                  skip_test=False,threshold=.5):
     from nids_ml.storage.partitioned import PartitionReader
     from nids_ml.models.flow_cnn import runtime_info
     require(type(epochs) is int and 1<=epochs<=10 and type(batch_size) is int and 1<=batch_size<=128,'EPOCH_OR_BATCH_BUDGET')
+    require(type(skip_test) is bool,'SKIP_TEST_MUST_BE_BOOL');threshold=validate_threshold(threshold)
     target,_=new_output(output,workspace);budget=Budget(target,TrainingLimits())
     try:
         reader=PartitionReader(catalog,workspace,sources=sources,scratch=target,budget=budget)
         # All required local data must be available before the first optimizer update.
         # Thiếu data tại node thì dừng trước train; không tự đọc/pull từ node còn lại.
-        for split in ('train','validation','test'):reader.preflight(split,client)
+        for split in (('train','validation') if skip_test else ('train','validation','test')):reader.preflight(split,client)
         trainer=StreamTrainer(seed);budget.check(force=True)
-        before=evaluate(trainer,reader,'train',client,batch_size=batch_size);history=[]
+        before=evaluate(trainer,reader,'train',client,batch_size=batch_size,threshold=threshold);history=[]
         for epoch in range(epochs):
             update=trainer.train_epoch(reader,client,batch_size=batch_size,epoch=epoch)
-            tr=evaluate(trainer,reader,'train',client,batch_size=batch_size)
-            val=evaluate(trainer,reader,'validation',client,batch_size=batch_size)
+            tr=evaluate(trainer,reader,'train',client,batch_size=batch_size,threshold=threshold)
+            val=evaluate(trainer,reader,'validation',client,batch_size=batch_size,threshold=threshold)
             history.append(dict(epoch=epoch+1,update=update,train=tr,validation=val))
             print(__import__('json').dumps(dict(stage='epoch',epoch=epoch+1,client=client,
                 train_loss=tr['overall']['loss'],validation_loss=val['overall']['loss'])),flush=True)
@@ -185,11 +190,14 @@ def train_catalog(catalog,workspace,output,*,client=None,epochs=1,batch_size=64,
         for batch in reader.batches('validation',client,batch_size=batch_size):
             error=max(error,float(trainer.np.max(trainer.np.abs(trainer.predict(batch['X'])-restored.predict(batch['X'])))))
         require(error<=1e-7,'CHECKPOINT_PREDICTION_RESTORE')
-        with (target/'test-predictions.csv').open('x',encoding='utf-8',newline='') as stream:
-            test=evaluate(trainer,reader,'test',client,batch_size=batch_size,predictions=stream)
+        test=dict(status='SKIPPED_BY_REQUEST',samples=0)
+        if not skip_test:
+            with (target/'test-predictions.csv').open('x',encoding='utf-8',newline='') as stream:
+                test=evaluate(trainer,reader,'test',client,batch_size=batch_size,predictions=stream,threshold=threshold)
         result=dict(status='PASS_NIDS_BATCH_TRAINING',model_id=model_identity(),model_description=model_description(),
             catalog_id=reader.manifest['catalog_id'],client=client,epochs=epochs,batch_size=batch_size,seed=seed,
             before_train=before,history=history,test=test,checkpoint=checkpoint,
+            evaluation_threshold=threshold,test_evaluated=not skip_test,
             checkpoint_restore_max_prediction_error=error,runtime=runtime_info(),
             label_provenance=PROVENANCE,independent_ground_truth_verified=False,
             scope=reader.manifest['scope'],distributed_training=False,native_ARM64='REQUIRES_HOST_EVIDENCE',
