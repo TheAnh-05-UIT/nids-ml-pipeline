@@ -232,6 +232,58 @@ Output `dataset.h5`: `X`, `y`, `split`, `client`, `metadata`; `manifest.json` gh
 
 `--client 0` hoặc `--client 1` train riêng một partition; **không tự trao đổi weights hoặc gọi Swarm**. Những bước native CNN và Swarm CNN chưa chạy không được ghi PASS.
 
+## Frozen evaluation và validation threshold
+
+`run_training.py calibrate` chọn ngưỡng trên **validation**, không train hoặc chạy
+inference trên test tensors. Grid 0..1 bước 0,001; chọn F1 cao nhất với FPR ≤ `--max-fpr` (mặc định
+0,01), tie chọn threshold cao hơn. Nếu không có ngưỡng hợp lệ thì fail closed;
+không tăng FPR cap bằng cách nhìn kết quả test.
+
+```bash
+# Python 3.11 với TF 2.15.1 / NumPy 1.26.4 / Keras 2.15.0 đã chuẩn bị.
+# NIDS_CHECKPOINT là directory chứa checkpoint.json và weights.bin, không phải .iutfw.
+python -B scripts/run_training.py calibrate \
+  --catalog "$NIDS_CATALOG" --checkpoint "$NIDS_CHECKPOINT" \
+  --max-fpr 0.01 --output artifacts/runs/threshold-01
+
+python -B scripts/run_training.py evaluate \
+  --catalog "$NIDS_CATALOG" --checkpoint "$NIDS_CHECKPOINT" \
+  --threshold-artifact artifacts/runs/threshold-01/threshold.json \
+  --output artifacts/runs/validation-01
+```
+
+Output `threshold.json` có version, checkpoint metadata/weights SHA-256, model và
+catalog ID, validation counts và selection policy. Artifact khác checkpoint/catalog,
+sai hash hoặc sinh từ output FAILED sẽ bị reject. Digest dùng để kiểm integrity,
+không phải chữ ký xác thực. Ngưỡng là decision rule, không đổi CNN/weights/FedAvg.
+
+`evaluate` mặc định dùng validation và threshold 0,5. Có thể dùng `--threshold 0.47`
+cho một operating point thủ công; không dùng cùng `--threshold-artifact`.
+Test chỉ chạy khi nêu cả `--split test --evaluate-test-approved`; calibration không
+có lựa chọn split test. Chỉ evaluate test sau khi khóa policy và được phê duyệt.
+Metrics dùng chính validation chọn ngưỡng mang selection bias, không phải test
+độc lập hoặc bằng chứng tổng quát hóa cho toàn bộ Edge-IIoTset.
+Catalog integrity checks vẫn đọc metadata/counts của các folds. Giới hạn ở đây là
+không đọc test tensor batches, chạy test inference hoặc dùng test predictions để
+chọn threshold; không tắt kiểm tra integrity của catalog.
+
+Local `train` và batch Swarm `client` có `--skip-test`: chỉ train/validation, không
+đọc test tensor batches và không tạo `test-predictions.csv`. Kết quả ghi
+`test.status=SKIPPED_BY_REQUEST`, `test_evaluated=false`; không dùng số 0 làm test
+accuracy giả. Mặc định cũ vẫn đánh giá test cuối run. Ví dụ cấu hình thử local:
+
+```bash
+python -B scripts/run_training.py train --catalog "$NIDS_CATALOG" \
+  --client 0 --epochs 3 --batch-size 64 --skip-test \
+  --output artifacts/runs/validation-trial-01
+```
+
+`--threshold` trên train/client chỉ đổi evaluation decision, không đổi loss hoặc
+weights. Không tái sử dụng threshold artifact của checkpoint cũ cho weights mới.
+Batch client vẫn cần `--execute-approved` để chạy network; job/receipt/API contracts
+và giới hạn hai rounds, 4.096 samples/client/round giữ nguyên. Lệnh trên là hướng
+dẫn CLI trong runtime đã chuẩn bị, không tự triển khai Docker hoặc board.
+
 ## Kiểm thử / Tests
 
 ```bash
