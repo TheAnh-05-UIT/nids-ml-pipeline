@@ -14,6 +14,8 @@ def main(argv=None):
     decode=sub.add_parser('decode',help='Host Python + TShark, continuous source-order decoding')
     decode.add_argument('--mapping',required=True); decode.add_argument('--tshark',required=True)
     decode.add_argument('--tshark-sha256',required=True)
+    decode.add_argument('--decoder-profile',choices=('standard','large-memory'),default='standard',
+        help='standard: 1.5 GiB TShark RSS; large-memory: Linux, 8 GiB available before start, 6 GiB RSS cap')
     export=sub.add_parser('export',help='NumPy/h5py runtime, bounded shard writer')
     export.add_argument('--cache',nargs='+',required=True)
     for cmd in (decode,export):
@@ -27,7 +29,7 @@ def main(argv=None):
         if args.command=='decode':
             from nids_ml.flows.mapped import prepare_cache
             result=prepare_cache(args.mapping,args.workspace,args.output,tshark=args.tshark,
-                                 tshark_sha256=args.tshark_sha256,progress=progress)
+                                 tshark_sha256=args.tshark_sha256,progress=progress,decoder_profile=args.decoder_profile)
         elif args.command=='export':
             from nids_ml.storage.shards import export_shards
             result=export_shards(args.cache,args.workspace,args.output,progress)

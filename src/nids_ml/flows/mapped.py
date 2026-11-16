@@ -21,7 +21,7 @@ from nids_ml.flows.features import CaptureContext, FeaturePacket, configuration
 from nids_ml.labeling.contracts import canonical_bytes, strict_json
 from nids_ml.ordering.view import _new_json
 from nids_ml.pcap.decoder import regular_file, file_sha256, file_signature, map_record, DecoderError
-from nids_ml.pcap.whole import LargeFlowDecoder
+from nids_ml.pcap.whole import LargeFlowDecoder,LargeMemoryFlowDecoder,require_large_memory_start
 
 CACHE_FORMAT='nids-mapped-flow-cache/1.0.0'
 VECTOR=struct.Struct('<10Q')
@@ -140,7 +140,11 @@ def protocol_scope(record):
         return 'UNCERTAIN'
 
 
-def prepare_cache(mapping,workspace,output,*,tshark,tshark_sha256,progress=None):
+def prepare_cache(mapping,workspace,output,*,tshark,tshark_sha256,progress=None,decoder_profile='standard'):
+    require(type(decoder_profile) is str and decoder_profile in ('standard','large-memory'),
+            'UNAPPROVED_FLOW_DECODER_PROFILE')
+    if decoder_profile=='large-memory':require_large_memory_start()
+    decoder_type=LargeFlowDecoder if decoder_profile=='standard' else LargeMemoryFlowDecoder
     workspace=Path(workspace).resolve()
     tool=regular_file(tshark)
     require(file_sha256(tool)==tshark_sha256,'TSHARK_IDENTITY_MISMATCH')
@@ -168,7 +172,7 @@ def prepare_cache(mapping,workspace,output,*,tshark,tshark_sha256,progress=None)
             stats=Counter()
             cursor=iter(mapped.execute('SELECT p.ord,p.ts,w.status,w.cord,c.alabel,c.atype,p.kh FROM p '
                 'LEFT JOIN witnessed w ON w.pord=p.ord LEFT JOIN c ON c.ord=w.cord ORDER BY p.ord'))
-            decoder=LargeFlowDecoder(source,expected_records=report['PCAP']['records'],
+            decoder=decoder_type(source,expected_records=report['PCAP']['records'],
                 expected_sha256=pcap['sha256'],expected_size=pcap['size_bytes'],tshark=tool,tshark_sha256=tshark_sha256)
             with decoder:
                 for record in decoder.records():
@@ -228,7 +232,7 @@ def prepare_cache(mapping,workspace,output,*,tshark,tshark_sha256,progress=None)
                 label_provenance=PROVENANCE,independent_ground_truth_verified=False,
                 configuration=configuration(input_kind='decoded_pcap'),counts=dict(stats),windows=window+1,
                 ordering='SOURCE_CONTIGUOUS_DECODE_THEN_STABLE_TIMESTAMP_ORDINAL_VIEW',
-                processing_digest=digest.hexdigest(),decoder=decoder.report(),
+                processing_digest=digest.hexdigest(),decoder=decoder.report(),decoder_profile=decoder_profile,
                 resources=dict(peak_scratch_bytes=budget.peak_scratch,peak_python_rss_bytes=budget.peak_python_rss),
                 training=False,native_ARM64='NOT VERIFIED')
             db.set_progress_handler(None,0)
@@ -239,7 +243,8 @@ def prepare_cache(mapping,workspace,output,*,tshark,tshark_sha256,progress=None)
         _new_json(output/'manifest.json',result)
         return result
     except Exception as error:
-        _new_json(output/'FAILED.json',dict(status='FAILED_RETAINED',error=str(error),automatic_cleanup=False))
+        _new_json(output/'FAILED.json',dict(status='FAILED_RETAINED',error=str(error),automatic_cleanup=False,
+            decoder_profile=decoder_profile,decoder=None if decoder is None else decoder.report()))
         raise
     finally:
         if decoder is not None: decoder.close()
