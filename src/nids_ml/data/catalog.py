@@ -67,6 +67,8 @@ def build_catalog(inputs,workspace,output,*,seed=42,progress=None):
     output,budget=new_output(output,workspace);db=None;previous=None
     try:
         db=sqlite3.connect(output/'catalog.sqlite')
+        # Register priority UDF on scalar group_id values to avoid a row-by-row Python update pass.
+        db.create_function('nids_priority',1,lambda group:hashlib.sha256((str(seed)+':'+group).encode()).hexdigest())
         db.executescript('PRAGMA page_size=4096; PRAGMA max_page_count=393216; PRAGMA cache_size=-16384; '
             'PRAGMA journal_mode=DELETE; PRAGMA temp_store=FILE; '
             'CREATE TABLE samples(id INTEGER PRIMARY KEY,dataset TEXT,shard INTEGER,row_no INTEGER,sha TEXT,'
@@ -82,7 +84,7 @@ def build_catalog(inputs,workspace,output,*,seed=42,progress=None):
             captures={s['context']['capture_sha256'] for s in m['sources']}
             require(sum(len(s['shards']) for s in sources)+len(m['shards'])<=2048,'GLOBAL_SHARD_COUNT_CAP')
             shard=0;row=0;counts=Counter();families_observed=Counter()
-            for batch in reader.batches(64,metadata=True):
+            for batch in reader.batches(256,metadata=True):
                 for i,y in enumerate(batch['y']):
                     meta=json.loads(batch['metadata'][i].tobytes());group=batch['group_id'][i].decode()
                     sha=batch['tensor_sha256'][i].decode();family=batch['attack_type'][i].decode();y=int(y)
@@ -101,35 +103,43 @@ def build_catalog(inputs,workspace,output,*,seed=42,progress=None):
                     counts[str(y)]+=1;families_observed[family]+=1;total+=1;row+=1
                     require(total<=8000000,'CATALOG_SAMPLE_CAP')
                     if row==m['shards'][shard]['samples']:shard+=1;row=0
-                db.commit();budget.check()
-                if progress and total%4096==0:progress('catalog_ingest',total)
+                    if total%4096==0:
+                        db.commit();budget.check()
+                        if progress:progress('catalog_ingest',total)
+            db.commit();budget.check()
             require(dict(counts)==m['label_counts'] and shard==len(m['shards']) and row==0,'INPUT_OBSERVED_COUNTS')
             require(dict(families_observed)==m['attack_type_counts'],'INPUT_FAMILY_COUNTS')
             require(file_sha256(directory/'manifest.json')==dataset_id,'INPUT_MANIFEST_CHANGED')
             try:hint=directory.relative_to(Path(workspace).resolve()).as_posix()
             except ValueError:hint=str(directory)
             sources.append(dict(dataset_id=dataset_id,owner=owner,path_hint=hint,shards=m['shards']))
-        db.executescript('CREATE INDEX by_sha ON samples(sha); CREATE INDEX by_group ON samples(group_id); '
-            'CREATE TABLE patterns AS SELECT sha,min(id) keeper,count(DISTINCT group_id) ng,count(DISTINCT y) ny '
-            'FROM samples GROUP BY sha; CREATE UNIQUE INDEX pattern_sha ON patterns(sha); '
-            'CREATE TABLE original_groups AS SELECT group_id,count(DISTINCT y) ny,count(DISTINCT coalesce(owner,-1)) no '
-            'FROM samples GROUP BY group_id; CREATE UNIQUE INDEX original_group ON original_groups(group_id);')
-        require(db.execute('SELECT count(*) FROM original_groups WHERE no>1').fetchone()[0]==0,'GROUP_OWNER_CONFLICT')
-        db.execute('UPDATE samples SET eligible=1 WHERE id IN (SELECT keeper FROM patterns WHERE ng=1 AND ny=1) '
-                   'AND group_id IN (SELECT group_id FROM original_groups WHERE ny=1)')
+        db.execute('CREATE INDEX by_sha ON samples(sha)')
+        excluded_patterns=db.execute('SELECT count(*) FROM (SELECT 1 FROM samples INDEXED BY by_sha '
+            'GROUP BY sha HAVING count(DISTINCT group_id)>1 OR count(DISTINCT y)>1)').fetchone()[0]
+        db.execute('UPDATE samples SET eligible=1 WHERE id IN (SELECT min(id) FROM samples INDEXED BY by_sha '
+            'GROUP BY sha HAVING count(DISTINCT group_id)=1 AND count(DISTINCT y)=1)')
+        db.commit();db.execute('DROP INDEX by_sha');db.commit()
+        db.execute('CREATE INDEX by_group ON samples(group_id)')
+        require(not db.execute('SELECT 1 FROM samples INDEXED BY by_group GROUP BY group_id '
+            'HAVING count(DISTINCT coalesce(owner,-1))>1 LIMIT 1').fetchone(),'GROUP_OWNER_CONFLICT')
+        excluded_mixed=db.execute('SELECT count(*) FROM (SELECT 1 FROM samples INDEXED BY by_group '
+            'GROUP BY group_id HAVING count(DISTINCT y)>1)').fetchone()[0]
+        if excluded_mixed:
+            db.execute('UPDATE samples SET eligible=0 WHERE eligible=1 AND group_id IN '
+                '(SELECT group_id FROM samples INDEXED BY by_group GROUP BY group_id HAVING count(DISTINCT y)>1)')
+        db.commit();db.execute('DROP INDEX by_group');db.commit()
+        distinct_families=[f for (f,) in db.execute('SELECT DISTINCT family FROM samples ORDER BY family')]
+        db.execute('DELETE FROM samples WHERE eligible=0');db.commit();db.execute('VACUUM')
         db.executescript('CREATE TABLE groups AS SELECT group_id,min(y) y,min(owner) owner,count(*) n,'
-            'NULL priority,NULL split,NULL client FROM samples WHERE eligible=1 GROUP BY group_id; '
+            'nids_priority(group_id) priority,NULL split,NULL client FROM samples WHERE eligible=1 GROUP BY group_id; '
             'CREATE UNIQUE INDEX group_key ON groups(group_id);')
-        for (group,) in db.execute('SELECT group_id FROM groups ORDER BY group_id'):
-            priority=hashlib.sha256((str(seed)+':'+group).encode()).hexdigest()
-            db.execute('UPDATE groups SET priority=? WHERE group_id=?',(priority,group))
         db.commit();assigned=Counter()
         for owner in (0,1,None):
             for y in (0,1):
                 count=db.execute('SELECT count(*) FROM groups WHERE y=? AND owner IS ?',(y,owner)).fetchone()[0]
                 if count==0:continue
                 require(count>=(4 if owner is None else 3),'INSUFFICIENT_CONNECTION_GROUPS:'+str(y)+':'+str(owner))
-                hold=max(1,count*15//100);train=count-2*hold
+                hold=max(1,count*15//100);train=count-2*hold;batch_updates=[]
                 for number,(group,n) in enumerate(db.execute('SELECT group_id,n FROM groups WHERE y=? AND owner IS ? '
                     'ORDER BY priority,group_id',(y,owner))):
                     split='train' if number<train else 'validation' if number<train+hold else 'test'
@@ -137,22 +147,30 @@ def build_catalog(inputs,workspace,output,*,seed=42,progress=None):
                     if split=='train':
                         client=owner if owner is not None else min((0,1),key=lambda c:(assigned[c,y],c))
                         assigned[client,y]+=n
-                    db.execute('UPDATE groups SET split=?,client=? WHERE group_id=?',(split,client,group))
+                    batch_updates.append((split,client,group))
+                    if len(batch_updates)==2048:
+                        db.executemany('UPDATE groups SET split=?,client=? WHERE group_id=?',batch_updates)
+                        batch_updates=[]
+                if batch_updates:
+                    db.executemany('UPDATE groups SET split=?,client=? WHERE group_id=?',batch_updates)
+        group_count=db.execute('SELECT count(*) FROM groups').fetchone()[0]
         db.execute('UPDATE samples SET split=(SELECT split FROM groups WHERE groups.group_id=samples.group_id),'
                    'client=(SELECT client FROM groups WHERE groups.group_id=samples.group_id) WHERE eligible=1')
-        db.executescript('CREATE INDEX selection ON samples(eligible,split,client,owner); '
-                        'CREATE UNIQUE INDEX location ON samples(dataset,shard,row_no);')
+        db.commit();db.execute('DROP TABLE groups');db.commit()
+        db.executescript('CREATE INDEX by_sha ON samples(eligible,sha); '
+            'CREATE INDEX by_group ON samples(eligible,group_id,split,client); '
+            'CREATE INDEX selection ON samples(eligible,split,client,sha); '
+            'CREATE UNIQUE INDEX location ON samples(dataset,shard,row_no);')
         db.commit();audit(db);budget.check(force=True)
         counts={s:class_counts(db,s) for s in SPLITS}
         clients={str(c):{s:class_counts(db,s,c) for s in SPLITS} for c in (0,1)}
         families=[dict(split=s,family=f,samples=n) for s,f,n in db.execute(
             'SELECT split,family,count(*) FROM samples WHERE eligible=1 GROUP BY split,family ORDER BY split,family')]
-        family_coverage={f:{s:0 for s in SPLITS} for (f,) in db.execute('SELECT DISTINCT family FROM samples ORDER BY family')}
+        family_coverage={f:{s:0 for s in SPLITS} for f in distinct_families}
         for row in families:family_coverage[row['family']][row['split']]=row['samples']
         stats=dict(input_samples=total,retained_samples=db.execute('SELECT count(*) FROM samples WHERE eligible=1').fetchone()[0],
-            excluded_cross_group_or_conflicting_tensor_patterns=db.execute('SELECT count(*) FROM patterns WHERE ng>1 OR ny>1').fetchone()[0],
-            excluded_mixed_label_groups=db.execute('SELECT count(*) FROM original_groups WHERE ny>1').fetchone()[0],
-            groups=db.execute('SELECT count(*) FROM groups').fetchone()[0])
+            excluded_cross_group_or_conflicting_tensor_patterns=excluded_patterns,
+            excluded_mixed_label_groups=excluded_mixed,groups=group_count)
         stats['excluded_samples']=total-stats['retained_samples']
         db.set_progress_handler(None,0)
         db.execute('PRAGMA temp_store_directory='+db.execute('SELECT quote(?)',(previous[0] if previous else '',)).fetchone()[0])
