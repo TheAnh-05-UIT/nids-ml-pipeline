@@ -10,6 +10,7 @@ from .contract import context, encode_weights, fresh_output, read_artifact, requ
 from .job import http_request
 from nids_ml.alignment.full import Budget
 from nids_ml.training.batched import StreamTrainer, TrainingLimits, evaluate, save_checkpoint, restore_checkpoint
+from nids_ml.evaluation.thresholds import validate_threshold
 
 
 class RoundBudget(Budget):
@@ -59,11 +60,12 @@ class BatchTrainer:
                     subset=x.report(),optimizer='Adam reset on every global application')
 
 
-def run_batch_client(cfg, peer, catalog, output, *, workspace, sources=None):
+def run_batch_client(cfg, peer, catalog, output, *, workspace, sources=None,skip_test=False,threshold=.5):
     from user_tf.exchange import MLExchangeClient, ModelExchangeError
     from nids_ml.models.flow_cnn import runtime_info
 
     require(peer in cfg['peers'],'PEER_IDENTITY')
+    require(type(skip_test) is bool,'SKIP_TEST_MUST_BE_BOOL');threshold=validate_threshold(threshold)
     index=sorted(cfg['peers']).index(peer)
     # Validate both round memberships and all local inputs before network/training.
     # Kiểm catalog, subset và đủ data trước khi đăng ký completion hoặc upload.
@@ -71,7 +73,7 @@ def run_batch_client(cfg, peer, catalog, output, *, workspace, sources=None):
     for reader in readers:
         require(reader.manifest['catalog_id']==cfg['catalog_id'] and reader.pool==cfg['pool_samples'][peer]
                 and len(reader)==cfg['samples'][peer], 'CATALOG_JOB_SAMPLE_MISMATCH')
-        for split in ('train','validation','test'):reader.preflight(split,index)
+        for split in (('train','validation') if skip_test else ('train','validation','test')):reader.preflight(split,index)
     target=fresh_output(output);target.mkdir()
     budget=RoundBudget(target,TrainingLimits());records=[];used=set()
     try:
@@ -126,7 +128,7 @@ def run_batch_client(cfg, peer, catalog, output, *, workspace, sources=None):
                     trainer.trainer.predict(batch['X'])-probe.predict(batch['X'])))))
             require(error<=1e-7,'CHECKPOINT_RESTORE')
             record=dict(result,validation=evaluate(trainer.trainer,reader,'validation',index,
-                        batch_size=cfg['batch_size']),checkpoint_restore_max_error=error)
+                        batch_size=cfg['batch_size'],threshold=threshold),checkpoint_restore_max_error=error)
             write_json(target/f'round-{rid}.json',record);records.append(record)
             used.update(result['training']['subset']['sample_ids'])
             receipt={k:result[k] for k in ('round_id','base_version','base_sha256','global_version','global_sha256',
@@ -137,13 +139,16 @@ def run_batch_client(cfg, peer, catalog, output, *, workspace, sources=None):
             print(json.dumps(dict(event='NIDS_BATCH_ROUND_COMPLETED',peer=peer,round_id=rid,
                 samples=result['samples'],global_sha256=sha(raw))),flush=True)
         budget.deadline=None
-        with (target/'test-predictions.csv').open('x',encoding='utf-8',newline='') as stream:
-            test=evaluate(trainer.trainer,readers[-1],'test',index,batch_size=cfg['batch_size'],predictions=stream)
+        test=dict(status='SKIPPED_BY_REQUEST',samples=0)
+        if not skip_test:
+            with (target/'test-predictions.csv').open('x',encoding='utf-8',newline='') as stream:
+                test=evaluate(trainer.trainer,readers[-1],'test',index,batch_size=cfg['batch_size'],predictions=stream,threshold=threshold)
         report=dict(status='PASS_NIDS_BATCH_SWARM_CLIENT',peer_id=peer,client=index,job_id=cfg['job_id'],
             run_id=cfg['run_id'],catalog_id=cfg['catalog_id'],model_id=trainer.spec.identity,
             pool_samples=readers[0].pool,per_round_samples=cfg['samples'][peer],unique_training_samples=len(used),
             full_pool_seen_across_rounds=len(used)==readers[0].pool,subset_policy=SUBSET_POLICY,
             runtime=runtime_info(),rounds=records,test=test,label_provenance='DATASET_PROVIDED_MAPPED',
+            evaluation_threshold=threshold,test_evaluated=not skip_test,
             independent_ground_truth_verified=False,native_ARM64='REQUIRES_HOST_EVIDENCE',
             resources=dict(peak_python_rss_bytes=budget.peak_python_rss,peak_scratch_bytes=budget.peak_scratch))
         write_json(target/'result.json',report);return report

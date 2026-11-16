@@ -115,6 +115,8 @@ def main(argv=None):
             sub.add_argument('--catalog',required=True)
             sub.add_argument('--source',action='append',default=[],help='DATASET_SHA256=LOCAL_SHARDS_DIRECTORY')
             sub.add_argument('--workspace',default=str(Path(__file__).resolve().parents[4]))
+            sub.add_argument('--skip-test',action='store_true')
+            sub.add_argument('--threshold',type=float,default=.5,help='Evaluation threshold only; never changes exchanged weights')
     args=parser.parse_args(argv)
     try:
         if args.command=='bootstrap':
@@ -127,6 +129,9 @@ def main(argv=None):
             report=dict(status='VALID' if args.command=='validate' else 'DRY_RUN',job_id=cfg['job_id'],
                 model_id=template.identity,catalog_id=cfg['catalog_id'],pool_samples=cfg['pool_samples'],
                 per_round_samples=cfg['samples'],subset_policy=SUBSET_POLICY,network_actions=[])
+            if args.command=='client':
+                from nids_ml.evaluation.thresholds import validate_threshold
+                report.update(evaluation_threshold=validate_threshold(args.threshold),test_evaluation_planned=not args.skip_test)
             if args.command=='verify':
                 from .verify import verify_exchange,read_json
                 control=read_json(Path(args.controller)/'result.json')
@@ -141,7 +146,8 @@ def main(argv=None):
                         key,sep,value=entry.partition('=')
                         require(sep and key and value and key not in sources,'SOURCE_OVERRIDE')
                         sources[key]=value
-                    report=run_batch_client(cfg,args.peer_id,args.catalog,args.output,workspace=args.workspace,sources=sources)
+                    report=run_batch_client(cfg,args.peer_id,args.catalog,args.output,workspace=args.workspace,sources=sources,
+                        skip_test=args.skip_test,threshold=args.threshold)
                 else:
                     require(type(args.port) is int and 1<=args.port<=65535,'LISTEN_PORT')
                     if args.command=='controller':report=run_controller(cfg,args.output,args.bind,args.port,template=template)
