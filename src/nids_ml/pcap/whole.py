@@ -149,7 +149,7 @@ class LargeMemoryFlowDecoder(LargeFlowDecoder):
     Giữ TCP state liên tục; dừng child của mình khi vượt RSS hoặc host thiếu RAM.
     """
     limits_type=LargeMemoryFlowDecodeLimits
-    rss_exit_grace_seconds=.05
+    rss_exit_grace_seconds=5.0
 
     def __init__(self,*args,**kwargs):
         available=require_large_memory_start()
@@ -157,8 +157,7 @@ class LargeMemoryFlowDecoder(LargeFlowDecoder):
         self.stats['minimum_host_available_bytes']=available
         self._last_host_memory_check=None
 
-    def _resources(self):
-        super()._resources()
+    def _host_memory_guard(self):
         if not self.stats['memory_probe_available']:
             raise DecoderError('LARGE_MEMORY_RSS_PROBE_UNAVAILABLE')
         now=time.monotonic()
@@ -168,6 +167,14 @@ class LargeMemoryFlowDecoder(LargeFlowDecoder):
             self.stats['minimum_host_available_bytes']=min(self.stats['minimum_host_available_bytes'],available)
             if available<LARGE_MEMORY_RESERVE_BYTES:
                 raise DecoderError('HOST_AVAILABLE_MEMORY_BELOW_1_GIB_RESERVE')
+
+    def _resources(self):
+        super()._resources()
+        self._host_memory_guard()
+
+    def _rss_exit_wait_resources(self):
+        super()._rss_exit_wait_resources()
+        self._host_memory_guard()
 
     def report(self):
         result=super().report()

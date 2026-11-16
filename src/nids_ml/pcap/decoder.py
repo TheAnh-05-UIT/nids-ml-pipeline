@@ -421,6 +421,34 @@ class TSharkDecoder:
         except (OSError,ValueError) as error:
             if not self.stop.is_set():self.reader_error='STDERR_READ_ERROR:'+type(error).__name__
 
+    def _rss_exit_wait_resources(self):
+        """Keep parent and deadline guards active while an owned child exits.
+        Vẫn đo RAM Python và timeout trong lúc chờ child giải phóng bộ nhớ.
+        """
+        if time.monotonic()-self.started>self.limits.timeout_seconds:raise DecoderError('DECODER_TIMEOUT')
+        if self.reader_error:raise DecoderError(self.reader_error)
+        rss=process_rss(os.getpid())
+        if rss is None:self.stats['memory_probe_available']=False
+        else:
+            self.stats['peak_python_rss_bytes']=max(self.stats['peak_python_rss_bytes'],rss)
+            if rss>self.limits.python_rss_bytes:raise DecoderError('PYTHON_RSS_ABORT_THRESHOLD')
+
+    def _wait_for_rss_child_exit(self):
+        started=time.monotonic()
+        deadline=min(started+min(self.rss_exit_grace_seconds,self.limits.close_seconds),
+                     self.started+self.limits.timeout_seconds)
+        try:
+            while True:
+                returncode=self.process.poll()
+                if returncode is not None:return returncode
+                self._rss_exit_wait_resources()
+                remaining=deadline-time.monotonic()
+                if remaining<=0:return None
+                try:return self.process.wait(timeout=min(.05,remaining))
+                except subprocess.TimeoutExpired:continue
+        finally:
+            self.stats['rss_exit_wait_seconds']=self.stats.get('rss_exit_wait_seconds',0.)+time.monotonic()-started
+
     def _resources(self):
         if time.monotonic()-self.started>self.limits.timeout_seconds:raise DecoderError('DECODER_TIMEOUT')
         if self.reader_error:raise DecoderError(self.reader_error)
@@ -429,13 +457,12 @@ class TSharkDecoder:
             if name=='decoder' and self.process.poll() is not None:continue
             rss=process_rss(pid)
             if rss is None:
-                # Child exit can remove /proc RSS between poll() and the read.
-                # Chi bo mau RSS khi child cua minh da thoat; child con song van fail closed.
+                # Linux can clear RSS before a large address space finishes teardown.
+                # Chỉ chấp nhận khi wait/poll xác nhận child đã thoát; không bỏ qua child sống.
                 if name=='decoder':
                     returncode=self.process.poll()
                     if returncode is None and self.rss_exit_grace_seconds>0:
-                        try:returncode=self.process.wait(timeout=min(self.rss_exit_grace_seconds,self.limits.close_seconds))
-                        except subprocess.TimeoutExpired:returncode=None
+                        returncode=self._wait_for_rss_child_exit()
                     if returncode is not None:
                         self.stats['child_exits_during_rss_probe']=self.stats.get('child_exits_during_rss_probe',0)+1
                         continue
