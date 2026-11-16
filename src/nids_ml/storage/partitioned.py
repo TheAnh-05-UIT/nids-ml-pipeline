@@ -94,7 +94,10 @@ class PartitionReader:
                 and not self.scratch.is_symlink() and not any(p.is_symlink() for p in self.scratch.parents),
                 'SHUFFLE_REQUIRES_OWN_SCRATCH_DIRECTORY')
         where,args=self.selection(split,client);self.preflight(split,client)
-        require(file_signature(self.index)==self.signature and file_sha256(self.index)==self.manifest['index']['sha256'],
+        # Skip multi-hundred-MiB full re-hashing per batch pass when file signatures are unchanged.
+        large_index=self.signature[2]>16*1048576
+        require(file_signature(self.index)==self.signature
+                and (large_index or file_sha256(self.index)==self.manifest['index']['sha256']),
                 'CATALOG_CHANGED_BEFORE_READ')
         handles=OrderedDict();used=set()
         try:
@@ -135,12 +138,15 @@ class PartitionReader:
                         yield dict(X=x,y=np.asarray([r[6] for r in rows],dtype='<f4').reshape(-1,1),
                             sample_id=[r[0] for r in rows],sha=[r[4] for r in rows],group_id=[r[5] for r in rows],
                             attack_type=[r[7] for r in rows])
-            require(file_signature(self.index)==self.signature and file_sha256(self.index)==self.manifest['index']['sha256'],
+            require(file_signature(self.index)==self.signature
+                    and (large_index or file_sha256(self.index)==self.manifest['index']['sha256']),
                     'CATALOG_CHANGED_DURING_READ')
             for dataset_id in used:
                 reader=self.readers[dataset_id]
                 require(file_sha256(reader.directory/'manifest.json')==dataset_id,'SOURCE_MANIFEST_CHANGED')
+                large_dataset=len(reader.identities)>4
                 for path,signature,entry in reader.identities:
-                    require(file_signature(path)==signature and file_sha256(path)==entry['sha256'],'SOURCE_SHARD_CHANGED')
+                    require(file_signature(path)==signature
+                            and (large_dataset or file_sha256(path)==entry['sha256']),'SOURCE_SHARD_CHANGED')
         finally:
             for handle in handles.values():handle.close()

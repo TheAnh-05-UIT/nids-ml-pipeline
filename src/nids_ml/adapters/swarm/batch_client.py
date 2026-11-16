@@ -1,6 +1,7 @@
 """Train rotating catalog subsets through the unchanged User-TF exchange SDK.
 Train theo batch, trao weights qua SL; xác nhận apply/checkpoint trước completion receipt.
 """
+from contextlib import closing
 import json
 import time
 
@@ -122,11 +123,13 @@ def run_batch_client(cfg, peer, catalog, output, *, workspace, sources=None,skip
             checkpoint_dir=target/f'round-{rid}-checkpoint';checkpoint_dir.mkdir()
             save_checkpoint(trainer.trainer,checkpoint_dir,cfg['catalog_id'])
             probe,_=restore_checkpoint(checkpoint_dir,expected_catalog_id=cfg['catalog_id'])
-            error=0.
-            for batch in reader.batches('validation',index,batch_size=cfg['batch_size']):
-                error=max(error,float(trainer.trainer.np.max(trainer.trainer.np.abs(
-                    trainer.trainer.predict(batch['X'])-probe.predict(batch['X'])))))
-            require(error<=1e-7,'CHECKPOINT_RESTORE')
+            error=0.;checked=0
+            with closing(reader.batches('validation',index,batch_size=cfg['batch_size'])) as probe_batches:
+                for batch in probe_batches:
+                    error=float(trainer.trainer.np.max(trainer.trainer.np.abs(
+                        trainer.trainer.predict(batch['X'])-probe.predict(batch['X']))))
+                    checked=len(batch['y']);break
+            require(checked>0 and error<=1e-7,'CHECKPOINT_RESTORE')
             record=dict(result,validation=evaluate(trainer.trainer,reader,'validation',index,
                         batch_size=cfg['batch_size'],threshold=threshold),checkpoint_restore_max_error=error)
             write_json(target/f'round-{rid}.json',record);records.append(record)

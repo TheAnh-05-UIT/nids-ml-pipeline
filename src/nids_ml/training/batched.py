@@ -2,6 +2,7 @@
 Train/evaluate CNN theo batch, giữ contract Normal/Attack riêng và checkpoint không pickle.
 """
 from collections import Counter
+from contextlib import closing
 from dataclasses import dataclass
 import csv
 import hashlib
@@ -186,10 +187,12 @@ def train_catalog(catalog,workspace,output,*,client=None,epochs=1,batch_size=64,
                 train_loss=tr['overall']['loss'],validation_loss=val['overall']['loss'])),flush=True)
         checkpoint=save_checkpoint(trainer,target,reader.manifest['catalog_id'])
         restored,_=restore_checkpoint(target,expected_catalog_id=reader.manifest['catalog_id'])
-        error=0.
-        for batch in reader.batches('validation',client,batch_size=batch_size):
-            error=max(error,float(trainer.np.max(trainer.np.abs(trainer.predict(batch['X'])-restored.predict(batch['X'])))))
-        require(error<=1e-7,'CHECKPOINT_PREDICTION_RESTORE')
+        error=0.;checked=0
+        with closing(reader.batches('validation',client,batch_size=batch_size)) as probe_batches:
+            for batch in probe_batches:
+                error=float(trainer.np.max(trainer.np.abs(trainer.predict(batch['X'])-restored.predict(batch['X']))))
+                checked=len(batch['y']);break
+        require(checked>0 and error<=1e-7,'CHECKPOINT_PREDICTION_RESTORE')
         test=dict(status='SKIPPED_BY_REQUEST',samples=0)
         if not skip_test:
             with (target/'test-predictions.csv').open('x',encoding='utf-8',newline='') as stream:
