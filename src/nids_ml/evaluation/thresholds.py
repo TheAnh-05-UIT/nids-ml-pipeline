@@ -5,6 +5,7 @@ from fractions import Fraction
 import math
 from pathlib import Path
 
+from nids_ml.alignment.full import Budget
 from nids_ml.flows.mapped import new_output, require, PROVENANCE
 from nids_ml.labeling.contracts import canonical_bytes, strict_json
 from nids_ml.ordering.view import _new_json
@@ -144,10 +145,11 @@ def _unchanged(trainer, checkpoint, binding):
 
 def calibrate_checkpoint(checkpoint, catalog, workspace, output, *, client=None, batch_size=64,
                          max_fpr=.01, sources=None):
-    from nids_ml.training.batched import evaluate
+    from nids_ml.training.batched import TrainingLimits, evaluate
     require(type(batch_size) is int and 1 <= batch_size <= 128, 'BATCH_SIZE_1_TO_128')
     sweep = ThresholdSweep(max_fpr)
-    target, budget = new_output(output, workspace)
+    target, _ = new_output(output, workspace)
+    budget = Budget(target, TrainingLimits())
     try:
         reader, trainer, binding = _frozen(checkpoint, catalog, workspace, sources, target, budget, client, 'validation')
         seen = 0
@@ -189,7 +191,7 @@ def calibrate_checkpoint(checkpoint, catalog, workspace, output, *, client=None,
 def evaluate_checkpoint(checkpoint, catalog, workspace, output, *, split='validation', client=None,
                         batch_size=64, threshold=.5, threshold_artifact=None, sources=None,
                         evaluate_test_approved=False):
-    from nids_ml.training.batched import evaluate
+    from nids_ml.training.batched import TrainingLimits, evaluate
     from nids_ml.storage.partitioned import PartitionReader
     require(split in ('validation', 'test') and type(evaluate_test_approved) is bool,
             'EVALUATION_SPLIT')
@@ -204,7 +206,8 @@ def evaluate_checkpoint(checkpoint, catalog, workspace, output, *, split='valida
     if decision is not None:
         require(threshold == .5, 'THRESHOLD_AND_ARTIFACT_ARE_EXCLUSIVE')
         threshold = decision['threshold']
-    target, budget = new_output(output, workspace)
+    target, _ = new_output(output, workspace)
+    budget = Budget(target, TrainingLimits())
     try:
         reader, trainer, binding_after = _frozen(checkpoint, catalog, workspace, sources, target, budget, client, split)
         require(binding == binding_after, 'CHECKPOINT_CHANGED_BEFORE_EVALUATION')
