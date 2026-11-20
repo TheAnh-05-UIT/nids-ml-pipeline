@@ -264,12 +264,19 @@ class PDMLParser:
 
 
 class ScenarioPDMLParser(PDMLParser):
-    """Quarantine oversized protocol stacks without storing or truncating features.
-    Quarantine stack protocol quá dài; không cắt chuỗi rồi tạo features giả.
+    """Ignore opaque data values; quarantine oversized feature protocol stacks.
+    Bỏ giá trị payload không dùng; quarantine stack protocol quá dài của features.
     """
 
     def _start(self,name,attrs):
         if name=='packet':self.unsafe_protocol_stack=False
+        # TShark can attach a reassembled opaque payload to a small frame. Its
+        # hex value is not selected metadata or a LUCID feature. Discard only
+        # that value; retain structure, field count and packet byte budgets.
+        # Payload hex không đi vào features; chỉ bỏ value của field data,
+        # giữ guard cấu trúc/số fields/bytes và mọi metadata được chọn.
+        if name=='field' and attrs.get('name')=='data' and len(attrs.get('value',''))>65536:
+            attrs={k:v for k,v in attrs.items() if k!='value'}
         if name=='field' and attrs.get('name')=='frame.protocols' and any(
                 attrs.get(key) is not None and len(attrs[key])>512 for key in ('show','value')):
             self.unsafe_protocol_stack=True

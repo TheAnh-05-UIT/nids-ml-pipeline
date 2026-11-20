@@ -268,9 +268,11 @@ class ScenarioTests(unittest.TestCase):
         code='''
 import json,sys
 from unittest.mock import patch
+from types import SimpleNamespace
 v=json.loads(sys.argv[1]);sys.path.insert(0,v['repo'])
 from nids_ml.flows.pcap_stream import stream_scenario
-with patch('nids_ml.pcap.whole.available_memory_bytes',return_value=10*1024**3):
+with patch('nids_ml.pcap.whole.available_memory_bytes',return_value=10*1024**3), \
+     patch('shutil.disk_usage',return_value=SimpleNamespace(free=10*1024**3)):
     r=stream_scenario(v['source'],v['output'],None,policy_path=v['policy'],policy_sha=v['policy_sha'],
         source_id='normal-test',tshark=v['tool'],tshark_sha256=v['tool_sha'],preflight_only=True)
 assert r['process_started'] is False

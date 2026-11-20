@@ -228,6 +228,10 @@ class PcapStreamTests(unittest.TestCase):
 
 
 class SourceRecordTests(unittest.TestCase):
+    def setUp(self):
+        disk=patch('shutil.disk_usage',return_value=SimpleNamespace(free=10*1024**3))
+        disk.start();self.addCleanup(disk.stop)
+
     def test_quarantine_after_n20_still_excludes_flow_and_outside_updates_anchor(self):
         with tempfile.TemporaryDirectory() as tmp:
             ctx=CaptureContext.from_dict(context())

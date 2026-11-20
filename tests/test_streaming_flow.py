@@ -23,6 +23,8 @@ from flow_extraction_fixtures import bundle, context, packet
 
 class StreamingFlowTests(unittest.TestCase):
     def setUp(self):
+        disk=patch('shutil.disk_usage',return_value=shutil_usage(10*1024**3))
+        disk.start();self.addCleanup(disk.stop)
         self.temp = tempfile.TemporaryDirectory()
         self.addCleanup(self.temp.cleanup)
         self.parent = Path(self.temp.name)
@@ -248,7 +250,12 @@ class StreamingFlowTests(unittest.TestCase):
         import subprocess
         fixture = self.parent/'fixture.json'
         fixture.write_text(json.dumps(bundle()), encoding='utf-8')
-        command = [sys.executable, '-B', str(ROOT/'scripts/validate_flow_extraction.py'),
+        # Run the actual CLI in an isolated synthetic-capacity child process.
+        # CLI thật; chỉ mock disk cho fixture, không cần 512 MiB trống để test 5 packets.
+        wrapper = ('import runpy,sys\nfrom unittest.mock import patch\nfrom types import SimpleNamespace\n'
+                   "script=sys.argv.pop(1)\nwith patch('shutil.disk_usage',return_value=SimpleNamespace(free=10*1024**3)):\n"
+                   " runpy.run_path(script,run_name='__main__')")
+        command = [sys.executable, '-B', '-c', wrapper, str(ROOT/'scripts/validate_flow_extraction.py'),
                    'validate-stream', '--fixture', str(fixture), '--scratch', str(self.parent/'cli'),
                    '--max-lateness-ns', '0']
         result = subprocess.run(command, capture_output=True, text=True)

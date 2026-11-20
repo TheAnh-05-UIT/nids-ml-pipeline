@@ -350,6 +350,11 @@ toàn bộ, kể cả lỗi ở packet sau n=20. Nhánh scenario đánh dấu pr
 dài là không đủ điều kiện và quarantine global window, không cắt chuỗi rồi tạo
 features khác. Các profile parser/decoder cũ giữ guard hiện có.
 
+Parser scenario bỏ qua riêng `value` quá dài của opaque field `data`: payload hex
+không thuộc 11 features hoặc metadata được chọn. Không cắt/đổi numeric features,
+không đổi nhãn, không bỏ packet. Guard packet bytes, XML depth, attribute/field
+count và selected-field size vẫn giữ nguyên; parser legacy vẫn từ chối input đó.
+
 HDF5 dùng format riêng `nids-scenario-flow-shards/1.0.0`, cùng X/y/layout theo
 shard của pipeline hiện tại. Metadata giữ source SHA, policy SHA, nhãn yếu và
 `PUBLISHER_TRAIN`/`PUBLISHER_TEST`. Group identity dùng dataset cha + 5-tuple,
