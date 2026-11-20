@@ -16,6 +16,13 @@ def main(argv=None):
     prepare.add_argument('--local-0',nargs='+',default=[]);prepare.add_argument('--local-1',nargs='+',default=[])
     prepare.add_argument('--seed',type=int,default=42);prepare.add_argument('--output',required=True)
     inspect=commands.add_parser('inspect');inspect.add_argument('--catalog',required=True)
+    scenario_catalog=commands.add_parser('scenario-catalog',help='Official test retained, validation only from train; all approved scenario sources required')
+    scenario_catalog.add_argument('--dataset',nargs='+',required=True)
+    scenario_catalog.add_argument('--seed',type=int,default=42);scenario_catalog.add_argument('--output',required=True)
+    scenario_inspect=commands.add_parser('scenario-inspect',help='Read-only inspection of scenario catalog batches; no model training')
+    scenario_inspect.add_argument('--catalog',required=True)
+    for command in (scenario_catalog,scenario_inspect):
+        command.add_argument('--policy',required=True);command.add_argument('--policy-sha256',required=True)
     training=commands.add_parser('train');training.add_argument('--catalog',required=True)
     training.add_argument('--output',required=True);training.add_argument('--epochs',type=int,default=1)
     training.add_argument('--seed',type=int,default=42)
@@ -35,11 +42,11 @@ def main(argv=None):
     choice=frozen.add_mutually_exclusive_group()
     choice.add_argument('--threshold',type=float)
     choice.add_argument('--threshold-artifact')
-    for command in (inspect,training,*calibration_commands):
+    for command in (inspect,training,scenario_inspect,*calibration_commands):
         command.add_argument('--client',type=int,choices=(0,1))
         command.add_argument('--batch-size',type=int,default=64)
         command.add_argument('--source',action='append',default=[],help='Portable override: DATASET_SHA256=LOCAL_DIRECTORY')
-    for command in (prepare,inspect,training,*calibration_commands):
+    for command in (prepare,inspect,training,scenario_catalog,scenario_inspect,*calibration_commands):
         command.add_argument('--workspace',default=str(Path(__file__).resolve().parents[3]))
     args=parser.parse_args(argv)
     try:
@@ -48,7 +55,12 @@ def main(argv=None):
             key,separator,path=value.partition('=')
             if not separator or not path or key in sources:raise ValueError('INVALID_OR_DUPLICATE_SOURCE_OVERRIDE')
             sources[key]=path
-        if args.command=='catalog':
+        if args.command=='scenario-catalog':
+            from nids_ml.data.scenario_catalog import build_scenario_catalog
+            result=build_scenario_catalog(args.dataset,args.workspace,args.output,
+                policy_path=args.policy,policy_sha=args.policy_sha256,seed=args.seed,
+                progress=lambda stage,records:print(json.dumps(dict(stage=stage,records=records)),flush=True))
+        elif args.command=='catalog':
             from nids_ml.data.catalog import build_catalog
             inputs=[(p,None) for p in args.dataset]+[(p,0) for p in args.local_0]+[(p,1) for p in args.local_1]
             result=build_catalog(inputs,args.workspace,args.output,seed=args.seed,
@@ -69,15 +81,19 @@ def main(argv=None):
                     split=args.split,threshold=.5 if args.threshold is None else args.threshold,
                     threshold_artifact=args.threshold_artifact,evaluate_test_approved=args.evaluate_test_approved,**common)
         else:
-            from nids_ml.storage.partitioned import PartitionReader
-            reader=PartitionReader(args.catalog,args.workspace,sources=sources);observed={}
+            from nids_ml.storage.partitioned import PartitionReader,ScenarioPartitionReader
+            if args.command=='scenario-inspect':
+                reader=ScenarioPartitionReader(args.catalog,args.workspace,sources=sources,
+                                               policy_path=args.policy,policy_sha=args.policy_sha256)
+            else:reader=PartitionReader(args.catalog,args.workspace,sources=sources)
+            observed={}
             for split in ('train','validation','test'):
                 counts=Counter()
                 for batch in reader.batches(split,args.client,batch_size=args.batch_size):
                     counts.update(str(int(y)) for y in batch['y'][:,0])
                 if dict(counts)!=reader.counts(split,args.client):raise ValueError('INSPECT_OBSERVED_COUNTS')
                 observed[split]=dict(counts)
-            result=dict(status='PASS_PARTITION_INSPECTION',catalog_id=reader.manifest['catalog_id'],
+            result=dict(status='PASS_SCENARIO_CATALOG_INSPECTION' if args.command=='scenario-inspect' else 'PASS_PARTITION_INSPECTION',catalog_id=reader.manifest['catalog_id'],
                 client=args.client,observed=observed,training=False,native_ARM64='NOT VERIFIED')
         print(json.dumps(result,sort_keys=True,allow_nan=False));return 0
     except (ValueError,TypeError,KeyError,OSError,RuntimeError,ImportError,sqlite3.Error) as error:

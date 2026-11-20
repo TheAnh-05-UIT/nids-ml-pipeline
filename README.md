@@ -369,6 +369,51 @@ Source map: `labeling/scenario.py` giữ policy/label binding;
 `data/scenario_audit.py` kiểm overlap giữa các split. Lệnh native và evidence
 nằm ngoài repo source trong task documentation.
 
+### MQTT catalog / Chia dữ liệu scenario có kiểm soát
+
+Sau khi có HDF5 **đầy đủ cả sáu nguồn** đã duyệt, dùng `run_training.py`
+để tạo catalog; các lệnh này không chạy model hoặc Swarm:
+
+```bash
+python -B scripts/run_training.py scenario-catalog --help
+python -B scripts/run_training.py scenario-inspect --help
+```
+
+`scenario-catalog --dataset DIR1 DIR2 DIR3 DIR4 DIR5 DIR6 --output NEW_DIR`
+cần thêm `--policy configs/mqtt-scenarios-v1.json --policy-sha256 SHA256`.
+Policy SHA đã duyệt là
+`73dcd49552f65ce0205aecc973b615b5890ad380b124f06dfb801d2f90c36874`.
+Output mới phải nằm dưới `artifacts/runs/`; không ghi đè artifact cũ.
+`scenario-inspect --catalog NEW_DIR` nhận cùng policy/hash để đọc và đối chiếu
+toàn bộ batch. Có thể dùng `--source DATASET_SHA256=LOCAL_DIRECTORY` khi chuyển
+HDF5 sang máy khác; checksum trong catalog vẫn phải trùng.
+
+Catalog giữ **membership test do publisher cung cấp**, lấy validation khoảng
+15% số connection groups trong từng lớp/family của official train, còn lại
+giao hai client theo group. Không phải chia ngẫu nhiên từng packet/flow.
+Connection identity là dataset cha + bidirectional 5-tuple; train group có
+xuất hiện trong official test bị loại khỏi train. Vì chính sách này bảo thủ,
+các kết nối dài hoặc tái dùng tuple có thể bị loại nhiều. Catalog không tự nới
+chính sách khi thiếu lớp hoặc quá ít groups.
+
+Tensor giống nhau trong cùng group/split giữ một bản; tensor giống nhau ở
+nhiều groups/nhãn và groups có cả hai nhãn bị loại. Báo cáo ghi rõ số bị loại,
+phân bố lớp/family và số mẫu từng client. Test sau lọc là **tập con của official
+test**, không phải kết quả trên mọi packet của test gốc. Không có bước biến
+UNKNOWN/quarantine thành Normal.
+
+`data/scenario_catalog.py` thực hiện catalog; `ScenarioPartitionReader` trong
+`storage/partitioned.py` đọc batch tối đa 128 mẫu, tối đa 8 HDF5 handles, kiểm
+source lineage và vị trí từng row. SQLite cache 16 MiB, database tối đa 1,5 GiB,
+scratch có budget và kiểm dung lượng; vượt budget thì giữ FAILED artifact và
+dừng. Khả năng đủ tài nguyên cho toàn bộ MQTT chưa được xác minh trên board.
+
+`training_ready=true` của catalog chỉ xác nhận data contract sau audit; chưa
+chứng minh đã chạy model. Format scenario tách biệt với mapped-label catalog:
+các lệnh `train/calibrate/evaluate` và batch Swarm hiện tại vẫn chỉ nhận format
+mapped. Cần tích hợp training adapter scenario sau khi kiểm catalog thực tế.
+`tests/test_scenario_catalog.py` dùng fixtures tổng hợp, không phải MQTT metrics.
+
 Lõi streaming thử nghiệm nằm ở `src/nids_ml/flows/streaming.py`: heap có giới hạn
 sắp theo timestamp/ordinal, SQLite chỉ giữ một window 10 giây, rồi tái dùng
 normalization, padding và n=20 của LUCID hiện có. Caller phải xử lý từng tensor;

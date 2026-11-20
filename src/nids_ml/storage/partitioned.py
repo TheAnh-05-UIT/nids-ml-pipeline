@@ -13,14 +13,27 @@ from nids_ml.storage.shards import FlowShardReader
 
 
 class PartitionReader:
+    format=FORMAT
+    provenance=PROVENANCE
+    completion_status='COMPLETE_CONNECTION_CATALOG'
+    catalog_identity=staticmethod(identity)
+    catalog_audit=staticmethod(audit)
+
+    def manifest_scope(self,m):
+        pass
+
+    def source_reader(self,path):
+        return FlowShardReader(path)
+
     def __init__(self,directory,workspace=None,*,sources=None,scratch=None,budget=None):
         self.directory=Path(directory).absolute();self.manifest=read_manifest(self.directory)
         self.workspace=Path(workspace or Path(__file__).resolve().parents[3]).resolve()
         m=self.manifest
-        require(m['format']==FORMAT and m['status']=='COMPLETE_CONNECTION_CATALOG'
-            and m['training_ready'] is True and m['label_provenance']==PROVENANCE
+        require(m['format']==self.format and m['status']==self.completion_status
+            and m['training_ready'] is True and m['label_provenance']==self.provenance
             and m['independent_ground_truth_verified'] is False,'READY_NIDS_CATALOG_REQUIRED')
-        require(m['catalog_id']==identity(m) and m['index']['filename']=='catalog.sqlite','CATALOG_IDENTITY')
+        self.manifest_scope(m)
+        require(m['catalog_id']==self.catalog_identity(m) and m['index']['filename']=='catalog.sqlite','CATALOG_IDENTITY')
         self.index=regular_file(self.directory/'catalog.sqlite');self.signature=file_signature(self.index)
         require(self.index.stat().st_size==m['index']['bytes']<=1536*1048576
                 and file_sha256(self.index)==m['index']['sha256'],'CATALOG_INDEX_SHA256')
@@ -33,7 +46,7 @@ class PartitionReader:
         require(set(self.overrides)<=set(self.inputs),'UNKNOWN_SOURCE_OVERRIDE')
         self.readers={}
         with readonly(self.index) as db:
-            audit(db)
+            self.catalog_audit(db)
             require({s:class_counts(db,s) for s in SPLITS}==m['split_counts'],'CATALOG_GLOBAL_COUNTS')
             require({str(c):{s:class_counts(db,s,c) for s in SPLITS} for c in (0,1)}==m['client_counts'],
                     'CATALOG_CLIENT_COUNTS')
@@ -59,7 +72,7 @@ class PartitionReader:
             if not path.is_absolute():path=self.workspace/path
             require(path.is_dir(),'LOCAL_DATASET_MISSING:'+dataset_id)
             require(file_sha256(regular_file(path/'manifest.json'))==dataset_id,'LOCAL_DATASET_IDENTITY')
-            reader=FlowShardReader(path)
+            reader=self.source_reader(path)
             require(reader.manifest['shards']==source['shards'],'LOCAL_SHARD_IDENTITY')
             self.readers[dataset_id]=reader
         return self.readers[dataset_id]
@@ -150,3 +163,54 @@ class PartitionReader:
                             and (large_dataset or file_sha256(path)==entry['sha256']),'SOURCE_SHARD_CHANGED')
         finally:
             for handle in handles.values():handle.close()
+
+
+class ScenarioPartitionReader(PartitionReader):
+    """Read the same bounded batch protocol with explicit approved-scenario scope.
+    Đọc batch cùng giao diện, nhưng bắt buộc policy/provenance scenario riêng.
+    """
+
+    def __init__(self,directory,workspace=None,*,policy_path,policy_sha,**kwargs):
+        from nids_ml.data.scenario_catalog import FORMAT as SCENARIO_FORMAT,identity as scenario_identity
+        from nids_ml.labeling.scenario import load_policy,PROVENANCE as SCENARIO_PROVENANCE
+        self.policy,self.policy_sha=load_policy(policy_path,policy_sha)
+        self.policy_path=policy_path
+        self.format=SCENARIO_FORMAT;self.provenance=SCENARIO_PROVENANCE
+        self.completion_status='COMPLETE_SCENARIO_CATALOG'
+        self.catalog_identity=scenario_identity;self.catalog_audit=self.audit_database
+        super().__init__(directory,workspace,**kwargs)
+
+    def manifest_scope(self,m):
+        from nids_ml.data.scenario_catalog import POLICY
+        from nids_ml.labeling.scenario import FAMILIES
+        require(len(self.policy['sources'])==6 and {(r['attack_type'],r['publisher_split']) for r in self.policy['sources']}
+                =={(family,split) for family in FAMILIES for split in ('train','test')},'SCENARIO_SIX_SOURCE_SPLIT_SCOPE')
+        require(m['policy_sha256']==self.policy_sha and m['split_policy']==POLICY
+                and {s['source_id'] for s in m['sources']}=={s['source_id'] for s in self.policy['sources']}
+                and len(m['sources'])==len(self.policy['sources'])
+                and all(s['owner'] is None for s in m['sources']),'SCENARIO_CATALOG_POLICY_SCOPE')
+        rules={r['source_id']:r for r in self.policy['sources']}
+        require(all(s['publisher_split']==rules[s['source_id']]['publisher_split'] for s in m['sources']),
+                'SCENARIO_CATALOG_SOURCE_SPLIT')
+
+    def audit_database(self,db):
+        from nids_ml.data.scenario_catalog import audit_catalog
+        audit_catalog(db)
+        require({r[0] for r in db.execute('SELECT DISTINCT dataset FROM samples')}<=set(self.inputs),
+                'SCENARIO_CATALOG_UNKNOWN_DATASET')
+        for dataset_id,source in self.inputs.items():
+            require(db.execute('SELECT count(*) FROM samples WHERE dataset=? AND publisher!=?',
+                (dataset_id,source['publisher_split'])).fetchone()[0]==0,'SCENARIO_CATALOG_SOURCE_MEMBERSHIP')
+        families=[dict(split=s,family=f,samples=n) for s,f,n in db.execute(
+            'SELECT split,family,count(*) FROM samples GROUP BY split,family ORDER BY split,family')]
+        require(families==self.manifest['attack_type_counts'],'SCENARIO_CATALOG_FAMILY_COUNTS')
+
+    def source_reader(self,path):
+        from nids_ml.storage.scenario import ScenarioShardReader
+        return ScenarioShardReader(path,self.policy_path,self.policy_sha)
+
+    def dataset(self,dataset_id):
+        reader=super().dataset(dataset_id);source=self.inputs[dataset_id]
+        require(reader.manifest['source_id']==source['source_id']
+                and reader.manifest['publisher_split']==source['publisher_split'],'SCENARIO_LOCAL_SOURCE_LINEAGE')
+        return reader
