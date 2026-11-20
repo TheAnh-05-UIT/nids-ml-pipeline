@@ -6,7 +6,7 @@ RSS thresholds là ngưỡng abort được lấy mẫu, không là OS hard memo
 """
 from collections import deque
 from functools import lru_cache
-from dataclasses import asdict, dataclass
+from dataclasses import asdict, dataclass, replace
 import hashlib
 import os
 from pathlib import Path
@@ -113,6 +113,7 @@ class PDMLRecord:
     layers:tuple
     all_protocols:tuple
     fields:tuple
+    quarantine_reason:str|None=None
 
     def field(self,name,*,protocol=None):
         values=[x for x in self.fields if x.name==name]
@@ -262,9 +263,29 @@ class PDMLParser:
         while self.records:yield self.records.popleft()
 
 
+class ScenarioPDMLParser(PDMLParser):
+    """Quarantine oversized protocol stacks without storing or truncating features.
+    Quarantine stack protocol quá dài; không cắt chuỗi rồi tạo features giả.
+    """
+
+    def _start(self,name,attrs):
+        if name=='packet':self.unsafe_protocol_stack=False
+        if name=='field' and attrs.get('name')=='frame.protocols' and any(
+                attrs.get(key) is not None and len(attrs[key])>512 for key in ('show','value')):
+            self.unsafe_protocol_stack=True
+            attrs={k:v for k,v in attrs.items() if k not in ('show','value')}
+        super()._start(name,attrs)
+
+    def _end(self,name):
+        super()._end(name)
+        if name=='packet' and self.unsafe_protocol_stack:
+            self.records[-1]=replace(self.records[-1],quarantine_reason='OVERSIZED_PROTOCOL_STACK')
+
+
 def map_record(record,context,*,return_feature=False):
     """Ánh xạ packet thật sang scope decoded_pcap, giữ metadata ngoài features."""
     if type(return_feature) is not bool:raise DecoderError('EXPLICIT_FEATURE_RETURN_FLAG')
+    if record.quarantine_reason is not None:raise IneligiblePacket(record.quarantine_reason)
     ordinal=record.number('frame.number');timestamp=record.timestamp_ns()
     if record.layers[:2]!=('geninfo','frame'):
         raise DecoderError('GENINFO_FRAME_LAYER_ORDER')
@@ -371,6 +392,7 @@ def sys_platform_linux():
 class TSharkDecoder:
     """Session sở hữu đúng một child process; caller phải drain hoặc close."""
 
+    parser_type=PDMLParser
     protocol_tree_filter=None
     protocol_tree_filter_flag='-J'
     rss_exit_grace_seconds=0.0
@@ -474,7 +496,7 @@ class TSharkDecoder:
     def records(self):
         if self.status!='NEW':raise DecoderError('DECODER_CANNOT_REPLAY')
         if file_signature(self.source)!=self.signature:raise DecoderError('SOURCE_CHANGED_BEFORE_DECODE')
-        self.status='RUNNING';self.started=time.monotonic();parser=PDMLParser(self.limits)
+        self.status='RUNNING';self.started=time.monotonic();parser=self.parser_type(self.limits)
         self.command=[str(self.executable),'-n','-l','-r',str(self.source),'-T','pdml',
                       '-c',str(self.limits.packet_count)]
         for key,value in PREFERENCES.items():self.command+=['-o',key+':'+value]

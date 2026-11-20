@@ -314,6 +314,61 @@ dẫn CLI trong runtime đã chuẩn bị, không tự triển khai Docker hoặ
 
 ## Kiểm thử / Tests
 
+### MQTT scenario labels và HDF5
+
+Operator đã duyệt `configs/mqtt-scenarios-v1.json` cho đúng sáu PCAP CICIoMT2024
+được pin SHA: Benign=0, MQTT Connect/Publish DDoS=1. Provenance là
+`DATASET_PROVIDED_SCENARIO`, nhãn yếu theo capture, **không phải packet ground
+truth độc lập**. Không lấy tên file hoặc traffic volume để tự suy nhãn. Policy
+SHA-256: `73dcd49552f65ce0205aecc973b615b5890ad380b124f06dfb801d2f90c36874`.
+`.gitattributes` giữ nguyên bytes của riêng policy này qua checkout Windows/Linux.
+
+`scenario-stream` chạy trên host có TShark, chỉ dùng stdlib; stdout là binary
+pipe. `scenario-export` chạy ở runtime có NumPy/h5py và ghi HDF5 theo batch.
+Trên board dùng image ARM64 hiện có cho writer, không cần cài TensorFlow vào
+Python host và không giữ thêm một cache flow toàn capture trên đĩa.
+
+Có thể nhận `.pcap.gz` để tiết kiệm chỗ trên thẻ nhớ. Producer kiểm SHA/size
+**của PCAP gốc sau giải nén**, CRC gzip và SHA riêng của file vận chuyển; không
+ghi bản raw giải nén ra đĩa. TShark đọc gzip trực tiếp theo [tài liệu chính thức](https://www.wireshark.org/docs/man-pages/tshark.html).
+Không thay packet, TCP state, thứ tự nguồn hoặc cách gán nhãn. Raw/gzip đã được
+đối chiếu tensor frames bằng fixture và TShark thực tế. Không đổi policy/source
+SHA đã duyệt thành SHA của file nén.
+
+```bash
+python -B scripts/run_flows.py scenario-stream --help
+python -B scripts/run_flows.py scenario-export --help
+python -B scripts/run_flows.py scenario-inspect --help
+python -B scripts/run_flows.py scenario-audit --help
+python -B -m unittest discover -s tests -p test_scenario_export.py -v
+```
+
+Chỉ full capture mới được export; không có tùy chọn lấy prefix để tạo dữ liệu
+training. Thiếu EOF/count/hash/trailer, sai policy hoặc nhãn, packet vượt giới
+hạn không xử lý được đều không tạo manifest COMPLETE. Window quarantine bị loại
+toàn bộ, kể cả lỗi ở packet sau n=20. Nhánh scenario đánh dấu protocol stack quá
+dài là không đủ điều kiện và quarantine global window, không cắt chuỗi rồi tạo
+features khác. Các profile parser/decoder cũ giữ guard hiện có.
+
+HDF5 dùng format riêng `nids-scenario-flow-shards/1.0.0`, cùng X/y/layout theo
+shard của pipeline hiện tại. Metadata giữ source SHA, policy SHA, nhãn yếu và
+`PUBLISHER_TRAIN`/`PUBLISHER_TEST`. Group identity dùng dataset cha + 5-tuple,
+không dùng capture ID để che connection overlap ở biên train/test. Core metadata
+vẫn UNKNOWN; nhãn scenario nằm ở wrapper riêng, không đi vào X.
+
+`scenario-inspect` kiểm hash/layout, provenance, nhãn, split và completion digest.
+`scenario-audit` kiểm connection/tensor trùng và xung đột nhãn giữa các nguồn.
+Không random-resplit official test. Validation phải lấy từ train; catalog cần
+xử lý overlap/dedup trước khi model được train. Vì vậy HDF5 mới vẫn ghi
+`training_ready=false`; legacy mapped-label catalog từ chối format scenario này.
+Chưa gọi đó là training dữ liệu MQTT hoặc tái sử dụng kết quả pilot làm train.
+
+Source map: `labeling/scenario.py` giữ policy/label binding;
+`flows/pcap_stream.py` giữ decoder → tensor;
+`storage/scenario.py` giữ binary pipe, HDF5 và reader;
+`data/scenario_audit.py` kiểm overlap giữa các split. Lệnh native và evidence
+nằm ngoài repo source trong task documentation.
+
 Lõi streaming thử nghiệm nằm ở `src/nids_ml/flows/streaming.py`: heap có giới hạn
 sắp theo timestamp/ordinal, SQLite chỉ giữ một window 10 giây, rồi tái dùng
 normalization, padding và n=20 của LUCID hiện có. Caller phải xử lý từng tensor;

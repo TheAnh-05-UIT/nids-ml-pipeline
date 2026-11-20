@@ -19,6 +19,9 @@ LAYOUT={'X':('<f4',(20,11,1)), 'y':('i1',()), 'group_id':('S64',()),
 
 
 class ShardWriter:
+    format=FORMAT
+    provenance=PROVENANCE
+    maximum_shards=2048
     def __init__(self,directory):
         self.directory=Path(directory); self.handle=None; self.buffer=[]; self.shards=[]; self.count=0; self.row=0
 
@@ -34,10 +37,10 @@ class ShardWriter:
         import h5py
         import numpy as np
         if self.handle is None:
-            require(len(self.shards)<2048,'SHARD_COUNT_CAP')
+            require(len(self.shards)<self.maximum_shards,'SHARD_COUNT_CAP')
             self.path=self.directory/('flows-%05d.h5'%len(self.shards))
             self.handle=h5py.File(self.path,'x'); self.row=0
-            self.handle.attrs['format']=FORMAT; self.handle.attrs['label_provenance']=PROVENANCE
+            self.handle.attrs['format']=self.format; self.handle.attrs['label_provenance']=self.provenance
             self.handle.attrs['independent_ground_truth_verified']=False
             for name,(dtype,tail) in LAYOUT.items():
                 self.handle.create_dataset(name,shape=(0,*tail),maxshape=(SHARD_ROWS,*tail),dtype=dtype,
@@ -112,15 +115,23 @@ class FlowShardReader:
     """Verify all shard identities, then yield a maximum of 256 rows per batch.
     Kiểm SHA/layout trước khi đọc; drain/close generator để đóng HDF5 khi dừng sớm.
     """
+    format=FORMAT
+    provenance=PROVENANCE
+    completion_status='COMPLETE_MAPPED_FLOW_SHARDS'
+    maximum_shards=2048
+
+    def _manifest_scope(self,m):
+        require(m['split']=='UNASSIGNED' and m['training_ready'] is False,'UNEXPECTED_TRAINING_READINESS')
+
     def __init__(self,directory):
         import h5py
         import numpy as np
         self.directory=Path(directory).absolute(); self.manifest=read_manifest(self.directory)
         m=self.manifest
-        require(m['format']==FORMAT and m['status']=='COMPLETE_MAPPED_FLOW_SHARDS','SHARD_MANIFEST_FORMAT')
-        require(m['label_provenance']==PROVENANCE and m['independent_ground_truth_verified'] is False,'SHARD_PROVENANCE')
-        require(m['split']=='UNASSIGNED' and m['training_ready'] is False,'UNEXPECTED_TRAINING_READINESS')
-        require(type(m['shards']) is list and 1<=len(m['shards'])<=2048,'SHARD_LIST_CAP')
+        require(m['format']==self.format and m['status']==self.completion_status,'SHARD_MANIFEST_FORMAT')
+        require(m['label_provenance']==self.provenance and m['independent_ground_truth_verified'] is False,'SHARD_PROVENANCE')
+        self._manifest_scope(m)
+        require(type(m['shards']) is list and 1<=len(m['shards'])<=self.maximum_shards,'SHARD_LIST_CAP')
         self.identities=[]; total=0
         for number,entry in enumerate(m['shards']):
             require(entry['filename']=='flows-%05d.h5'%number,'SHARD_FILENAME_OR_ORDER')
@@ -129,8 +140,8 @@ class FlowShardReader:
             require(path.stat().st_size==entry['bytes'] and path.stat().st_size<=64*1048576
                     and file_sha256(path)==entry['sha256'],'SHARD_SHA256_OR_SIZE')
             with h5py.File(path,'r') as handle:
-                require(set(handle)==set(LAYOUT) and handle.attrs.get('format')==FORMAT
-                        and handle.attrs.get('label_provenance')==PROVENANCE
+                require(set(handle)==set(LAYOUT) and handle.attrs.get('format')==self.format
+                        and handle.attrs.get('label_provenance')==self.provenance
                         and handle.attrs.get('independent_ground_truth_verified')==False,'SHARD_LAYOUT_OR_ATTRIBUTES')
                 for name,(dtype,tail) in LAYOUT.items():
                     require(isinstance(handle.get(name,getlink=True),h5py.HardLink),'UNSAFE_HDF5_LINK')
@@ -163,7 +174,7 @@ class FlowShardReader:
                             require(item['y']==int(batch['y'][i]) and item['group_id']==batch['group_id'][i].decode()
                                     and item['attack_type']==batch['attack_type'][i].decode()
                                     and item['tensor_sha256']==batch['tensor_sha256'][i].decode()
-                                    and item['label_provenance']==PROVENANCE
+                                    and item['label_provenance']==self.provenance
                                     and item['independent_ground_truth_verified'] is False,'BATCH_METADATA_MISMATCH')
                     yield batch
             require(file_signature(path)==signature and file_sha256(path)==entry['sha256'],'SHARD_CHANGED_DURING_READ')

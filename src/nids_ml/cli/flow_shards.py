@@ -5,6 +5,7 @@ import argparse
 from collections import Counter
 import json
 import sqlite3
+import sys
 from pathlib import Path
 
 
@@ -38,10 +39,52 @@ def main(argv=None):
     diagnostic.add_argument('--decoder-profile',choices=('standard','large-memory'),default='standard')
     diagnostic.add_argument('--output',required=True)
     diagnostic.add_argument('--preflight-only',action='store_true',help='Read/hash inputs and validate budgets; no process/output')
+    scenario_stream=sub.add_parser('scenario-stream',help='Approved full PCAP -> binary stdout pipe; no HDF5 dependencies on host')
+    scenario_export=sub.add_parser('scenario-export',help='Binary stdin -> scenario HDF5 in NumPy/h5py runtime')
+    scenario_inspect=sub.add_parser('scenario-inspect',help='Verify scenario HDF5 hashes, policy, labels and official split')
+    scenario_audit=sub.add_parser('scenario-audit',help='Audit parent connections/tensors across official splits; no resplitting')
+    for command in (scenario_stream,scenario_export,scenario_inspect,scenario_audit):
+        command.add_argument('--policy',required=True);command.add_argument('--policy-sha256',required=True)
+    for command in (scenario_stream,scenario_export):
+        command.add_argument('--source-id',required=True);command.add_argument('--output',required=True)
+    scenario_stream.add_argument('--pcap',required=True);scenario_stream.add_argument('--tshark',required=True)
+    scenario_stream.add_argument('--tshark-sha256',required=True)
+    scenario_stream.add_argument('--decoder-profile',choices=('standard','large-memory'),default='standard')
+    scenario_stream.add_argument('--preflight-only',action='store_true')
+    scenario_export.add_argument('--max-output-mib',type=int,default=1024)
+    scenario_inspect.add_argument('--dataset',required=True)
+    scenario_audit.add_argument('--dataset',nargs='+',required=True)
+    scenario_audit.add_argument('--output',required=True);scenario_audit.add_argument('--sqlite-mib',type=int,default=512)
     args=parser.parse_args(argv)
-    def progress(stage,records): print(json.dumps(dict(stage=stage,records=records)),flush=True)
+    def progress(stage,records):
+        print(json.dumps(dict(stage=stage,records=records)),flush=True,
+              file=sys.stderr if args.command=='scenario-stream' else sys.stdout)
     try:
-        if args.command=='diagnose-stream':
+        if args.command=='scenario-stream':
+            from nids_ml.flows.pcap_stream import stream_scenario
+            if sys.stdout.isatty() and not args.preflight_only:raise ValueError('BINARY_PIPE_OR_REDIRECT_REQUIRED')
+            result=stream_scenario(args.pcap,args.output,sys.stdout.buffer,policy_path=args.policy,
+                policy_sha=args.policy_sha256,source_id=args.source_id,tshark=args.tshark,
+                tshark_sha256=args.tshark_sha256,decoder_profile=args.decoder_profile,
+                progress=progress,preflight_only=args.preflight_only)
+            print(json.dumps(result,sort_keys=True),file=sys.stderr);return 0
+        elif args.command=='scenario-export':
+            from nids_ml.storage.scenario import export_scenario_pipe
+            result=export_scenario_pipe(sys.stdin.buffer,args.policy,args.policy_sha256,args.source_id,args.output,
+                                        max_output_mib=args.max_output_mib,progress=progress)
+        elif args.command=='scenario-inspect':
+            from nids_ml.storage.scenario import ScenarioShardReader
+            reader=ScenarioShardReader(args.dataset,args.policy,args.policy_sha256)
+            rows=sum(len(batch['y']) for batch in reader.batches())
+            if rows!=reader.manifest['samples']:raise ValueError('SCENARIO_INSPECT_COUNT')
+            result=dict(status='PASS_SCENARIO_SHARD_INSPECTION',samples=rows,
+                publisher_split=reader.manifest['publisher_split'],label_counts=reader.manifest['label_counts'],
+                label_provenance=reader.manifest['label_provenance'],training_ready=False,training=False)
+        elif args.command=='scenario-audit':
+            from nids_ml.data.scenario_audit import audit_scenario_sources
+            result=audit_scenario_sources(args.dataset,args.policy,args.policy_sha256,args.output,
+                sqlite_mib=args.sqlite_mib,progress=progress)
+        elif args.command=='diagnose-stream':
             from nids_ml.flows.pcap_stream import diagnose_stream
             result=diagnose_stream(args.pcap,args.output,expected_sha256=args.sha256,
                 expected_size=args.size_bytes,expected_records=args.expected_records,
@@ -69,8 +112,9 @@ def main(argv=None):
                 label_counts=reader.manifest['label_counts'],attack_type_counts=reader.manifest['attack_type_counts'],
                 split=reader.manifest['split'],training_ready=False,training=False)
         print(json.dumps(result,sort_keys=True)); return 0
-    except (ValueError,TypeError,KeyError,OSError,RuntimeError,ImportError,sqlite3.Error) as error:
-        print(json.dumps(dict(status='FAIL_CLOSED',error=str(error),training=False))); return 2
+    except (ValueError,TypeError,KeyError,OSError,EOFError,RuntimeError,ImportError,sqlite3.Error) as error:
+        print(json.dumps(dict(status='FAIL_CLOSED',error=str(error),training=False)),
+              file=sys.stderr if args.command=='scenario-stream' else sys.stdout); return 2
 
 
 if __name__=='__main__': raise SystemExit(main())

@@ -1,0 +1,79 @@
+{
+  "format": "nids-scenario-label-policy/1.0.0",
+  "dataset_id": "ciciomt2024-mqtt",
+  "label_provenance": "DATASET_PROVIDED_SCENARIO",
+  "independent_ground_truth_verified": false,
+  "approval": {
+    "status": "APPROVED_BY_OPERATOR",
+    "record_id": "mqtt-scenario-20261120",
+    "evidence": "Operator explicitly instructed to apply the scenario-label proposal after clarification: lam theo de xuat. Scope: six previously SHA-verified MQTT PCAPs only; weak labels; preserve official splits and exclude quarantined windows."
+  },
+  "sources": [
+    {
+      "source_id": "benign-test",
+      "file_name": "Benign_test.pcap",
+      "sha256": "711da100d96633d18d3d94aec074026bde88a3773e27b291ec81960c0b4aa99a",
+      "size_bytes": 98059593,
+      "records": 377536,
+      "publisher_split": "test",
+      "y": 0,
+      "attack_type": "Normal",
+      "max_lateness_ns": 1000000
+    },
+    {
+      "source_id": "benign-train",
+      "file_name": "Benign_train.pcap",
+      "sha256": "6b50aa998032d5848f395afb0284d26340e399b9ab8ef8b0432994c8afa5a6e3",
+      "size_bytes": 395000451,
+      "records": 1935680,
+      "publisher_split": "train",
+      "y": 0,
+      "attack_type": "Normal",
+      "max_lateness_ns": 13000000000
+    },
+    {
+      "source_id": "connect-test",
+      "file_name": "MQTT-DDoS-Connect_Flood_test.pcap",
+      "sha256": "e63d2de7ca115e603b1ffbe3355d316f6ae264628fdd57ac0abff104ea2efc8e",
+      "size_bytes": 354547102,
+      "records": 4189922,
+      "publisher_split": "test",
+      "y": 1,
+      "attack_type": "MQTT_DDoS_Connect_Flood",
+      "max_lateness_ns": 1000000
+    },
+    {
+      "source_id": "connect-train",
+      "file_name": "MQTT-DDoS-Connect_Flood_train.pcap",
+      "sha256": "bed90dc3d13118dd8ffeeadd3c5ac6a579a2053fee07443dc17f68735d34065c",
+      "size_bytes": 1474000046,
+      "records": 17295946,
+      "publisher_split": "train",
+      "y": 1,
+      "attack_type": "MQTT_DDoS_Connect_Flood",
+      "max_lateness_ns": 1000000
+    },
+    {
+      "source_id": "publish-test",
+      "file_name": "MQTT-DDoS-Publish_Flood_test.pcap",
+      "sha256": "721f84cf7da056b33f2c2a38de66cd663a5e1b4858847951d557beeebf60190a",
+      "size_bytes": 331111229,
+      "records": 840207,
+      "publisher_split": "test",
+      "y": 1,
+      "attack_type": "MQTT_DDoS_Publish_Flood",
+      "max_lateness_ns": 1000000
+    },
+    {
+      "source_id": "publish-train",
+      "file_name": "MQTT-DDoS-Publish_Flood_train.pcap",
+      "sha256": "09b9fba58269dcdc03b2de25c95460db0f7ba554bfa8a41ef5b2363995a8c1d6",
+      "size_bytes": 1556000060,
+      "records": 2754292,
+      "publisher_split": "train",
+      "y": 1,
+      "attack_type": "MQTT_DDoS_Publish_Flood",
+      "max_lateness_ns": 1000000
+    }
+  ]
+}

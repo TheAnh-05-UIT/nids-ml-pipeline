@@ -1,0 +1,3 @@
+# Keep the approved policy bytes identical across Windows and Linux checkouts.
+# Giữ nguyên bytes policy đã duyệt khi checkout trên Windows và Linux.
+configs/mqtt-scenarios-v1.json -text
