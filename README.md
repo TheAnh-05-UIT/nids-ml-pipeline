@@ -314,6 +314,45 @@ dẫn CLI trong runtime đã chuẩn bị, không tự triển khai Docker hoặ
 
 ## Kiểm thử / Tests
 
+Lõi streaming thử nghiệm nằm ở `src/nids_ml/flows/streaming.py`: heap có giới hạn
+sắp theo timestamp/ordinal, SQLite chỉ giữ một window 10 giây, rồi tái dùng
+normalization, padding và n=20 của LUCID hiện có. Caller phải xử lý từng tensor;
+không gom toàn bộ iterator vào RAM khi dùng capture lớn.
+Giới hạn lateness phải lấy từ audit từng capture; packet vượt giới hạn làm run
+thất bại. Các tensor tạm chỉ hợp lệ sau khi drain hết stream và status COMPLETE.
+
+```bash
+python -B -m unittest discover -s tests -p test_streaming_flow.py -v
+python -B scripts/validate_flow_extraction.py validate-stream \
+  --fixture configs/flow-extraction-synthetic.example.json \
+  --scratch artifacts/runs/synthetic-window-spool-01 --max-lateness-ns 0
+```
+
+Lệnh thứ hai cần scratch mới. Đây là **software validation**, chưa phải
+lệnh decode/export MQTT trên board. Lõi nhận `FeaturePacket` đã kiểm, chưa xử lý
+packet không đủ điều kiện/quarantine của toàn capture. Nhãn luôn UNKNOWN; không
+có HDF5 có nhãn, model hoặc train/test split mới được tạo bởi lõi này. Chưa chứng
+minh TShark đủ RAM cho Connect train 17,3 triệu packet; không dùng launcher cũ
+để vượt các giới hạn capture hiện tại.
+
+Đường tích hợp `scripts/run_flows.py diagnose-stream` dùng TShark liên tục, giữ mọi
+source ordinal để đặt anchor, loại toàn global window có packet malformed,
+truncated, fragment hoặc không xác định được transport an toàn. Chế độ mặc định
+chỉ đọc prefix 10.000 packet, ghi `report.json` và digest tensor; không lưu HDF5.
+Nhãn luôn UNKNOWN và `training_ready=false`. Đây là bước pilot tài nguyên trước
+khi xuất dữ liệu training; không dùng prefix như toàn bộ capture.
+
+```bash
+python -B scripts/run_flows.py diagnose-stream --help
+```
+
+CLI yêu cầu SHA/size/count của PCAP, SHA executable TShark, lateness và split
+nguồn `train`/`test`. `--preflight-only` chỉ kiểm/hash, không tạo process/output.
+`--whole-capture` phải chọn rõ mới kiểm EOF toàn capture. Profile streaming riêng
+không nới các profile decoder cũ; cap là giới hạn dừng, không phải bằng chứng đủ
+RAM/thời gian cho file 17 triệu packet. Lệnh pilot cho board và kết quả Windows
+lưu ngoài repo source trong task evidence.
+
 ```bash
 python -B scripts/validate_workspace.py
 python -B -m unittest discover -s tests -p test_demo_pipeline.py -v

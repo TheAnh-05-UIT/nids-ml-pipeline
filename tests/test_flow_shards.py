@@ -316,7 +316,10 @@ class LargeFlowDecoderTests(unittest.TestCase):
 
     def test_explicit_profile_keeps_legacy_limits_and_continuous_preferences(self):
         with tempfile.TemporaryDirectory(dir=ROOT/'artifacts/runs') as temp:
-            fixture=make_capture(Path(temp))
+            # Fixture is tiny; isolate its setup from the host's free-space level.
+            # Fixture nhỏ; mô phỏng capacity lúc tạo, không nới guard của source.
+            with patch('shutil.disk_usage',return_value=SimpleNamespace(free=10*1024**3)):
+                fixture=make_capture(Path(temp))
             decoder=LargeFlowDecoder(fixture['source'],expected_records=4,
                 expected_sha256=file_sha256(fixture['source']),expected_size=fixture['source'].stat().st_size,
                 tshark=fixture['tool'],tshark_sha256=fixture['tool_sha'])

@@ -23,10 +23,33 @@ def main(argv=None):
         cmd.add_argument('--workspace',default=str(Path(__file__).resolve().parents[3]))
     inspect=sub.add_parser('inspect',help='Verify all hashes/layouts and read every row in bounded batches')
     inspect.add_argument('--dataset',required=True); inspect.add_argument('--batch-size',type=int,default=64)
+    diagnostic=sub.add_parser('diagnose-stream',help='PCAP -> rolling flow digest/counts; UNKNOWN only, no HDF5/training')
+    diagnostic.add_argument('--pcap',required=True)
+    diagnostic.add_argument('--sha256',required=True)
+    diagnostic.add_argument('--size-bytes',required=True,type=int)
+    diagnostic.add_argument('--expected-records',required=True,type=int)
+    diagnostic.add_argument('--tshark',required=True)
+    diagnostic.add_argument('--tshark-sha256',required=True)
+    diagnostic.add_argument('--max-lateness-ns',required=True,type=int)
+    diagnostic.add_argument('--source-split',required=True,choices=('train','test'))
+    mode=diagnostic.add_mutually_exclusive_group()
+    mode.add_argument('--packets',type=int,default=10000,help='Diagnostic prefix; maximum 100000, default 10000')
+    mode.add_argument('--whole-capture',action='store_true',help='Explicit full EOF diagnostic; native full-size RAM feasibility not established')
+    diagnostic.add_argument('--decoder-profile',choices=('standard','large-memory'),default='standard')
+    diagnostic.add_argument('--output',required=True)
+    diagnostic.add_argument('--preflight-only',action='store_true',help='Read/hash inputs and validate budgets; no process/output')
     args=parser.parse_args(argv)
     def progress(stage,records): print(json.dumps(dict(stage=stage,records=records)),flush=True)
     try:
-        if args.command=='decode':
+        if args.command=='diagnose-stream':
+            from nids_ml.flows.pcap_stream import diagnose_stream
+            result=diagnose_stream(args.pcap,args.output,expected_sha256=args.sha256,
+                expected_size=args.size_bytes,expected_records=args.expected_records,
+                tshark=args.tshark,tshark_sha256=args.tshark_sha256,
+                max_lateness_ns=args.max_lateness_ns,source_split=args.source_split,
+                prefix_records=None if args.whole_capture else args.packets,
+                decoder_profile=args.decoder_profile,progress=progress,preflight_only=args.preflight_only)
+        elif args.command=='decode':
             from nids_ml.flows.mapped import prepare_cache
             result=prepare_cache(args.mapping,args.workspace,args.output,tshark=args.tshark,
                                  tshark_sha256=args.tshark_sha256,progress=progress,decoder_profile=args.decoder_profile)
