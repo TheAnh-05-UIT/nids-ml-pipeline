@@ -210,6 +210,15 @@ class StreamingLargeMemoryLimits(StreamingDecodeLimits):
     decoder_rss_bytes:int=6*1024**3
 
 
+@dataclass(frozen=True)
+class StreamingConnectTrainLimits(StreamingDecodeLimits):
+    """Explicit budget for the 17-million-packet approved Connect train capture.
+    Budget riêng Connect train lớn; không đổi các profile đã nghiệm thu.
+    """
+    decoder_rss_bytes:int=10*1024**3
+    timeout_seconds:float=64800.0
+
+
 class _StreamingScope:
     maximum_records=30000000
     rss_exit_grace_seconds=5.0
@@ -298,3 +307,28 @@ class StreamingCaptureDecoder(_StreamingScope,LargeFlowDecoder):
 
 class StreamingLargeMemoryDecoder(_StreamingScope,LargeMemoryFlowDecoder):
     limits_type=StreamingLargeMemoryLimits
+
+
+class StreamingConnectTrainDecoder(StreamingLargeMemoryDecoder):
+    """Keep one continuous TCP state with a 14 GiB start/2 GiB runtime host reserve.
+    Giữ TCP state liên tục; yêu cầu RAM host đủ và fail closed khi thiếu probe.
+    """
+    limits_type=StreamingConnectTrainLimits
+
+    def __init__(self,*args,**kwargs):
+        if available_memory_bytes()<14*1024**3:
+            raise DecoderError('CONNECT_TRAIN_REQUIRES_14_GIB_AVAILABLE')
+        super().__init__(*args,**kwargs)
+        if self.stats['minimum_host_available_bytes']<14*1024**3:
+            raise DecoderError('CONNECT_TRAIN_REQUIRES_14_GIB_AVAILABLE')
+
+    def _host_memory_guard(self):
+        super()._host_memory_guard()
+        if self.stats['minimum_host_available_bytes']<2*1024**3:
+            raise DecoderError('CONNECT_TRAIN_HOST_MEMORY_BELOW_2_GIB')
+
+    def report(self):
+        result=super().report()
+        result['memory_policy'].update(profile='connect-train',minimum_start_available_bytes=14*1024**3,
+            minimum_runtime_available_bytes=2*1024**3)
+        return result

@@ -49,7 +49,7 @@ def main(argv=None):
         command.add_argument('--source-id',required=True);command.add_argument('--output',required=True)
     scenario_stream.add_argument('--pcap',required=True);scenario_stream.add_argument('--tshark',required=True)
     scenario_stream.add_argument('--tshark-sha256',required=True)
-    scenario_stream.add_argument('--decoder-profile',choices=('standard','large-memory'),default='standard')
+    scenario_stream.add_argument('--decoder-profile',choices=('standard','large-memory','connect-train'),default='standard')
     scenario_stream.add_argument('--preflight-only',action='store_true')
     scenario_export.add_argument('--max-output-mib',type=int,default=1024)
     scenario_inspect.add_argument('--dataset',required=True)

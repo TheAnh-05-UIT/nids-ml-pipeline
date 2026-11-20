@@ -355,6 +355,20 @@ không thuộc 11 features hoặc metadata được chọn. Không cắt/đổi 
 không đổi nhãn, không bỏ packet. Guard packet bytes, XML depth, attribute/field
 count và selected-field size vẫn giữ nguyên; parser legacy vẫn từ chối input đó.
 
+Profile `scenario-stream --decoder-profile connect-train` dành riêng cho source
+`connect-train` đã duyệt, official train của MQTT Connect Flood. Profile yêu cầu
+Linux với **14 GiB MemAvailable** trước khi bắt đầu; dừng nếu sampled host reserve
+dưới **2 GiB**, TShark RSS vượt **10 GiB**, hoặc decoder/window spool vượt **18 giờ**.
+SQLite scratch riêng giới hạn **128 MiB**; Python guard vẫn 512 MiB. Các profile
+standard/large-memory giữ nguyên. RPi5 8 GB không đáp ứng profile này.
+
+Đây là thay budget tài nguyên, không thay features, nhãn, thứ tự hoặc chia nhỏ
+PCAP để reset TCP state. Full source vẫn phải đủ ordinals, đúng hash/count và EOF.
+RSS là sampled abort threshold, không phải hard OS memory limit. Unit fixtures
+kiểm tensor frames giống nhau giữa profile standard và connect-train; chưa phải
+bằng chứng toàn capture 17 triệu packet đã PASS trên native ARM64. Helper native
+v3, chuyển gzip trực tiếp và resource evidence nằm trong task documentation.
+
 HDF5 dùng format riêng `nids-scenario-flow-shards/1.0.0`, cùng X/y/layout theo
 shard của pipeline hiện tại. Metadata giữ source SHA, policy SHA, nhãn yếu và
 `PUBLISHER_TRAIN`/`PUBLISHER_TEST`. Group identity dùng dataset cha + 5-tuple,

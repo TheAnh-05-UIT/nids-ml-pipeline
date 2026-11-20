@@ -14,7 +14,7 @@ from nids_ml.flows.mapped import protocol_scope,require
 from nids_ml.flows.streaming import SourceRecord, StreamingLimits, WindowSpool
 from nids_ml.labeling.contracts import canonical_bytes
 from nids_ml.pcap.decoder import DecoderError,ScenarioPDMLParser,regular_file,file_sha256,file_signature
-from nids_ml.pcap.whole import StreamingCaptureDecoder, StreamingLargeMemoryDecoder
+from nids_ml.pcap.whole import StreamingCaptureDecoder, StreamingLargeMemoryDecoder,StreamingConnectTrainDecoder
 
 
 class ScenarioCaptureDecoder(StreamingCaptureDecoder):
@@ -22,6 +22,10 @@ class ScenarioCaptureDecoder(StreamingCaptureDecoder):
 
 
 class ScenarioLargeMemoryDecoder(StreamingLargeMemoryDecoder):
+    parser_type=ScenarioPDMLParser
+
+
+class ScenarioConnectTrainDecoder(StreamingConnectTrainDecoder):
     parser_type=ScenarioPDMLParser
 
 
@@ -180,19 +184,23 @@ def stream_scenario(source,output,binary_stream,*,policy_path,policy_sha,source_
     Chỉ toàn nguồn: gửi tensor kèm nhãn scenario đã duyệt sang writer HDF5.
     """
     from nids_ml.labeling.contracts import canonical_bytes
-    from nids_ml.labeling.scenario import load_policy,select_source,label_tensor,ScenarioStreamingLimits
+    from nids_ml.labeling.scenario import load_policy,select_source,label_tensor,ScenarioStreamingLimits,ConnectTrainStreamingLimits
     from nids_ml.storage.scenario import write_frame,pipe_header,PIPE_FORMAT
     policy,digest=load_policy(policy_path,policy_sha);rule=select_source(policy,source_id)
-    require(decoder_profile in ('standard','large-memory') and type(preflight_only) is bool,
+    require(decoder_profile in ('standard','large-memory','connect-train') and type(preflight_only) is bool,
             'SCENARIO_DECODER_PROFILE_OR_PREFLIGHT')
+    if decoder_profile=='connect-train':
+        require(rule['source_id']=='connect-train' and rule['publisher_split']=='train'
+                and rule['attack_type']=='MQTT_DDoS_Connect_Flood' and rule['y']==1,'CONNECT_TRAIN_PROFILE_SCOPE')
     output=Path(output).absolute()
     require(not output.exists() and not output.is_symlink() and output.parent.is_dir()
             and not any(p.is_symlink() for p in output.parents),'FRESH_SCENARIO_SCRATCH_REQUIRED')
-    limits=ScenarioStreamingLimits()
+    limits=ConnectTrainStreamingLimits() if decoder_profile=='connect-train' else ScenarioStreamingLimits()
     require(shutil.disk_usage(output.parent).free>=limits.sqlite_bytes+limits.min_free_bytes,
             'SCENARIO_SCRATCH_START_RESERVE')
     source_identity=verify_scenario_transport(source,rule)
-    decoder_type=ScenarioCaptureDecoder if decoder_profile=='standard' else ScenarioLargeMemoryDecoder
+    decoder_type={'standard':ScenarioCaptureDecoder,'large-memory':ScenarioLargeMemoryDecoder,
+                  'connect-train':ScenarioConnectTrainDecoder}[decoder_profile]
     decoder=decoder_type(source,expected_records=rule['records'],expected_sha256=source_identity['sha256'],
         expected_size=source_identity['size_bytes'],tshark=tshark,tshark_sha256=tshark_sha256)
     context=CaptureContext('capture-'+rule['sha256'][:16],rule['sha256'],'scenario-flows','whole-capture')

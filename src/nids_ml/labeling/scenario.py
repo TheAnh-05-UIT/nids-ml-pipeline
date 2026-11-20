@@ -88,6 +88,23 @@ class ScenarioStreamingLimits(StreamingLimits):
         return self
 
 
+@dataclass(frozen=True)
+class ConnectTrainStreamingLimits(ScenarioStreamingLimits):
+    """Keep Connect train scratch within 128 MiB and match the explicit 18-hour decoder.
+    Giới hạn scratch Connect train, giữ timeout đồng bộ với decoder riêng.
+    """
+    sqlite_bytes:int=128*1024**2
+    timeout_seconds:int=64800
+
+    def validate(self):
+        require(type(self.sqlite_bytes) is int and self.sqlite_bytes==128*1024**2
+                and type(self.timeout_seconds) is int and self.timeout_seconds==64800,
+                'CONNECT_TRAIN_FIXED_SPOOL_BUDGET')
+        values=asdict(self);values.update(sqlite_bytes=256*1024**2,timeout_seconds=43200)
+        ScenarioStreamingLimits(**values).validate()
+        return self
+
+
 def label_tensor(tensor,policy,policy_sha,rule):
     core=tensor.metadata
     require(tensor.shape==(20,11,1) and len(tensor.tensor_bytes)==880,'SCENARIO_TENSOR_SHAPE')
