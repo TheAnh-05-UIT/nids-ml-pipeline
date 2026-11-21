@@ -431,6 +431,50 @@ dừng. Khả năng đủ tài nguyên cho toàn bộ MQTT chưa được xác m
 chứng minh đã chạy model. Format scenario tách biệt với mapped-label catalog:
 các lệnh `train/calibrate/evaluate` và batch Swarm hiện tại vẫn chỉ nhận format
 mapped. Cần tích hợp training adapter scenario sau khi kiểm catalog thực tế.
+
+### MQTT temporal catalog: traffic tương lai trong cùng testbed
+
+`scenario-temporal-catalog` là protocol bổ sung đã được operator chọn sau khi
+rà soát sáu PCAP: official train nằm trước official test theo thời gian. Giữ
+`scenario-catalog` để đối chiếu theo connection holdout; không ghi đè catalog cũ.
+
+```bash
+python3 -B scripts/run_training.py scenario-temporal-catalog \
+  --dataset BENIGN_TRAIN BENIGN_TEST CONNECT_TRAIN CONNECT_TEST PUBLISH_TRAIN PUBLISH_TEST \
+  --policy configs/mqtt-scenarios-v1.json --policy-sha256 POLICY_SHA256 \
+  --gap-seconds 30 --output artifacts/runs/NEW_TEMPORAL_CATALOG
+python3 -B scripts/run_training.py scenario-temporal-inspect \
+  --catalog artifacts/runs/NEW_TEMPORAL_CATALOG \
+  --policy configs/mqtt-scenarios-v1.json --policy-sha256 POLICY_SHA256
+```
+
+Đường dẫn ở trên là placeholders; cần đủ sáu HDF5 native đã kiểm SHA. Không cần
+decode lại PCAP. Protocol mới giữ publisher test membership, lấy validation ở
+15% cuối **khoảng thời gian window của official train trong từng family**;
+đây không phải cam kết validation có đúng 15% số flow. Window train phải kết
+thúc trước biên validation ít nhất 30 giây; window validation/train phải kết
+thúc trước first eligible test packet ít nhất 30 giây. Gap không được nhỏ hơn
+10 giây window cộng lateness lớn nhất của policy. Không random-resplit test.
+
+Cho phép cùng parent 5-tuple ở các split; vẫn giao mỗi parent train cho duy nhất
+một client. Mỗi client phải có Normal và hai family MQTT. Loại các pattern đa
+group/nhãn, group lẫn nhãn và mọi tensor trùng còn lại. Với tensor trùng cùng
+parent, ưu tiên giữ test rồi validation rồi train, để không đưa bản sao test
+vào train. Reader đối chiếu thời gian và membership từng row với metadata HDF5
+gốc; thay thời gian trong index rồi tính lại checksum vẫn không qua kiểm này.
+
+Scope là **future traffic theo từng scenario trong cùng testbed**, không phải
+unseen connection, unseen capture hoặc unseen attack. Đây là lựa chọn protocol,
+không chứng minh các phiên TCP xuyên biên đã độc lập. Test sau lọc vẫn là tập con
+của official test. Chưa biết số train phục hồi cho tới khi catalog native PASS.
+
+Format mới `nids-scenario-temporal-catalog/1.0.0` được đọc riêng bằng
+`TemporalScenarioPartitionReader`; các lệnh train/Swarm mapped-only vẫn từ chối.
+SQLite bị chặn ở 1,25 GiB (1.280 MiB), cùng các giới hạn scratch/RSS/time hiện có.
+Gói native dựng trên tmpfs 3 GiB, container RAM 4 GiB, yêu cầu MemAvailable ít
+nhất 6 GiB và ổ trống ít nhất 2.320 MiB trước khi bắt đầu. Lưu SQLite đóng và
+kiểm SHA xuống ổ xong mới inspect bản lưu. Vượt giới hạn thì dừng, không tự xóa
+raw/HDF5/catalog cũ hoặc giảm khoảng đệm. Chưa có kết quả native của protocol mới.
 `tests/test_scenario_catalog.py` dùng fixtures tổng hợp, không phải MQTT metrics.
 
 Lõi streaming thử nghiệm nằm ở `src/nids_ml/flows/streaming.py`: heap có giới hạn

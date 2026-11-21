@@ -14,6 +14,7 @@ Kiểm thuật toán và các trường hợp lỗi bằng fixtures synthetic nh
 | `test_flow_labels` | Rule approval/evidence validation and UNKNOWN/MIXED handling |
 | `test_flow_hdf5`, `test_ordered_hdf5` | HDF5 format, integrity, labels and publication safety |
 | `test_flow_cnn` | CNN contracts, forward, checkpoints and tiny synthetic learning |
+| `test_temporal_catalog` | Official MQTT membership, causal validation, full-window embargo, exact dedup, client ownership, portable HDF5 time lineage and separate CLI/format guards |
 
 Fixtures live in small `*_fixtures.py` modules, not in raw dataset copies. Temporary
 files are owned by each test. Fixture metrics must not be reported as Edge-IIoTset

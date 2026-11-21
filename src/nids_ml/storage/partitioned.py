@@ -18,6 +18,11 @@ class PartitionReader:
     completion_status='COMPLETE_CONNECTION_CATALOG'
     catalog_identity=staticmethod(identity)
     catalog_audit=staticmethod(audit)
+    extra_index_columns=''
+
+    def validate_selection(self,handle,rows,split):
+        """Optional artifact-specific metadata checks before a batch is yielded."""
+        pass
 
     def manifest_scope(self,m):
         pass
@@ -122,7 +127,7 @@ class PartitionReader:
                     db.create_function('nids_order',1,lambda value:hashlib.sha256((prefix+value).encode()).digest())
                 order='nids_order(sha),id' if epoch is not None else 'dataset,shard,row_no'
                 index_hint='' if epoch is not None else ' INDEXED BY location'
-                with closing(db.execute('SELECT id,dataset,shard,row_no,sha,group_id,y,family FROM samples'+index_hint+' WHERE '+where+' ORDER BY '+order,args)) as cursor:
+                with closing(db.execute('SELECT id,dataset,shard,row_no,sha,group_id,y,family'+self.extra_index_columns+' FROM samples'+index_hint+' WHERE '+where+' ORDER BY '+order,args)) as cursor:
                     while True:
                         rows=cursor.fetchmany(batch_size)
                         if not rows:break
@@ -140,6 +145,7 @@ class PartitionReader:
                             ordered=sorted(selected);indices=[item[0] for item in ordered]
                             require(len(set(indices))==len(indices) and 0<=indices[0]<=indices[-1]<entry['samples'],'CATALOG_LOCATION')
                             values=handle['X'][indices]
+                            self.validate_selection(handle,[item[2] for item in ordered],split)
                             for value,(_,position,row) in zip(values,ordered):
                                 y=int(handle['y'][row[3]]);group=handle['group_id'][row[3]].decode()
                                 sha=handle['tensor_sha256'][row[3]].decode();family=handle['attack_type'][row[3]].decode()
@@ -214,3 +220,70 @@ class ScenarioPartitionReader(PartitionReader):
         require(reader.manifest['source_id']==source['source_id']
                 and reader.manifest['publisher_split']==source['publisher_split'],'SCENARIO_LOCAL_SOURCE_LINEAGE')
         return reader
+
+
+class TemporalScenarioPartitionReader(ScenarioPartitionReader):
+    """Explicit temporal scope; never accepted by connection-only entrypoints."""
+    extra_index_columns=',anchor_ns,end_ns,first_ns,last_ns,publisher'
+
+    def __init__(self,directory,workspace=None,*,policy_path,policy_sha,**kwargs):
+        from nids_ml.data.temporal_catalog import FORMAT,identity
+        from nids_ml.labeling.scenario import load_policy,PROVENANCE
+        self.policy,self.policy_sha=load_policy(policy_path,policy_sha)
+        self.policy_path=policy_path;self.format=FORMAT;self.provenance=PROVENANCE
+        self.completion_status='COMPLETE_TEMPORAL_SCENARIO_CATALOG'
+        self.catalog_identity=identity;self.catalog_audit=self.audit_database
+        PartitionReader.__init__(self,directory,workspace,**kwargs)
+
+    def manifest_scope(self,m):
+        from nids_ml.data.temporal_catalog import POLICY,SCOPE,parameters,VALIDATION_PERCENT
+        from nids_ml.labeling.scenario import FAMILIES
+        require(len(self.policy['sources'])==6 and {(s['attack_type'],s['publisher_split']) for s in self.policy['sources']}
+                =={(f,p) for f in FAMILIES for p in ('train','test')},'TEMPORAL_POLICY_SIX_SOURCES')
+        self.rules={r['source_id']:r for r in self.policy['sources']}
+        require(m['policy_sha256']==self.policy_sha and m['split_policy']==POLICY and m['scope']==SCOPE
+                and m['parent_connection_independence'] is False and type(m['seed']) is int
+                and 0<=m['seed']<2**31-1,'TEMPORAL_MANIFEST_SCOPE')
+        t=m['temporal'];parameters(self.policy,t['gap_seconds'])
+        require(t['validation_percent']==VALIDATION_PERCENT and set(t)=={'gap_seconds','validation_percent','bounds'}
+                and set(t['bounds'])==set(FAMILIES),'TEMPORAL_PARAMETERS')
+        for bound in t['bounds'].values():
+            require(set(bound)=={'train_start_ns','train_end_ns','train_last_packet_ns','validation_start_ns','test_start_ns'}
+                    and all(type(v) is int and 0<=v<2**63 for v in bound.values()),'TEMPORAL_MANIFEST_BOUNDS')
+            require(bound['validation_start_ns']==bound['train_start_ns']+
+                (bound['train_end_ns']-bound['train_start_ns'])*(100-VALIDATION_PERCENT)//100,
+                'TEMPORAL_VALIDATION_CUTOFF')
+        require(len(m['sources'])==6 and {s['source_id'] for s in m['sources']}==set(self.rules)
+                and all(s['owner'] is None and s['publisher_split']==self.rules[s['source_id']]['publisher_split']
+                        for s in m['sources']),'TEMPORAL_SOURCE_SCOPE')
+
+    def audit_database(self,db):
+        from nids_ml.data.temporal_catalog import audit_catalog
+        audit_catalog(db,self.manifest['temporal'])
+        require({r[0] for r in db.execute('SELECT DISTINCT dataset FROM samples')}<=set(self.inputs),
+                'TEMPORAL_UNKNOWN_DATASET')
+        for dataset_id,source in self.inputs.items():
+            rule=self.rules[source['source_id']]
+            require(not db.execute('SELECT 1 FROM samples WHERE dataset=? AND (publisher!=? OR family!=? OR y!=?) LIMIT 1',
+                (dataset_id,rule['publisher_split'],rule['attack_type'],rule['y'])).fetchone(),'TEMPORAL_SOURCE_MEMBERSHIP')
+        families=[dict(split=s,family=f,samples=n) for s,f,n in db.execute(
+            'SELECT split,family,count(*) FROM samples GROUP BY split,family ORDER BY split,family')]
+        require(families==self.manifest['attack_type_counts'],'TEMPORAL_FAMILY_COUNTS')
+
+    def validate_selection(self,handle,rows,split):
+        from nids_ml.data.temporal_catalog import row_split
+        from nids_ml.labeling.contracts import strict_json
+        temporal=self.manifest['temporal'];gap=temporal['gap_seconds']*10**9
+        encoded=handle['metadata'][[row[3] for row in rows]]
+        for row,data in zip(rows,encoded):
+            meta=strict_json(data.tobytes());core=meta['core']
+            rule=self.rules[self.inputs[row[1]]['source_id']]
+            times=tuple(core[k] for k in ('anchor_timestamp_ns','nominal_end_timestamp_ns','first_timestamp_ns','last_timestamp_ns'))
+            require(tuple(row[8:12])==times and row[12]==rule['publisher_split']
+                    and core['capture']['capture_sha256']==rule['sha256']
+                    and meta['source_id']==rule['source_id'] and meta['publisher_split']==rule['publisher_split']
+                    and meta['policy_sha256']==self.policy_sha and meta['group_id']==row[5]
+                    and meta['tensor_sha256']==row[4] and meta['y']==row[6] and meta['attack_type']==row[7],
+                    'TEMPORAL_ROW_METADATA_LINEAGE')
+            require(row_split(rule['publisher_split'],times[0],times[1],temporal['bounds'][rule['attack_type']],gap)==split,
+                    'TEMPORAL_ACTUAL_WINDOW_SPLIT')
