@@ -17,6 +17,8 @@ from nids_ml.storage.scenario import ScenarioShardReader
 FORMAT='nids-scenario-connection-catalog/1.0.0'
 POLICY=('KEEP_PUBLISHER_TEST_MEMBERSHIP; EXCLUDE_AMBIGUOUS_TENSOR_PATTERNS_AND_MIXED_GROUPS; '
         'EXCLUDE_TRAIN_GROUPS_SEEN_IN_PUBLISHER_TEST; GROUP_VALIDATION_FROM_PUBLISHER_TRAIN_15_PERCENT')
+_INGEST_COMMIT_ROWS=8192
+_INGEST_PROGRESS_ROWS=4096
 
 
 def identity(manifest):
@@ -68,7 +70,7 @@ def build_scenario_catalog(directories,workspace,output,*,policy_path,policy_sha
         previous=db.execute('PRAGMA temp_store_directory').fetchone()
         db.execute('PRAGMA temp_store_directory='+db.execute('SELECT quote(?)',(str(output),)).fetchone()[0])
         db.set_progress_handler(budget.sqlite_progress,20000)
-        hot=OrderedDict()
+        hot=OrderedDict();pending_commit=0;reported=0
         for dataset_id,reader in sorted(readers,key=lambda item:item[0]):
             m=reader.manifest;shard=row=observed=0;labels=Counter()
             with closing(reader.batches(256,metadata=True)) as batches:
@@ -88,11 +90,20 @@ def build_scenario_catalog(directories,workspace,output,*,policy_path,policy_sha
                         else:hot.move_to_end(key)
                         row+=1
                         if row==m['shards'][shard]['samples']:shard+=1;row=0
-                    db.commit();budget.check()
-                    if progress and total%4096==0:progress('scenario_catalog_ingest',total)
+                    # Bound transactions, but keep resource checks on every read batch.
+                    # Gom commit để giảm fsync thẻ nhớ; vẫn kiểm tài nguyên mỗi batch.
+                    pending_commit+=len(batch['y'])
+                    if pending_commit>=_INGEST_COMMIT_ROWS:
+                        db.commit();pending_commit=0
+                    budget.check()
+                    if progress and total-reported>=_INGEST_PROGRESS_ROWS:
+                        progress('scenario_catalog_ingest',total);reported=total
             require(observed==m['samples'] and dict(labels)==m['label_counts'],'SCENARIO_CATALOG_INPUT_COUNTS')
             require(shard==len(m['shards']) and row==0 and file_sha256(reader.directory/'manifest.json')==dataset_id,
                     'SCENARIO_CATALOG_SOURCE_CHANGED')
+            db.commit();pending_commit=0;budget.check()
+            if progress:
+                progress('scenario_catalog_source_complete',total);reported=total
             try:hint=reader.directory.relative_to(Path(workspace).resolve()).as_posix()
             except ValueError:hint=str(reader.directory)
             sources.append(dict(dataset_id=dataset_id,source_id=m['source_id'],publisher_split=m['publisher_split'],

@@ -111,6 +111,48 @@ class ScenarioCatalogTests(unittest.TestCase):
         self.assertEqual(first['catalog_id'],second['catalog_id'])
         with self.assertRaises(ValueError):self.build()
 
+    def test_larger_transactions_preserve_membership_and_batch_resource_checks(self):
+        self.sources('exclusions')
+        from nids_ml.data import scenario_catalog as module
+        from nids_ml.alignment.full import Budget
+        connect=sqlite3.connect;reader_type=module.ScenarioShardReader;check=Budget.check
+        def small_batches(*args):
+            reader=reader_type(*args);batches=reader.batches
+            reader.batches=lambda size=256,metadata=False:batches(2,metadata=metadata)
+            return reader
+        outputs=[];commits=[]
+        for limit,name in ((1,'per-batch'),(8,'grouped-commit')):
+            statements=[]
+            def traced(*args,**kwargs):
+                db=connect(*args,**kwargs);db.set_trace_callback(statements.append)
+                self.assertEqual(db.execute('PRAGMA synchronous').fetchone()[0],2)
+                self.assertEqual(db.execute('PRAGMA journal_mode').fetchone()[0],'delete')
+                return db
+            with patch.object(module,'_INGEST_COMMIT_ROWS',limit), \
+                 patch.object(module,'ScenarioShardReader',side_effect=small_batches), \
+                 patch.object(module.sqlite3,'connect',side_effect=traced), \
+                 patch.object(Budget,'check',autospec=True,side_effect=check) as checked:
+                result=self.build(name)
+                self.assertGreaterEqual(checked.call_count,18)
+            with closing(connect(self.work/'artifacts/runs'/name/'catalog.sqlite')) as db:
+                rows=db.execute('SELECT id,dataset,shard,row_no,sha,group_id,y,family,publisher,split,client '
+                                'FROM samples ORDER BY id').fetchall()
+            outputs.append((result['statistics'],result['split_counts'],result['client_counts'],rows))
+            commits.append(sum(s=='COMMIT' for s in statements))
+        self.assertEqual(outputs[0],outputs[1])
+        self.assertLess(commits[1],commits[0])
+
+    def test_progress_crosses_source_boundaries_without_exact_modulo_match(self):
+        self.sources();events=[]
+        with patch('nids_ml.data.scenario_catalog._INGEST_PROGRESS_ROWS',5):
+            build_scenario_catalog(self.directories,self.work,self.work/'artifacts/runs/progress',
+                policy_path=self.policy_path,policy_sha=self.policy_sha,
+                progress=lambda stage,count:events.append((stage,count)))
+        ingested=[n for stage,n in events if stage=='scenario_catalog_ingest']
+        completed=[n for stage,n in events if stage=='scenario_catalog_source_complete']
+        self.assertEqual(ingested,[6,12,18,24,30,36])
+        self.assertEqual(completed,[6,12,18,24,30,36])
+
     def test_duplicate_patterns_mixed_groups_and_test_overlap_excluded(self):
         self.sources('exclusions');m=self.build();s=m['statistics']
         self.assertEqual(s['collapsed_identical_within_group_split'],1)
