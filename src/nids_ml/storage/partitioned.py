@@ -30,7 +30,7 @@ class PartitionReader:
     def source_reader(self,path):
         return FlowShardReader(path)
 
-    def __init__(self,directory,workspace=None,*,sources=None,scratch=None,budget=None):
+    def __init__(self,directory,workspace=None,*,sources=None,scratch=None,budget=None,progress=None):
         self.directory=Path(directory).absolute();self.manifest=read_manifest(self.directory)
         self.workspace=Path(workspace or Path(__file__).resolve().parents[3]).resolve()
         m=self.manifest
@@ -48,6 +48,8 @@ class PartitionReader:
         self.overrides={} if sources is None else dict(sources)
         self.scratch=None if scratch is None else Path(scratch).absolute()
         self.budget=budget
+        require(progress is None or callable(progress),'READER_PROGRESS_CALLBACK')
+        self.progress=progress
         require(set(self.overrides)<=set(self.inputs),'UNKNOWN_SOURCE_OVERRIDE')
         self.readers={}
         with readonly(self.index) as db:
@@ -117,7 +119,8 @@ class PartitionReader:
         require(file_signature(self.index)==self.signature
                 and (large_index or file_sha256(self.index)==self.manifest['index']['sha256']),
                 'CATALOG_CHANGED_BEFORE_READ')
-        handles=OrderedDict();used=set()
+        handles=OrderedDict();used=set();seen=reported=0
+        expected=sum(self.counts(split,client).values())
         try:
             with self.batch_index() as db:
                 # The Python callback only hashes trusted scalar IDs; no executable input.
@@ -144,19 +147,24 @@ class PartitionReader:
                             handles.move_to_end(key);handle=handles[key]
                             ordered=sorted(selected);indices=[item[0] for item in ordered]
                             require(len(set(indices))==len(indices) and 0<=indices[0]<=indices[-1]<entry['samples'],'CATALOG_LOCATION')
-                            values=handle['X'][indices]
+                            fields={name:handle[name][indices] for name in ('X','y','group_id','tensor_sha256','attack_type')}
                             self.validate_selection(handle,[item[2] for item in ordered],split)
-                            for value,(_,position,row) in zip(values,ordered):
-                                y=int(handle['y'][row[3]]);group=handle['group_id'][row[3]].decode()
-                                sha=handle['tensor_sha256'][row[3]].decode();family=handle['attack_type'][row[3]].decode()
+                            for offset,(value,(_,position,row)) in enumerate(zip(fields['X'],ordered)):
+                                y=int(fields['y'][offset]);group=fields['group_id'][offset].decode()
+                                sha=fields['tensor_sha256'][offset].decode();family=fields['attack_type'][offset].decode()
                                 require(y==row[6] and group==row[5] and sha==row[4] and family==row[7],
                                         'CATALOG_ROW_VS_SHARD_MISMATCH')
                                 require(np.isfinite(value).all() and ((value>=0)&(value<=1)).all()
                                     and hashlib.sha256(value.astype('<f4',copy=False).tobytes()).hexdigest()==sha,'INVALID_BATCH_TENSOR')
                                 x[position]=value
+                        seen+=len(rows)
+                        if self.progress is not None and (seen-reported>=8192 or seen==expected):
+                            self.progress(dict(stage='catalog_read',split=split,client=client,samples=seen,total=expected))
+                            reported=seen
                         yield dict(X=x,y=np.asarray([r[6] for r in rows],dtype='<f4').reshape(-1,1),
                             sample_id=[r[0] for r in rows],sha=[r[4] for r in rows],group_id=[r[5] for r in rows],
                             attack_type=[r[7] for r in rows])
+            require(seen==expected,'CATALOG_READER_OBSERVED_COUNT')
             require(file_signature(self.index)==self.signature
                     and (large_index or file_sha256(self.index)==self.manifest['index']['sha256']),
                     'CATALOG_CHANGED_DURING_READ')

@@ -1,5 +1,10 @@
 # Flow-Based CNN for Network Intrusion Detection
 
+Full eligible-pool Edge DDoS + MQTT pilot: see
+[scope, native plan preparation and training CLI](src/nids_ml/adapters/swarm/full_pool/README.md).
+The current approved pilot covers TCP/ICMP/Connect/Publish plus Normal; HTTP/UDP
+remain outstanding. Native combined training is not yet verified.
+
 Edge-IIoTset research pipeline: **PCAP → flow → HDF5 → CNN**, hướng tới demo Swarm Learning trên Raspberry Pi 5 và Orange Pi 5 Pro. This is a research demo, not a production intrusion-detection system.
 
 Nhánh mới phân loại **Normal/Attack** và báo recall theo attack family. Pilot

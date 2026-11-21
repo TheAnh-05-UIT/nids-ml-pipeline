@@ -18,6 +18,8 @@ class CNNController(Controller):
     """Reuse fresh-job fencing, single create, read retries, journal and receipt barrier.
     Tái sử dụng guards job mới, không retry create mơ hồ, không mở round sau thiếu receipt.
     """
+    maximum_rounds=2
+    transfer_context=staticmethod(context)
     def __init__(self, *args, template=None, **kwargs):
         super().__init__(*args, **kwargs)
         self.template = CNNTemplate() if template is None else template
@@ -35,7 +37,7 @@ class CNNController(Controller):
         ensure(isinstance(c,dict) and set(c) == {'version','round_id','aggregator','weights_sha256','weights_b64'},
                'SL_COMMITTED_SCHEMA')
         version = c['version']
-        ensure(type(version) is int and 0 <= version <= 2, 'SL_COMMITTED_VERSION')
+        ensure(type(version) is int and 0 <= version <= self.maximum_rounds, 'SL_COMMITTED_VERSION')
         if version == 0:
             ensure(c['round_id'] is None and c['aggregator'] is None
                    and c['weights_sha256'] == self.cfg.initial_sha256, 'SL_BOOTSTRAP_MISMATCH')
@@ -43,7 +45,7 @@ class CNNController(Controller):
         else:
             ensure(type(c['round_id']) is int and c['round_id'] == version
                    and c['aggregator'] == self.members[(version-1)%2], 'SL_COMMITTED_CONTEXT')
-            ctx = context(self.epoch, version, c['aggregator'], 'global')
+            ctx = self.transfer_context(self.epoch, version, c['aggregator'], 'global')
         try:
             raw = unpack_message(c, ctx, template=self.template)
             tensor = cnn_digest(raw, ctx, self.template)
@@ -88,7 +90,7 @@ class CNNController(Controller):
                         self._health(deadline)
                         ensure(self._round(self._current(deadline),rid)['status'] == 'synchronized', 'SN_NOT_SYNCHRONIZED')
                         committed = next(iter(sessions.values()))['committed']
-                        ctx = context(self.epoch,rid,committed['aggregator'],'global')
+                        ctx = self.transfer_context(self.epoch,rid,committed['aggregator'],'global')
                         expected = cnn_digest(unpack_message(committed,ctx,template=self.template),ctx,self.template)
                         ensure(all(rec['global_tensor_sha256'] == expected for rec in receipts.values()),
                                'CLIENT_GLOBAL_NOT_APPLIED')

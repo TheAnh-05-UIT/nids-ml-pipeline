@@ -27,6 +27,8 @@ def main(argv=None):
     temporal_catalog.add_argument('--gap-seconds',type=int,default=30)
     temporal_inspect=commands.add_parser('scenario-temporal-inspect',help='Inspect temporal catalog and HDF5 time lineage; no model training')
     temporal_inspect.add_argument('--catalog',required=True)
+    for command in (inspect,scenario_inspect,temporal_inspect):
+        command.add_argument('--progress-jsonl',help='Write bounded progress to a new JSONL file; stdout remains final JSON')
     for command in (scenario_catalog,scenario_inspect,temporal_catalog,temporal_inspect):
         command.add_argument('--policy',required=True);command.add_argument('--policy-sha256',required=True)
     training=commands.add_parser('train');training.add_argument('--catalog',required=True)
@@ -55,6 +57,7 @@ def main(argv=None):
     for command in (prepare,inspect,training,scenario_catalog,scenario_inspect,temporal_catalog,temporal_inspect,*calibration_commands):
         command.add_argument('--workspace',default=str(Path(__file__).resolve().parents[3]))
     args=parser.parse_args(argv)
+    progress_stream=None
     try:
         sources={}
         for value in getattr(args,'source',[]):
@@ -93,18 +96,29 @@ def main(argv=None):
                     threshold_artifact=args.threshold_artifact,evaluate_test_approved=args.evaluate_test_approved,**common)
         else:
             from nids_ml.storage.partitioned import PartitionReader,ScenarioPartitionReader,TemporalScenarioPartitionReader
+            if args.progress_jsonl:
+                progress_path=Path(args.progress_jsonl).absolute()
+                if any(p.is_symlink() for p in (progress_path,*progress_path.parents)):
+                    raise ValueError('PROGRESS_PATH_SYMLINK')
+                progress_stream=progress_path.open('x',encoding='utf-8')
+            def progress(item):
+                if progress_stream:
+                    progress_stream.write(json.dumps(item,sort_keys=True)+'\n');progress_stream.flush()
+            progress(dict(stage='inspection_start'))
             if args.command in ('scenario-inspect','scenario-temporal-inspect'):
                 reader_type=TemporalScenarioPartitionReader if args.command=='scenario-temporal-inspect' else ScenarioPartitionReader
                 reader=reader_type(args.catalog,args.workspace,sources=sources,
-                                               policy_path=args.policy,policy_sha=args.policy_sha256)
-            else:reader=PartitionReader(args.catalog,args.workspace,sources=sources)
+                                  policy_path=args.policy,policy_sha=args.policy_sha256,progress=progress)
+            else:reader=PartitionReader(args.catalog,args.workspace,sources=sources,progress=progress)
             observed={}
             for split in ('train','validation','test'):
+                progress(dict(stage='inspection_split_start',split=split))
                 counts=Counter()
                 for batch in reader.batches(split,args.client,batch_size=args.batch_size):
                     counts.update(str(int(y)) for y in batch['y'][:,0])
                 if dict(counts)!=reader.counts(split,args.client):raise ValueError('INSPECT_OBSERVED_COUNTS')
                 observed[split]=dict(counts)
+                progress(dict(stage='inspection_split_complete',split=split,samples=sum(counts.values())))
             status={'scenario-inspect':'PASS_SCENARIO_CATALOG_INSPECTION','scenario-temporal-inspect':'PASS_TEMPORAL_SCENARIO_CATALOG_INSPECTION'}.get(args.command,'PASS_PARTITION_INSPECTION')
             result=dict(status=status,catalog_id=reader.manifest['catalog_id'],
                 client=args.client,observed=observed,training=False,native_ARM64='NOT VERIFIED')
@@ -114,6 +128,8 @@ def main(argv=None):
         print(json.dumps(result,sort_keys=True,allow_nan=False));return 0
     except (ValueError,TypeError,KeyError,OSError,RuntimeError,ImportError,sqlite3.Error) as error:
         print(json.dumps(dict(status='FAIL_CLOSED',error=str(error),automatic_cleanup=False)));return 2
+    finally:
+        if progress_stream is not None:progress_stream.close()
 
 
 if __name__=='__main__':raise SystemExit(main())

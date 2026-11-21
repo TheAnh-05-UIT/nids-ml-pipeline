@@ -14,6 +14,7 @@ sys.path.insert(0,str(ROOT/'src'))
 parser=argparse.ArgumentParser()
 for name in ('sn-source','sl-source','initial','ready','stop'):parser.add_argument('--'+name,required=True)
 parser.add_argument('--batch-config',help='Optional catalog-bound batch job; old pilot fixture stays unchanged')
+parser.add_argument('--full-config',help='Optional compact full-pool job; synthetic loopback fixture only')
 args=parser.parse_args()
 sys.path[:0]=[str(Path(args.sn_source).resolve()),str(Path(args.sl_source).resolve())]
 import uvicorn
@@ -27,6 +28,10 @@ if args.batch_config:
     from nids_ml.adapters.swarm.batch_data import CatalogTemplate
     batch_cfg=load_batch_job(args.batch_config)
     template=CatalogTemplate(batch_cfg['catalog_id'])
+if args.full_config:
+    if args.batch_config:raise ValueError('Choose exactly one fixture profile')
+    from nids_ml.adapters.swarm.full_job import load_job,FullTemplate
+    template=FullTemplate(load_job(args.full_config)['plan_id'])
 
 state=MemoryState(peer_ttl_seconds=60)
 sock=socket.socket();sock.bind(('127.0.0.1',0));sock.listen(128)

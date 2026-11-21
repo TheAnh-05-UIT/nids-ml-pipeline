@@ -1,6 +1,13 @@
 # Tests / Kiểm thử
 
 Test algorithms and failure cases with small synthetic fixtures.
+
+Full-pool additions: `test_partitioned_read_speed.py`, `test_full_training_plan.py`,
+`test_native_full_plan.py` and `test_full_swarm.py`. The last suite includes an
+owned 12-round loopback exchange when `NIDS_SERVICE_PYTHON` points to a prepared
+FastAPI/Uvicorn Python and the existing sibling SDK source trees are available.
+Run with the validated Python 3.11 ML runtime; service Python can be separate.
+No remote SSH, Docker or dataset training is performed. Unit fixtures are synthetic.
 Kiểm thuật toán và các trường hợp lỗi bằng fixtures synthetic nhỏ.
 
 | Group / Nhóm | Scope / Phạm vi |

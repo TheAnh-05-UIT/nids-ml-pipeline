@@ -69,7 +69,7 @@ def validate_artifact(raw, expected_context=None, *, template=None):
     if expected_context is not None:
         require(type(expected_context) is dict and set(expected_context) ==
                 {'sn_instance_id', 'round_id', 'producer_peer_id', 'role'}, 'CONTEXT_FIELDS')
-        context(expected_context['sn_instance_id'], expected_context['round_id'],
+        getattr(spec,'context_validator',context)(expected_context['sn_instance_id'], expected_context['round_id'],
                 expected_context['producer_peer_id'], expected_context['role'])
         if expected_context['role']=='global':require(header['training_step']==0,'GLOBAL_TRAINING_STEP')
     require(canonical_bytes(header['context']) == canonical_bytes(expected_context), 'CONTEXT_MISMATCH')
